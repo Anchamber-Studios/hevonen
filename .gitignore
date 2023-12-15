@@ -1,0 +1,9 @@
+go.work.sum
+
+**/tmp
+**/go.sum
+**/.env
+**/__debug*
+**/node_modules
+
+frontend/pages/**/*_templ.go

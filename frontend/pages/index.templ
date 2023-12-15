@@ -1,0 +1,25 @@
+package pages
+
+import (
+	l "github.com/anchamber-studios/hevonen/frontend/pages/layouts"
+	c "github.com/anchamber-studios/hevonen/frontend/pages/components"
+)
+
+templ Index() {
+    @l.BasicLayout(l.LayoutProps{
+        Title: "Hevonen - Home",
+        BrandName: "Hevonen",
+        Content: content(),
+        BreadCrumbs: []c.BreadCrumbProp{
+            {
+                Text: "Home",
+                Href: "/",
+            },
+        },
+    })
+}
+
+templ content() {
+    <h1>Index</h1>
+    <p>Index page</p>
+}
