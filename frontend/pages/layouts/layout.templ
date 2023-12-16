@@ -32,15 +32,16 @@ templ BasicLayout(props LayoutProps) {
  				href="https://cdn.jsdelivr.net/npm/tw-elements/dist/css/tw-elements.min.css"
 			/>
 			<!-- Tailwind CSS config -->
-		</head>
+            <script src="https://cdn.tailwindcss.com/3.3.0"></script>
+        </head>
 		<body>
             @components.Header(components.HeaderProps{BreadCrumbs: props.BreadCrumbs})
             @components.SideNav("Hevonen")
-			@props.Content
-			<script src="https://cdn.tailwindcss.com/3.3.0"></script>
+            <main id="main">
+			    @props.Content
+            </main>
 			<script src="/public/js/app.js"></script>
-			<script src="https://cdn.jsdelivr.net/npm/tw-elements/dist/js/tw-elements.umd.min.js"></script>
-		</body>
+		    </body>
 	</html>
 }
 

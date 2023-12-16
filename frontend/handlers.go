@@ -6,8 +6,17 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+const (
+	HX_REQUEST_HEADER = "hx-request"
+)
+
 func index(c echo.Context) error {
-	return pages.Index().Render(c.Request().Context(), c.Response().Writer)
+	cc := c.(*CustomContext)
+	hxRequest := cc.Request().Header.Get(HX_REQUEST_HEADER)
+	if hxRequest == "true" {
+		return pages.Index().Render(c.Request().Context(), c.Response().Writer)
+	}
+	return pages.IndexWL().Render(c.Request().Context(), c.Response().Writer)
 }
 
 func memberList(c echo.Context) error {
@@ -29,5 +38,9 @@ func memberList(c echo.Context) error {
 			Phone:     member.Phone,
 		})
 	}
-	return m.MemberList(props).Render(c.Request().Context(), c.Response().Writer)
+	hxRequest := cc.Request().Header.Get(HX_REQUEST_HEADER)
+	if hxRequest == "true" {
+		return m.MemberList(props).Render(c.Request().Context(), c.Response().Writer)
+	}
+	return m.MemberListWL(props).Render(c.Request().Context(), c.Response().Writer)
 }

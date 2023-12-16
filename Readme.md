@@ -14,6 +14,13 @@ Simplify some of the organization and tasks a riding school has to do on a daily
 - riding plan
 
 
+## Architecture/Design Decision
+
+### 2023/12/16 - Filtering/Sorting/Paging
+
+Since the tables will not contain too much entries for one club, all the entries will be pushed to the frontend and filtering/sorting will happen on the frontend side. This avoids unecessary roundtrips from frontend -> backend -> service -> database for small amounts of data.
+
+
 ## Tech Stack
 
 - [golang](https://go.dev/) - just wanted to get try out a new language for me and golang has a low barrier to get started
@@ -22,6 +29,7 @@ Simplify some of the organization and tasks a riding school has to do on a daily
 - [htmx](https://htmx.org/) - jump on the new hype train!
 - postgreSQL - stable and established db with good services for a free tier. Don't need any fancy unproven stuff for the DB for now.
 - [tailwindCSS](https://tailwindcss.com/) - keept it to the standard since I'm not a frontend dev
+- Web Components - use the html standard instead of a framework
 
 
 ## Setup

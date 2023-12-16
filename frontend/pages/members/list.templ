@@ -10,7 +10,7 @@ type MemberListProps struct {
 }
 
 type Member struct {
-    ID string
+	ID        string
 	FirstName string
 	LastName  string
 	Email     string
@@ -18,6 +18,10 @@ type Member struct {
 }
 
 templ MemberList(props MemberListProps) {
+	@content(props)
+}
+
+templ MemberListWL(props MemberListProps) {
 	@l.BasicLayout(l.LayoutProps{
         Title: "Hevonen - Members",
         BrandName: "Hevonen",
@@ -35,41 +39,51 @@ templ MemberList(props MemberListProps) {
     })
 }
 
+script table(members []Member) {
+    // const basicData = {
+    //     rows: [],
+    //     columns: [ 'ID', 'First Name', 'Last Name', 'Email', 'Phone']
+    // }
+    const basicData = {
+        columns: [
+            { label: 'ID', field: 'ID', sort: true },
+            { label: 'First Name', field: 'FirstName', sort: true },
+            { label: 'Last Name', field: 'LastName', sort: true },
+            { label: 'Email', field: 'Email', sort: true },
+            { label: 'Phone', field: 'Phone', sort: true },
+        ],
+        rows: members
+    };
+    const instance = new te.Datatable(document.getElementById('datatable'), basicData);
+    document.getElementById('datatable-search-input').addEventListener('input', (e) => {
+    instance.search(e.target.value);
+});
+}
+
 templ content(props MemberListProps) {
 	<section>
 		if props.Members == nil || len(props.Members) == 0 {
-            <div class="h-screen flex items-center justify-center">
-            <div class="flex flex-col items-center">
-                @c.AngryFace()
-                <h2 class="text-2xl font-bold">No members found</h2>
-            </div>
-            </div>
-		} else {
-            <div class="flex flex-row-reverse p-2">
-                @c.Button(c.ButtonProps{Text: "Add Member"})
-            </div>
-			<div data-te-datatable-init>
-				<table>
-					<thead>
-						<tr>
-							<th>First Name</th>
-							<th>Last Name</th>
-							<th>Email</th>
-							<th>Phone</th>
-						</tr>
-					</thead>
-					<tbody>
-						for _, member := range props.Members {
-							<tr>
-								<td>{ member.FirstName }</td>
-								<td>{ member.LastName }</td>
-								<td>{ member.Email }</td>
-								<td>{ member.Phone }</td>
-							</tr>
-						}
-					</tbody>
-				</table>
+			<div class="h-screen flex items-center justify-center">
+				<div class="flex flex-col items-center">
+					@c.AngryFace()
+					<h2 class="text-2xl font-bold">No members found</h2>
+				</div>
 			</div>
+		} else {
+			<div class="flex justify-between p-2">
+				<input
+ 					id="datatable-search-input"
+ 					type="search"
+ 					class="block min-w-0 max-w-md flex-auto rounded border border-solid border-neutral-300 bg-transparent bg-clip-padding px-3 py-[0.25rem] text-base font-normal leading-[1.6] text-neutral-700 outline-none transition duration-200 ease-in-out focus:z-[3] focus:border-primary focus:text-neutral-700 focus:shadow-[inset_0_0_0_1px_rgb(59,113,202)] focus:outline-none dark:border-neutral-600 dark:text-neutral-200 dark:placeholder:text-neutral-200 dark:focus:border-primary"
+ 					placeholder="Search"
+ 					aria-label="Search"
+ 					aria-describedby="button-addon1"
+				/>
+				@c.Button(c.ButtonProps{Text: "Add Member"})
+			</div>
+			<div id="datatable"></div>
+			<script src="https://cdn.jsdelivr.net/npm/tw-elements/dist/js/tw-elements.umd.min.js"></script>
+			@table(props.Members)
 		}
 	</section>
 }
