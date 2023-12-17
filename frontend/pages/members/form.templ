@@ -1,0 +1,91 @@
+package members;
+
+import (
+	l "github.com/anchamber-studios/hevonen/frontend/pages/layouts"
+	c "github.com/anchamber-studios/hevonen/frontend/pages/components"
+)
+
+type MemberFormProps struct {
+}
+
+templ NewForm(props MemberFormProps) {
+	@newMemberForm(props)
+}
+
+templ NewFormWL(props MemberFormProps) {
+	@l.BasicLayout(l.LayoutProps{
+        Title: "Hevonen - New Member",
+        BrandName: "Hevonen",
+        Content: newMemberForm(props),
+        BreadCrumbs: []c.BreadCrumbProp{
+            {
+                Text: "Home",
+                Href: "/",
+            },
+            {
+                Text: "Members",
+                Href: "/members",
+            },
+            {
+                Text: "New",
+                Href: "/members/new",
+            },
+        },
+    })
+}
+
+templ newMemberForm(props MemberFormProps) {
+	<form class="p-2 w-full max-w-[1024px]" hx-post="/members">
+		<div class="flex flex-wrap -mx-3 mb-6">
+			@c.TextInput(c.InputProps{
+            ID: "firstName",
+            Label: "First Name",
+            Placeholder: "Max",
+            Value: "",
+        })
+			@c.TextInput(c.InputProps{
+            ID: "middleName",
+            Label: "Middle Name",
+            Placeholder: "",
+            Value: "",
+        })
+			@c.TextInput(c.InputProps{
+            ID: "lastName",
+            Label: "Last Name",
+            Placeholder: "Mustermann",
+            Value: "",
+        })
+		</div>
+		<div class="flex flex-wrap -mx-3 mb-6">
+			@c.EmailInput(c.InputProps{
+            ID: "email",
+            Label: "Email",
+            Placeholder: "max.musterman@example.io",
+            Value: "",
+        })
+			@c.TelInput(c.InputProps{
+            ID: "phone",
+            Label: "Phone",
+            Placeholder: "+49 123 456789",
+            Value: "",
+        })
+		</div>
+		<div class="flex flex-wrap -mx-3 mb-6">
+			@c.NumberInput(c.InputProps{
+            ID: "height",
+            Label: "Height",
+            Placeholder: "",
+            Value: "",
+        })
+			@c.NumberInput(c.InputProps{
+            ID: "weight",
+            Label: "Weight",
+            Placeholder: "",
+            Value: "",
+        })
+		</div>
+		<div class="md:flex md:items-center">
+			@c.Button(c.ButtonProps{Text: "Create"})
+		</div>
+	</form>
+}

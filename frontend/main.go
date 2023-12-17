@@ -45,6 +45,8 @@ func main() {
 
 	e.GET("/", index)
 	e.GET("/members", memberList)
+	e.POST("/members", postNewMember)
+	e.GET("/members/new", memberNew)
 
 	address := fmt.Sprintf("%s:%s", config.Host, config.Port)
 	if config.Tls.Enabled {

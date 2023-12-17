@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/anchamber-studios/hevonen/frontend/pages"
 	m "github.com/anchamber-studios/hevonen/frontend/pages/members"
+	"github.com/anchamber-studios/hevonen/services/members/client"
 	"github.com/labstack/echo/v4"
 )
 
@@ -43,4 +44,35 @@ func memberList(c echo.Context) error {
 		return m.MemberList(props).Render(c.Request().Context(), c.Response().Writer)
 	}
 	return m.MemberListWL(props).Render(c.Request().Context(), c.Response().Writer)
+}
+
+func memberNew(c echo.Context) error {
+	cc := c.(*CustomContext)
+	hxRequest := cc.Request().Header.Get(HX_REQUEST_HEADER)
+	if hxRequest == "true" {
+		return m.NewForm(m.MemberFormProps{}).Render(c.Request().Context(), c.Response().Writer)
+	}
+	return m.NewFormWL(m.MemberFormProps{}).Render(c.Request().Context(), c.Response().Writer)
+}
+
+func postNewMember(c echo.Context) error {
+	cc := c.(*CustomContext)
+	member := m.Member{}
+	if err := c.Bind(&member); err != nil {
+		c.Logger().Errorf("Unable to bind member: %v\n", err)
+		return c.String(500, "Unable to bind member")
+	}
+	loc, err := cc.Config.Clients.Members.CreateMember(client.MemberCreate{
+		FirstName: member.FirstName,
+		LastName:  member.LastName,
+		Email:     member.Email,
+		Phone:     member.Phone,
+		Height:    member.Height,
+		Weight:    member.Weight,
+	})
+	if err != nil {
+		c.Logger().Errorf("Unable to add member: %v\n", err)
+		return c.String(500, "Unable to add member")
+	}
+	return c.Redirect(302, loc)
 }

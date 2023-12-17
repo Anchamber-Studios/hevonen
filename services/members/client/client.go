@@ -1,6 +1,7 @@
 package client
 
 import (
+	"bytes"
 	"encoding/json"
 	"net/http"
 )
@@ -20,4 +21,17 @@ func (c MemberClient) GetMembers() ([]Member, error) {
 		return nil, err
 	}
 	return members, nil
+}
+
+func (c MemberClient) CreateMember(member MemberCreate) (string, error) {
+	memberJson, err := json.Marshal(member)
+	if err != nil {
+		return "", err
+	}
+	res, err := http.Post(c.Url, "application/json", bytes.NewReader(memberJson))
+	if err != nil {
+		return "", err
+	}
+	location := res.Header.Get("Location")
+	return location, nil
 }
