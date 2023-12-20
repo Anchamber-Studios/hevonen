@@ -54,7 +54,6 @@ func main() {
 
 	// middleware
 	e.Use(middleware.CORS())
-	e.Use(middleware.CSRF())
 	e.Use(middleware.RequestID())
 	e.Use(middleware.Logger())
 	e.Use(customContext(pool, config))

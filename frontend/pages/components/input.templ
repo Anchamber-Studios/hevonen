@@ -79,6 +79,7 @@ templ input(props InputProps, t string) {
 		<input
  			value={ props.Value }
  			class={ inputClass(props.Error, props.Disabled) }
+            name={ props.ID }
  			id={ props.ID }
  			placeholder={ props.Placeholder }
             readonly={ strconv.FormatBool(props.Disabled)  }
@@ -89,6 +90,7 @@ templ input(props InputProps, t string) {
 		<input
  			value={ props.Value }
  			class={ inputClass(props.Error, props.Disabled) }
+            name={ props.ID }
  			id={ props.ID }
  			placeholder={ props.Placeholder }
             required={ strconv.FormatBool(props.Required)  }

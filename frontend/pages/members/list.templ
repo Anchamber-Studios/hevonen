@@ -20,7 +20,19 @@ type Member struct {
 	Weight    int
 }
 
+var bcList []c.BreadCrumbProp = []c.BreadCrumbProp{
+	{
+		Text: "Home",
+		Href: "/",
+	},
+	{
+		Text: "Members",
+		Href: "/members",
+	},
+}
+
 templ MemberList(props MemberListProps) {
+    @c.BreadCrumbs(bcList)
 	@memberTable(props)
 }
 
@@ -29,16 +41,7 @@ templ MemberListWL(props MemberListProps) {
         Title: "Hevonen - Members",
         BrandName: "Hevonen",
         Content: memberTable(props),
-        BreadCrumbs: []c.BreadCrumbProp{
-            {
-                Text: "Home",
-                Href: "/",
-            },
-            {
-                Text: "Members",
-                Href: "/members",
-            },
-        },
+        BreadCrumbs: bcList,
     })
 }
 

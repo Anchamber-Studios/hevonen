@@ -48,11 +48,12 @@ func memberList(c echo.Context) error {
 
 func memberNew(c echo.Context) error {
 	cc := c.(*CustomContext)
+	csrf := c.Get("csrf").(string)
 	hxRequest := cc.Request().Header.Get(HX_REQUEST_HEADER)
 	if hxRequest == "true" {
-		return m.NewForm(m.MemberFormProps{}).Render(c.Request().Context(), c.Response().Writer)
+		return m.NewForm(csrf, m.MemberFormProps{}).Render(c.Request().Context(), c.Response().Writer)
 	}
-	return m.NewFormWL(m.MemberFormProps{}).Render(c.Request().Context(), c.Response().Writer)
+	return m.NewFormWL(csrf, m.MemberFormProps{}).Render(c.Request().Context(), c.Response().Writer)
 }
 
 func postNewMember(c echo.Context) error {

@@ -37,7 +37,9 @@ func main() {
 	e.Static("/public", "public")
 
 	e.Use(middleware.CORS())
-	e.Use(middleware.CSRF())
+	e.Use(middleware.CSRFWithConfig(middleware.CSRFConfig{
+		TokenLookup: "form:csrf",
+	}))
 	e.Use(middleware.Secure())
 	e.Use(middleware.RequestID())
 	e.Use(middleware.Logger())
