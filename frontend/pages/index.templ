@@ -5,7 +5,15 @@ import (
 	c "github.com/anchamber-studios/hevonen/frontend/pages/components"
 )
 
+var bcIndex []c.BreadCrumbProp = []c.BreadCrumbProp{
+	{
+		Text: "Home",
+		Href: "/",
+	},
+}
+
 templ Index() {
+    @c.BreadCrumbs(bcIndex)
     @content()
 }
 
@@ -14,12 +22,7 @@ templ IndexWL() {
         Title: "Hevonen - Home",
         BrandName: "Hevonen",
         Content: content(),
-        BreadCrumbs: []c.BreadCrumbProp{
-            {
-                Text: "Home",
-                Href: "/",
-            },
-        },
+        BreadCrumbs: bcIndex,
     })
 }
 
