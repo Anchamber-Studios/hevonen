@@ -23,7 +23,7 @@ func index(c echo.Context) error {
 func memberList(c echo.Context) error {
 	cc := c.(*CustomContext)
 	props := m.MemberListProps{
-		Members: []m.Member{},
+		Members: []client.Member{},
 	}
 	members, err := cc.Config.Clients.Members.GetMembers()
 	if err != nil {
@@ -31,12 +31,13 @@ func memberList(c echo.Context) error {
 		m.MemberList(props).Render(c.Request().Context(), c.Response().Writer)
 	}
 	for _, member := range members {
-		props.Members = append(props.Members, m.Member{
-			ID:        member.ID,
-			FirstName: member.FirstName,
-			LastName:  member.LastName,
-			Email:     member.Email,
-			Phone:     member.Phone,
+		props.Members = append(props.Members, client.Member{
+			ID:         member.ID,
+			FirstName:  member.FirstName,
+			MiddleName: member.MiddleName,
+			LastName:   member.LastName,
+			Email:      member.Email,
+			Phone:      member.Phone,
 		})
 	}
 	hxRequest := cc.Request().Header.Get(HX_REQUEST_HEADER)
@@ -58,19 +59,13 @@ func memberNew(c echo.Context) error {
 
 func postNewMember(c echo.Context) error {
 	cc := c.(*CustomContext)
-	member := m.Member{}
+	member := client.MemberCreate{}
 	if err := c.Bind(&member); err != nil {
 		c.Logger().Errorf("Unable to bind member: %v\n", err)
 		return c.String(500, "Unable to bind member")
 	}
-	loc, err := cc.Config.Clients.Members.CreateMember(client.MemberCreate{
-		FirstName: member.FirstName,
-		LastName:  member.LastName,
-		Email:     member.Email,
-		Phone:     member.Phone,
-		Height:    member.Height,
-		Weight:    member.Weight,
-	})
+	c.Logger().Errorf("POST /members: MemberCreate%v\n", member)
+	loc, err := cc.Config.Clients.Members.CreateMember(member)
 	if err != nil {
 		c.Logger().Errorf("Unable to add member: %v\n", err)
 		return c.String(500, "Unable to add member")

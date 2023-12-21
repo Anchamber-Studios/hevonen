@@ -3,39 +3,14 @@ package main
 import (
 	"fmt"
 	"log"
-	"os"
-	"strconv"
 
+	"github.com/anchamber-studios/hevonen/services/members/config"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/sqids/sqids-go"
 )
-
-type TlsConfig struct {
-	Enabled bool
-	Key     string
-	Cert    string
-}
-type Auth struct {
-	ClientId     string
-	ClientSecret string
-}
-type DB struct {
-	Url      string
-	Port     string
-	Database string
-	User     string
-	Password string
-}
-type Config struct {
-	Port string
-	Host string
-	Tls  TlsConfig
-	Auth Auth
-	DB   DB
-}
 
 func main() {
 	// configuration
@@ -44,59 +19,31 @@ func main() {
 		log.Println("Error loading .env file")
 	}
 
-	config := loadConfig()
+	conf := config.LoadConfig()
 
 	e := echo.New()
 
 	// check db on startup
-	pool := setupDb(config, e.Logger)
+	pool := setupDb(conf, e.Logger)
 	defer pool.Close()
 
 	// middleware
 	e.Use(middleware.CORS())
 	e.Use(middleware.RequestID())
 	e.Use(middleware.Logger())
-	e.Use(customContext(pool, config))
+	e.Use(customContext(pool, conf))
 
 	// handlers
 	e.GET("/members", list)
 	e.POST("/members", new)
 	e.GET("/members/:memberId", details)
 
-	address := fmt.Sprintf("%s:%s", config.Host, config.Port)
-	if config.Tls.Enabled {
-		e.Logger.Fatal(e.StartTLS(address, config.Tls.Cert, config.Tls.Key))
+	address := fmt.Sprintf("%s:%s", conf.Host, conf.Port)
+	if conf.Tls.Enabled {
+		e.Logger.Fatal(e.StartTLS(address, conf.Tls.Cert, conf.Tls.Key))
 	} else {
 		e.Logger.Fatal(e.Start(address))
 	}
-}
-
-func loadConfig() Config {
-	config := Config{
-		Port: getOrDefault("PORT", "8443"),
-		Host: getOrDefault("HOST", "[::1]"),
-		Tls: TlsConfig{
-			Enabled: false,
-			Key:     getOrDefault("TLS_KEY", "certs/key.pem"),
-			Cert:    getOrDefault("TLS_CERT", "certs/cert.pem"),
-		},
-		Auth: Auth{
-			ClientId:     os.Getenv("CLIENT_ID"),
-			ClientSecret: os.Getenv("CLIENT_SECRET"),
-		},
-		DB: DB{
-			Url:      os.Getenv("DB_URL"),
-			Port:     os.Getenv("DB_PORT"),
-			Database: os.Getenv("DB_DATABASE"),
-			User:     os.Getenv("DB_USER"),
-			Password: os.Getenv("DB_PASSWORD"),
-		},
-	}
-
-	if enabled, err := strconv.ParseBool(getOrDefault("TLS_ENABLED", "false")); err == nil && enabled {
-		config.Tls.Enabled = true
-	}
-	return config
 }
 
 func setupIdConversion() (*sqids.Sqids, error) {
@@ -108,7 +55,7 @@ func setupIdConversion() (*sqids.Sqids, error) {
 
 type CustomContext struct {
 	echo.Context
-	Config       Config
+	Config       config.Config
 	DB           *pgxpool.Conn
 	IdConversion *sqids.Sqids
 	Repos        Repos
@@ -118,7 +65,7 @@ type Repos struct {
 	Members MemberRepo
 }
 
-func customContext(pool *pgxpool.Pool, config Config) echo.MiddlewareFunc {
+func customContext(pool *pgxpool.Pool, conf config.Config) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			conn, err := pool.Acquire(c.Request().Context())
@@ -131,20 +78,11 @@ func customContext(pool *pgxpool.Pool, config Config) echo.MiddlewareFunc {
 				c.Logger().Errorf("Unable setup id conversion: %v\n", err)
 				c.Error(fmt.Errorf("internal server error"))
 			}
-			cc := &CustomContext{c, config, conn, idc, Repos{
+			cc := &CustomContext{c, conf, conn, idc, Repos{
 				Members: &MemberRepoPostgre{DB: conn, IdConversion: idc},
 			}}
 
 			return next(cc)
 		}
 	}
-}
-
-func getOrDefault(key string, def string) string {
-	v := os.Getenv(key)
-	if v == "" {
-		log.Printf("Environment variable %s not set, using default value %s\n", key, def)
-		return def
-	}
-	return v
 }

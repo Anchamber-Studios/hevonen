@@ -25,7 +25,7 @@ const (
 )
 
 func (r *MemberRepoPostgre) List(ctx context.Context) ([]client.Member, error) {
-	rows, err := r.DB.Query(ctx, "SELECT id, first_name, last_name, email, phone FROM members.members;")
+	rows, err := r.DB.Query(ctx, "SELECT id, first_name, middle_name, last_name, email, phone, height, weight FROM members.members;")
 	if err != nil {
 		return nil, err
 	}
@@ -34,7 +34,7 @@ func (r *MemberRepoPostgre) List(ctx context.Context) ([]client.Member, error) {
 	for rows.Next() {
 		member := client.Member{}
 		var id uint64
-		err := rows.Scan(&id, &member.FirstName, &member.LastName, &member.Email, &member.Phone)
+		err := rows.Scan(&id, &member.FirstName, &member.MiddleName, &member.LastName, &member.Email, &member.Phone, &member.Height, &member.Weight)
 		if err != nil {
 			return nil, err
 		}

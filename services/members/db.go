@@ -6,16 +6,17 @@ import (
 	"fmt"
 	"io/fs"
 
+	"github.com/anchamber-studios/hevonen/services/members/config"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/jackc/tern/v2/migrate"
 	"github.com/labstack/echo/v4"
 )
 
-func setupDb(config Config, logger echo.Logger) *pgxpool.Pool {
+func setupDb(conf config.Config, logger echo.Logger) *pgxpool.Pool {
 	logger.Infof("Setup database\n")
 	fmt.Printf("Setup database\n")
-	dsn := fmt.Sprintf("postgres://%s:%s@%s:%s/%s", config.DB.User, config.DB.Password, config.DB.Url, config.DB.Port, config.DB.Database)
+	dsn := fmt.Sprintf("postgres://%s:%s@%s:%s/%s", conf.DB.User, conf.DB.Password, conf.DB.Url, conf.DB.Port, conf.DB.Database)
 
 	pool, err := pgxpool.New(context.Background(), dsn)
 	if err != nil {
@@ -46,7 +47,7 @@ var migrationFiles embed.FS
 
 func runMigrations(ctx context.Context, conn *pgx.Conn, logger echo.Logger) error {
 	fmt.Printf("Check database for migrations\n")
-	m, err := migrate.NewMigrator(ctx, conn, "members.db_version")
+	m, err := migrate.NewMigrator(ctx, conn, "public.db_version")
 	if err != nil {
 		return err
 	}

@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/anchamber-studios/hevonen/services/members/client"
+	"github.com/anchamber-studios/hevonen/services/members/config"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/labstack/echo/v4"
 )
@@ -46,20 +47,20 @@ func TestCreateUser(t *testing.T) {
 	}
 }
 
-func testConfig() Config {
-	return Config{
+func testConfig() config.Config {
+	return config.Config{
 		Port: "8080",
 		Host: "localhost",
-		Tls: TlsConfig{
+		Tls: config.TlsConfig{
 			Enabled: false,
 			Key:     "",
 			Cert:    "",
 		},
-		Auth: Auth{
+		Auth: config.Auth{
 			ClientId:     "test",
 			ClientSecret: "test",
 		},
-		DB: DB{
+		DB: config.DB{
 			Url:      "localhost",
 			Port:     "5432",
 			Database: "members",

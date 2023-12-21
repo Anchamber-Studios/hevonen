@@ -3,21 +3,12 @@ package members
 import (
 	l "github.com/anchamber-studios/hevonen/frontend/pages/layouts"
 	c "github.com/anchamber-studios/hevonen/frontend/pages/components"
+	"github.com/anchamber-studios/hevonen/services/members/client"
 )
 
 type MemberListProps struct {
-	Members []Member
-    Search string
-}
-
-type Member struct {
-	ID        string
-	FirstName string
-	LastName  string
-	Email     string
-	Phone     string
-	Height    int
-	Weight    int
+	Members []client.Member
+	Search  string
 }
 
 var bcList []c.BreadCrumbProp = []c.BreadCrumbProp{
@@ -32,7 +23,7 @@ var bcList []c.BreadCrumbProp = []c.BreadCrumbProp{
 }
 
 templ MemberList(props MemberListProps) {
-    @c.BreadCrumbs(bcList)
+	@c.BreadCrumbs(bcList)
 	@memberTable(props)
 }
 
@@ -45,13 +36,14 @@ templ MemberListWL(props MemberListProps) {
     })
 }
 
-
 templ memberTable(props MemberListProps) {
 	<section>
-        <div class="flex justify-between p-2"
-            hx-target="#main">
+		<div
+ 			class="flex justify-between p-2"
+ 			hx-target="#main"
+		>
 			<input
-                value={props.Search}
+ 				value={ props.Search }
  				id="datatable-search-input"
  				type="search"
  				class="block min-w-0 max-w-md flex-auto rounded border border-solid border-neutral-300 bg-transparent bg-clip-padding px-3 py-[0.25rem] text-base font-normal leading-[1.6] text-neutral-700 outline-none transition duration-200 ease-in-out focus:z-[3] focus:border-primary focus:text-neutral-700 focus:shadow-[inset_0_0_0_1px_rgb(59,113,202)] focus:outline-none dark:border-neutral-600 dark:text-neutral-200 dark:placeholder:text-neutral-200 dark:focus:border-primary"
@@ -59,7 +51,7 @@ templ memberTable(props MemberListProps) {
  				aria-label="Search"
  				aria-describedby="button-addon1"
 			/>
-        @c.ButtonLink(c.ButtonLinkProps{ButtonProps: c.ButtonProps{Text: "Add Member"}, Href: "/members/new"})
+			@c.ButtonLink(c.ButtonLinkProps{ButtonProps: c.ButtonProps{Text: "Add Member"}, Href: "/members/new"})
 		</div>
 		if props.Members == nil || len(props.Members) == 0 {
 			<div class="h-screen flex items-center justify-center">
@@ -76,14 +68,15 @@ templ memberTable(props MemberListProps) {
 	</section>
 }
 
-script initTable(members []Member) {
+script initTable(members []client.Member) {
     const basicData = {
         columns: [
-            { label: 'ID', field: 'ID', sort: true },
-            { label: 'First Name', field: 'FirstName', sort: true },
-            { label: 'Last Name', field: 'LastName', sort: true },
-            { label: 'Email', field: 'Email', sort: true },
-            { label: 'Phone', field: 'Phone', sort: true },
+            { label: 'ID', field: 'id', sort: true },
+            { label: 'First Name', field: 'firstName', sort: true },
+            { label: 'Middle Name', field: 'middleName', sort: true },
+            { label: 'Last Name', field: 'lastName', sort: true },
+            { label: 'Email', field: 'email', sort: true },
+            { label: 'Phone', field: 'phone', sort: true },
         ],
         rows: members
     };

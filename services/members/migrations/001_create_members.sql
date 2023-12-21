@@ -1,8 +1,10 @@
 create schema if not exists members;
 create table if not exists members.members (
     id serial primary key,
+    club_id integer not null,
     email text not null unique,
     first_name text not null,
+    middle_name text not null,
     last_name text not null,
     height integer not null,
     weight integer not null,
