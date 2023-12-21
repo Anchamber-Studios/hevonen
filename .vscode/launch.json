@@ -12,6 +12,18 @@
             "program": "${workspaceFolder}/frontend"
         },
         {
+            "name": "frontend attach",
+            "type": "go",
+            "request": "attach",
+            "mode": "remote",
+            "remotePath": "${workspaceFolder}/frontend",
+            "port": 2345,
+            "host": "127.0.0.1",
+            "showLog": true,
+            "apiVersion": 2,
+            "trace": "verbose"
+        },
+        {
             "name": "members",
             "type": "go",
             "request": "launch",
