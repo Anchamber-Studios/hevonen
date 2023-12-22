@@ -1,5 +1,8 @@
 package components
 
+import "github.com/anchamber-studios/hevonen/frontend/pages/theme"
+import "fmt"
+
 type HeaderProps struct {
 	BreadCrumbs []BreadCrumbProp
 }
@@ -10,32 +13,9 @@ type BreadCrumbProp struct {
 }
 
 templ Header(props HeaderProps) {
-	<!-- TW Elements is free under AGPL, with commercial license required for specific uses. See more details: https://tw-elements.com/license/ and contact us for queries at tailwind@mdbootstrap.com -->
-	<!-- Main navigation container -->
-	<nav
- 		class="flex-no-wrap relative flex w-full items-center justify-between bg-[#FBFBFB] py-2 shadow-md shadow-black/5 dark:bg-neutral-600 dark:shadow-black/10 lg:flex-wrap lg:justify-start lg:py-4"
-	>
+	<nav class="flex-no-wrap relative flex w-full items-center justify-between h-[48px] border-b-[1px] border-gray-600">
 		<div class="flex px-3 ">
-			<!-- Toggler -->
-			<div
- 				class="mr-4 flex text-neutral-400"
- 				data-te-sidenav-toggle-ref
- 				data-te-target="#sidenav-main"
- 				aria-controls="#sidenav-main"
- 				aria-haspopup="true"
-			>
-				<a href="#" class="text-neutral-400">
-					<svg fill="hsl(224, 7.2%, 40%)" viewBox="0 0 100 80" width="20" height="20">
-						<rect width="80" height="14"></rect>
-						<rect y="30" width="80" height="14"></rect>
-						<rect y="60" width="80" height="14"></rect>
-					</svg>
-				</a>
-			</div>
-			<!-- Toggler -->
-			<!-- Breadcumbs -->
             @BreadCrumbs(props.BreadCrumbs)
-			<!-- Breadcumbs -->
 		</div>
 		<div class="flex flex-row-reverse flex-wrap grow items-center justify-between px-3">
 			@userArea()
@@ -44,19 +24,22 @@ templ Header(props HeaderProps) {
 }
 
 templ BreadCrumbs(breadCrumbs []BreadCrumbProp) {
-	<nav class="bg-grey-light w-full rounded-md" id="header-breadcrumbs" hx-swap-oob="true">
+	<nav class="w-full rounded-md" id="header-breadcrumbs" hx-swap-oob="true">
 		<ol class="list-reset flex" hx-target="#main">
+			<li>
+				<span class={ fmt.Sprintf("pr-2 %s", theme.DefaultTextColor) }>/</span>
+			</li>
 			for i, breadCrumb := range breadCrumbs {
 				if i > 0 {
 					<li>
-						<span class="mx-2 text-neutral-500 dark:text-neutral-400">></span>
+						<span class={ fmt.Sprintf("mx-2 %s", theme.DefaultTextColor) }>/</span>
 					</li>
 				}
 				<li>
 					<a
                         hx-get={ breadCrumb.Href } 
                         hx-push-url="true"
- 						class="text-primary transition duration-150 ease-in-out hover:text-primary-600 focus:text-primary-600 active:text-primary-700 dark:text-primary-400 dark:hover:text-primary-500 dark:focus:text-primary-500 dark:active:text-primary-600"
+ 						class={ fmt.Sprintf("transition duration-150 ease-in-out hover:text-primary-600 focus:text-primary-600 active:text-primary-700 dark:text-primary-400 dark:hover:text-primary-500 dark:focus:text-primary-500 dark:active:text-primary-600 %s", theme.DefaultTextColor) }
 					>
 						{ breadCrumb.Text }
 					</a>
@@ -71,14 +54,10 @@ templ userArea() {
 		<!-- Container with two dropdown menus -->
 		<div
  			class="relative"
- 			data-te-dropdown-ref
- 			data-te-dropdown-alignment="end"
 		>
 			<!-- Second dropdown container -->
 			<div
  				class="relative"
- 				data-te-dropdown-ref
- 				data-te-dropdown-alignment="end"
 			>
 				<!-- Second dropdown trigger -->
 				<a
@@ -86,7 +65,6 @@ templ userArea() {
  					href="#"
  					id="dropdownMenuButton2"
  					role="button"
- 					data-te-dropdown-toggle-ref
  					aria-expanded="false"
 				>
 					<!-- User avatar -->
@@ -101,7 +79,6 @@ templ userArea() {
 				<ul
  					class="absolute z-[1000] float-left m-0 hidden min-w-max list-none overflow-hidden rounded-lg border-none bg-white bg-clip-padding text-left text-base shadow-lg dark:bg-neutral-700 [&[data-te-dropdown-show]]:block"
  					aria-labelledby="dropdownMenuButton2"
- 					data-te-dropdown-menu-ref
 				>
 					<li>
 						<a
@@ -116,7 +93,6 @@ templ userArea() {
 						<a
  							class="block w-full whitespace-nowrap bg-transparent px-4 py-2 text-sm font-normal text-neutral-700 hover:bg-neutral-100 active:text-neutral-800 active:no-underline disabled:pointer-events-none disabled:bg-transparent disabled:text-neutral-400 dark:text-neutral-200 dark:hover:bg-white/30"
  							href="#"
- 							data-te-dropdown-item-ref
 						>
 							Logout
 						</a>

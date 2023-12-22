@@ -1,7 +1,9 @@
-package pages
+package layouts
 
 import (
 	"github.com/anchamber-studios/hevonen/frontend/pages/components"
+	"fmt"
+	"github.com/anchamber-studios/hevonen/frontend/pages/theme"
 )
 
 type LayoutProps struct {
@@ -12,7 +14,6 @@ type LayoutProps struct {
 }
 
 templ BasicLayout(props LayoutProps) {
-    <!DOCTYPE html>
 	<html>
 		<head>
 			<meta charset="UTF-8"/>
@@ -20,40 +21,25 @@ templ BasicLayout(props LayoutProps) {
 			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 			<link rel="icon" href="/public/favicon.svg"/>
 			<title>{ props.Title }</title>
-			<script src="/public/js/htmx.min.js"></script>
-			<!-- Roboto font -->
-			<link
- 				href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700,900&display=swap"
- 				rel="stylesheet"
-			/>
-			<!-- TW Elements styles-->
-			<link
- 				rel="stylesheet"
- 				href="https://cdn.jsdelivr.net/npm/tw-elements/dist/css/tw-elements.min.css"
-			/>
 			<!-- Tailwind CSS config -->
             <script src="https://cdn.tailwindcss.com/3.3.0"></script>
+            <style>
+             body {
+                font-family: Tahoma, sans-serif;
+             }
+             </style>
         </head>
-		<body>
-            @components.Header(components.HeaderProps{BreadCrumbs: props.BreadCrumbs})
+		<body class="h-full">
             @components.SideNav("Hevonen")
-            <main id="main">
-			    @props.Content
+            <main
+                class={ fmt.Sprintf("h-full w-full pl-[200px] bg-gray-100 %s", theme.DefaultBGColor)}>
+                @components.Header(components.HeaderProps{BreadCrumbs: props.BreadCrumbs})
+                <div id="main" class="bg-gray-100 dark:bg-gray-100 h-full">
+			        @props.Content
+                </div>
             </main>
-			<script src="/public/js/app.js"></script>
-		    </body>
+			// <script src="/public/js/app.js"></script>
+			<script src="/public/js/htmx.min.js"></script>
+		</body>
 	</html>
 }
-
-templ Header(brandName string) {
-	<header>
-		<div>
-			<h1>{ brandName }</h1>
-		</div>
-		<nav>
-			<a href="/">Home</a>
-			<a href="/about">About</a>
-		</nav>
-	</header>
-}
-

@@ -26,9 +26,10 @@ func memberList(c echo.Context) error {
 		Members: []client.Member{},
 	}
 	members, err := cc.Config.Clients.Members.GetMembers()
+	hxRequest := cc.Request().Header.Get(HX_REQUEST_HEADER)
 	if err != nil {
 		c.Logger().Errorf("Unable to get members: %v\n", err)
-		m.MemberList(props).Render(c.Request().Context(), c.Response().Writer)
+		members = []client.Member{}
 	}
 	for _, member := range members {
 		props.Members = append(props.Members, client.Member{
@@ -40,10 +41,11 @@ func memberList(c echo.Context) error {
 			Phone:      member.Phone,
 		})
 	}
-	hxRequest := cc.Request().Header.Get(HX_REQUEST_HEADER)
+	cc.Logger().Errorf("HX Request: %v\n", hxRequest)
 	if hxRequest == "true" {
 		return m.MemberList(props).Render(c.Request().Context(), c.Response().Writer)
 	}
+	cc.Logger().Errorf("render with layout\n")
 	return m.MemberListWL(props).Render(c.Request().Context(), c.Response().Writer)
 }
 
