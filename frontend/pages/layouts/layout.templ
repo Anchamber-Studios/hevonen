@@ -2,8 +2,6 @@ package layouts
 
 import (
 	"github.com/anchamber-studios/hevonen/frontend/pages/components"
-	"fmt"
-	"github.com/anchamber-studios/hevonen/frontend/pages/theme"
 )
 
 type LayoutProps struct {
@@ -32,9 +30,9 @@ templ BasicLayout(props LayoutProps) {
 		<body class="h-full">
             @components.SideNav("Hevonen")
             <main
-                class={ fmt.Sprintf("h-full w-full pl-[200px] bg-gray-100 %s", theme.DefaultBGColor)}>
+                class="h-full w-full pl-[200px]">
                 @components.Header(components.HeaderProps{BreadCrumbs: props.BreadCrumbs})
-                <div id="main" class="bg-gray-100 dark:bg-gray-100 h-full">
+                <div id="main">
 			        @props.Content
                 </div>
             </main>

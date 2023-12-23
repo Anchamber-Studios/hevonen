@@ -13,7 +13,7 @@ type BreadCrumbProp struct {
 }
 
 templ Header(props HeaderProps) {
-	<nav class="flex-no-wrap relative flex w-full items-center justify-between h-[48px] border-b-[1px] border-gray-600">
+	<nav class={ fmt.Sprintf("flex-no-wrap relative flex w-full items-center justify-between h-[48px] border-b-[1px] border-gray-600 %s", theme.DefaultBGColor) }>
 		<div class="flex px-3 ">
             @BreadCrumbs(props.BreadCrumbs)
 		</div>
