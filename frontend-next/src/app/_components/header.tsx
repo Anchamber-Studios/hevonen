@@ -17,7 +17,10 @@ import { Button } from "@components/ui/button";
 
 export async function Header() {
 	return (
-		<div id="header" className="top-0 h-12 flex items-center justify-between border-b-[1px]">
+		<div
+			id="header"
+			className="top-0 h-12 flex items-center justify-between border-b-[1px]"
+		>
 			<div className="pl-2">
 				<h1 className="uppercase font-extrabold">hevonen</h1>
 			</div>
@@ -34,12 +37,7 @@ export async function UserArea() {
 	const email = session?.user?.email ?? "-";
 	return (
 		<div id="user-area" className="flex items-center">
-			{session && 
-				<UserAvatar 
-					username={username}
-					email={email}
-				/>
-			 }
+			{session && <UserAvatar username={username} email={email} />}
 			{!session && (
 				<Link
 					href={session ? "/api/auth/signout" : "/api/auth/signin"}
@@ -56,7 +54,7 @@ interface UserAvatarProps {
 	username: string;
 	email: string;
 }
-export async function UserAvatar({email, username}: UserAvatarProps) {
+export async function UserAvatar({ email, username }: UserAvatarProps) {
 	const fallbackName = username.substring(0, 2).toUpperCase() ?? "JD";
 	return (
 		<DropdownMenu>
@@ -96,9 +94,7 @@ export async function UserAvatar({email, username}: UserAvatarProps) {
 				<DropdownMenuSeparator />
 				<Link href="/api/auth/signout">
 					<DropdownMenuItem>
-						
-							Sign out
-							
+						Sign out
 						<DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
 					</DropdownMenuItem>
 				</Link>

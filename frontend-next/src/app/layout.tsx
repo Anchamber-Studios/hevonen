@@ -30,7 +30,7 @@ export default function RootLayout({
 			>
 				<TRPCReactProvider cookies={cookies().toString()}>
 					<Header />
-					<Sidebar visible={true}/>
+					<Sidebar visible={true} />
 					{children}
 				</TRPCReactProvider>
 			</body>
