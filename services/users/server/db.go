@@ -33,7 +33,7 @@ func setupDb(conf config.Config, logger echo.Logger) *pgxpool.Pool {
 	if err != nil {
 		logger.Fatalf("Unable to connect to database: %v\n", err)
 	}
-	err = db.Migrate(migrationCtx, logger, "club", con, migrationFiles)
+	err = db.Migrate(migrationCtx, logger, "users", con, migrationFiles)
 	if err != nil {
 		logger.Fatalf("Migration failed: %v\n", err)
 	}

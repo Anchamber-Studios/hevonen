@@ -11,9 +11,9 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func Migrate(ctx context.Context, logger echo.Logger, conn *pgx.Conn, migrationFiles embed.FS) error {
+func Migrate(ctx context.Context, logger echo.Logger, service string, conn *pgx.Conn, migrationFiles embed.FS) error {
 	fmt.Printf("Check database for migrations\n")
-	m, err := migrate.NewMigrator(ctx, conn, "public.db_version")
+	m, err := migrate.NewMigrator(ctx, conn, fmt.Sprintf("public.%s_db_version", service))
 	if err != nil {
 		return err
 	}
