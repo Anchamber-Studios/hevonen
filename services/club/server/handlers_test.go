@@ -1,4 +1,4 @@
-package main
+package server
 
 import (
 	"bytes"
@@ -7,8 +7,9 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/anchamber-studios/hevonen/services/members/client"
-	"github.com/anchamber-studios/hevonen/services/members/config"
+	"github.com/anchamber-studios/hevonen/lib/config"
+	"github.com/anchamber-studios/hevonen/services/club/client"
+	repo "github.com/anchamber-studios/hevonen/services/club/db"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/labstack/echo/v4"
 )
@@ -16,7 +17,7 @@ import (
 func TestCreateUser(t *testing.T) {
 	e := echo.New()
 	m := testMemberCreate()
-	memberRepo := &MemberRepoMock{}
+	memberRepo := &repo.MemberRepoMock{}
 	data, _ := json.Marshal(m)
 	req := httptest.NewRequest(http.MethodPost, "/members", bytes.NewReader(data))
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)

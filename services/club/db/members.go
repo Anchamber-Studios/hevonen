@@ -1,10 +1,11 @@
-package main
+package repo
 
 import (
 	"context"
 	"fmt"
 
-	"github.com/anchamber-studios/hevonen/services/members/client"
+	"github.com/anchamber-studios/hevonen/lib"
+	"github.com/anchamber-studios/hevonen/services/club/client"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/sqids/sqids-go"
 )
@@ -67,7 +68,7 @@ func (r *MemberRepoPostgre) Get(ctx context.Context, memberIdEncoded string) (cl
 	var member client.Member
 	r.DB.QueryRow(ctx, "SELECT id, first_name, last_name, email, phone FROM members.members WHERE id = $1;", memberId).Scan(&id, &member.FirstName, &member.LastName, &member.Email, &member.Phone)
 	if id == 0 {
-		return member, ErrNotFound
+		return member, lib.ErrNotFound
 	}
 	member.ID = memberIdEncoded
 	return member, nil
@@ -84,7 +85,7 @@ func (r *MemberRepoMock) List(ctx context.Context) ([]client.Member, error) {
 func (r *MemberRepoMock) Create(ctx context.Context, member client.MemberCreate) (string, error) {
 	for _, m := range r.Members {
 		if m.Email == member.Email {
-			return "", ErrAlreadyExists
+			return "", lib.ErrAlreadyExists
 		}
 	}
 	id := fmt.Sprintf("%d", len(r.Members)+1)
@@ -106,5 +107,5 @@ func (r *MemberRepoMock) Get(ctx context.Context, memberIdEncoded string) (clien
 			return m, nil
 		}
 	}
-	return client.Member{}, ErrNotFound
+	return client.Member{}, lib.ErrNotFound
 }

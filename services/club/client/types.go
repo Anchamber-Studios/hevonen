@@ -1,8 +1,13 @@
 package client
 
+type ClubCreate struct {
+	Name    string `json:"name" form:"name"`
+	Website string `json:"website" form:"website"`
+}
+
 type Member struct {
 	ID         string `json:"id" form:"id"`
-	ClubID     int    `json:"clubId" form:"clubId"`
+	ClubID     uint64 `json:"clubId" form:"clubId"`
 	FirstName  string `json:"firstName" form:"firstName"`
 	MiddleName string `json:"middleName" form:"middleName"`
 	LastName   string `json:"lastName" form:"lastName"`
@@ -13,7 +18,7 @@ type Member struct {
 }
 
 type MemberCreate struct {
-	ClubID     int    `json:"clubId" form:"clubId"`
+	ClubID     uint64 `json:"clubId" form:"clubId"`
 	FirstName  string `json:"firstName" form:"firstName"`
 	MiddleName string `json:"middleName" form:"middleName"`
 	LastName   string `json:"lastName" form:"lastName"`

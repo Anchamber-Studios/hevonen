@@ -1,57 +1,15 @@
-package main
+package server
 
 import (
 	"fmt"
-	"log"
 
-	"github.com/anchamber-studios/hevonen/services/members/config"
+	"github.com/anchamber-studios/hevonen/lib/config"
+	repo "github.com/anchamber-studios/hevonen/services/club/db"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/sqids/sqids-go"
 )
-
-func main() {
-	// configuration
-	err := godotenv.Load(".env")
-	if err != nil {
-		log.Println("Error loading .env file")
-	}
-
-	conf := config.LoadConfig()
-
-	e := echo.New()
-
-	// check db on startup
-	pool := setupDb(conf, e.Logger)
-	defer pool.Close()
-
-	// middleware
-	e.Use(middleware.CORS())
-	e.Use(middleware.RequestID())
-	e.Use(middleware.Logger())
-	e.Use(customContext(pool, conf))
-
-	// handlers
-	e.GET("/members", list)
-	e.POST("/members", new)
-	e.GET("/members/:memberId", details)
-
-	address := fmt.Sprintf("%s:%s", conf.Host, conf.Port)
-	if conf.Tls.Enabled {
-		e.Logger.Fatal(e.StartTLS(address, conf.Tls.Cert, conf.Tls.Key))
-	} else {
-		e.Logger.Fatal(e.Start(address))
-	}
-}
-
-func setupIdConversion() (*sqids.Sqids, error) {
-	s, err := sqids.New(sqids.Options{
-		Alphabet: "FxnXM1kBN6cuhsAvjW3Co7l2RePyY8DwaU04Tzt9fHQrqSVKdpimLGIJOgb5ZE",
-	})
-	return s, err
-}
 
 type CustomContext struct {
 	echo.Context
@@ -62,7 +20,26 @@ type CustomContext struct {
 }
 
 type Repos struct {
-	Members MemberRepo
+	Members repo.MemberRepo
+}
+
+func Middleware(e *echo.Echo, conf config.Config) {
+
+	// check db on startup
+	pool := setupDb(conf, e.Logger)
+	defer pool.Close()
+
+	// middleware
+	e.Use(middleware.CORS())
+	e.Use(middleware.RequestID())
+	e.Use(middleware.Logger())
+	e.Use(customContext(pool, conf))
+}
+
+func Routes(e *echo.Echo) {
+	e.GET("/members", list)
+	e.POST("/members", new)
+	e.GET("/members/:memberId", details)
 }
 
 func customContext(pool *pgxpool.Pool, conf config.Config) echo.MiddlewareFunc {
@@ -79,10 +56,17 @@ func customContext(pool *pgxpool.Pool, conf config.Config) echo.MiddlewareFunc {
 				c.Error(fmt.Errorf("internal server error"))
 			}
 			cc := &CustomContext{c, conf, conn, idc, Repos{
-				Members: &MemberRepoPostgre{DB: conn, IdConversion: idc},
+				Members: &repo.MemberRepoPostgre{DB: conn, IdConversion: idc},
 			}}
 
 			return next(cc)
 		}
 	}
+}
+
+func setupIdConversion() (*sqids.Sqids, error) {
+	s, err := sqids.New(sqids.Options{
+		Alphabet: "FxnXM1kBN6cuhsAvjW3Co7l2RePyY8DwaU04Tzt9fHQrqSVKdpimLGIJOgb5ZE",
+	})
+	return s, err
 }

@@ -28,7 +28,7 @@
             "type": "go",
             "request": "launch",
             "mode": "auto",
-            "program": "${workspaceFolder}/services/members"
+            "program": "${workspaceFolder}/services/club"
         }
     ]
 }

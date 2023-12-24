@@ -1,4 +1,4 @@
-module github.com/anchamber-studios/hevonen/services/members
+module github.com/anchamber-studios/hevonen/services/club
 
 go 1.21.5
 

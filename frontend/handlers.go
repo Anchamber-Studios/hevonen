@@ -3,7 +3,7 @@ package main
 import (
 	"github.com/anchamber-studios/hevonen/frontend/pages"
 	m "github.com/anchamber-studios/hevonen/frontend/pages/members"
-	"github.com/anchamber-studios/hevonen/services/members/client"
+	"github.com/anchamber-studios/hevonen/services/club/client"
 	"github.com/labstack/echo/v4"
 )
 

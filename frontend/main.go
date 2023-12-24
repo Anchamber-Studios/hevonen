@@ -5,7 +5,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/anchamber-studios/hevonen/services/members/client"
+	"github.com/anchamber-studios/hevonen/services/club/client"
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"

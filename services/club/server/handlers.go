@@ -1,11 +1,12 @@
-package main
+package server
 
 import (
 	"errors"
 	"fmt"
 	"net/http"
 
-	"github.com/anchamber-studios/hevonen/services/members/client"
+	"github.com/anchamber-studios/hevonen/lib"
+	"github.com/anchamber-studios/hevonen/services/club/client"
 	"github.com/labstack/echo/v4"
 )
 
@@ -46,7 +47,7 @@ func details(c echo.Context) error {
 	member, err := cc.Repos.Members.Get(c.Request().Context(), memberIdEncoded)
 	if err != nil {
 		cc.Logger().Errorf("Unable to get member: %v\n", err)
-		if errors.Is(err, ErrNotFound) {
+		if errors.Is(err, lib.ErrNotFound) {
 			return echo.NewHTTPError(http.StatusNotFound, "member not found")
 		}
 		return echo.NewHTTPError(http.StatusInternalServerError, "internal server error")
