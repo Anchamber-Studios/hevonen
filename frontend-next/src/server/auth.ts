@@ -4,9 +4,9 @@ import {
 	type NextAuthOptions,
 } from "next-auth";
 import DiscordProvider from "next-auth/providers/discord";
-import CredentialsProvider  from "next-auth/providers/credentials";
-
+import CredentialsProvider from "next-auth/providers/credentials";
 import { env } from "~/env";
+import { UserClient } from "~/client/users";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -58,34 +58,31 @@ export const authOptions: NextAuthOptions = {
 			// e.g. domain, username, password, 2FA token, etc.
 			// You can pass any HTML attribute to the <input> tag through the object.
 			credentials: {
-			  email: { label: "Email", type: "text" },
-			  password: { label: "Password", type: "password" }
+				email: { label: "Email", type: "text" },
+				password: { label: "Password", type: "password" }
 			},
 			async authorize(credentials, req) {
-			  // You need to provide your own logic here that takes the credentials
-			  // submitted and returns either a object representing a user or value
-			  // that is false/null if the credentials are invalid.
-			  // e.g. return { id: 1, name: 'J Smith', email: 'jsmith@example.com' }
-			  // You can also use the `req` object to obtain additional parameters
-			  // (i.e., the request IP address)
-			  const res = await fetch("/your/endpoint", {
-				method: 'POST',
-				body: JSON.stringify(credentials),
-				headers: { "Content-Type": "application/json" }
-			  })
-			  const user = await res.json()
-		
-			  // If no error and we have user data, return it
-			  if (res.ok && user) {
-				return user
-			  }
-			  // Return null if user data could not be retrieved
-			  return null
+				// You need to provide your own logic here that takes the credentials
+				// submitted and returns either a object representing a user or value
+				// that is false/null if the credentials are invalid.
+				// e.g. return { id: 1, name: 'J Smith', email: 'jsmith@example.com' }
+				// You can also use the `req` object to obtain additional parameters
+				// (i.e., the request IP address)
+				if(!credentials || !credentials.email || !credentials.password) {
+					return null;
+				}
+				let client = new UserClient(env.USER_SERVICE_URL);
+				try {
+					const user = await client.login(credentials.email, credentials.password);
+					return user
+				} catch (e) {
+					return null;
+				}
 			}
-		  })
+		})
 	],
 	pages: {
-		signIn: "/auth/signin",
+		signIn: "/auth",
 		signOut: "/auth/signout",
 		error: "/auth/error",
 	}

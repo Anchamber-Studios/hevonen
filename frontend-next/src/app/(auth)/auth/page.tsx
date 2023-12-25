@@ -1,6 +1,7 @@
 "use client";
 
 import { useForm } from "react-hook-form"
+import { signIn } from "next-auth/react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import {
 	Form,
@@ -14,8 +15,6 @@ import { Input } from "@components/ui/input";
 import { Button } from "@components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@components/ui/tabs";
 import { z } from "zod";
-import { Toggle } from "@components/ui/toggle";
-import { useRef } from "react";
 import { InputPassword } from "~/app/_components/ui/input-password";
 
 const formSchemaLogin = z.object({
@@ -57,15 +56,18 @@ export default function SignIn() {
 		},
 	});
 
-	const passwordLogin = useRef(null);
-	const toogleVisibility = () => {
-		if (passwordLogin.current) {
-			(passwordLogin.current as HTMLInputElement).type === "password"
-				? (passwordLogin.current as HTMLInputElement).type = "text"
-				: (passwordLogin.current as HTMLInputElement).type = "password";
+	async function handleLogin(data: z.infer<typeof formSchemaLogin>) {
+		console.log(data);
+		try {
+			await signIn("credentials", {
+				email: data.email,
+				password: data.password,
+				callbackUrl: "/",
+			});
+		} catch (error) {
+			console.error(error);
 		}
 	}
-
 	return (
 		<div className="flex items-center align-middle p-4 rounded-md m-auto w-[400px]">
 			<Tabs defaultValue="login" className="w-full">
@@ -75,7 +77,7 @@ export default function SignIn() {
 				</TabsList>
 				<TabsContent value="login">
 					<Form {...formLogin}>
-						<form className="w-full" onSubmit={formLogin.handleSubmit((data) => console.log(data))}>
+						<form className="w-full" onSubmit={formLogin.handleSubmit((data) => handleLogin(data))}>
 							<FormField control={formLogin.control}
 								name="email"
 								render={({ field }) => (
@@ -94,7 +96,7 @@ export default function SignIn() {
 									<FormItem className="pt-2">
 										<FormLabel>Password</FormLabel>
 										<FormControl>
-											<Input placeholder="Password" type="password" {...field} ref={passwordLogin}/>		
+											<InputPassword placeholder="Password" type="password" {...field}/>		
 										</FormControl>
 										<FormMessage />
 									</FormItem>
