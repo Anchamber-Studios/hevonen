@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/anchamber-studios/hevonen/lib/config"
+	"github.com/anchamber-studios/hevonen/services/users/db"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -19,6 +20,7 @@ type CustomContext struct {
 }
 
 type Repos struct {
+	Users db.UserRepo
 }
 
 func Middleware(e *echo.Echo, conf config.Config) {
@@ -35,9 +37,9 @@ func Middleware(e *echo.Echo, conf config.Config) {
 }
 
 func Routes(e *echo.Echo) {
-	e.GET("/clubs", list)
-	e.POST("/clubs", new)
-	e.GET("/clubs/:clubId", details)
+	e.POST("/users/login", login)
+	e.POST("/users/register", new)
+	e.GET("/users/:userId", details)
 }
 
 func customContext(pool *pgxpool.Pool, conf config.Config) echo.MiddlewareFunc {
@@ -53,7 +55,13 @@ func customContext(pool *pgxpool.Pool, conf config.Config) echo.MiddlewareFunc {
 				c.Logger().Errorf("Unable setup id conversion: %v\n", err)
 				c.Error(fmt.Errorf("internal server error"))
 			}
-			cc := &CustomContext{c, conf, conn, idc, Repos{}}
+			cc := &CustomContext{c, conf, conn, idc, Repos{
+				Users: &db.UserRepoPostgre{
+					DB:           conn,
+					IdConversion: idc,
+					Logger:       c.Logger(),
+				},
+			}}
 
 			return next(cc)
 		}
