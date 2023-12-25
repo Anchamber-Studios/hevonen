@@ -15,7 +15,7 @@ const inter = Inter({
 export const metadata = {
 	title: "Hevonen",
 	description: "Manage your horse riding club",
-	icons: [{ rel: "icon", url: "/favicon.ico" }],
+	icons: [{ rel: "icon", url: "/favicon.svg" }],
 };
 
 export default function RootLayout({
