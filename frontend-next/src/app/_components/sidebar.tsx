@@ -1,5 +1,3 @@
-"use client";
-
 import Link from "next/link";
 
 interface SidebarProps {
@@ -7,7 +5,7 @@ interface SidebarProps {
 }
 export function Sidebar({ visible }: SidebarProps) {
 	return (
-		<nav className="w-48 pl-2 pt-2 absolute bg-gray-100 dark:bg-gray-900 h-full">
+		<nav className="w-48 pl-2 pt-2 absolute bg-gray-100 dark:bg-gray-900 flex-grow-1">
 			<SidebarNavGroup label="Horses">
 				<SidebarNavItem label="Overview" href="/horses" />
 			</SidebarNavGroup>

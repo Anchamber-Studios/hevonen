@@ -19,10 +19,10 @@ export async function Header() {
 	return (
 		<div
 			id="header"
-			className="top-0 h-12 flex items-center justify-between border-b-[1px]"
+			className="h-12 flex items-center justify-between border-b-[1px]"
 		>
 			<div className="pl-2">
-				<h1 className="uppercase font-extrabold">hevonen</h1>
+				<h1 className="uppercase font-extrabold">Breadcrumbs</h1>
 			</div>
 			<div className="pr-2">
 				<UserArea />
@@ -40,7 +40,7 @@ export async function UserArea() {
 			{session && <UserAvatar username={username} email={email} />}
 			{!session && (
 				<Link
-					href={session ? "/api/auth/signout" : "/api/auth/signin"}
+					href={"/auth/signin"}
 					className="rounded-full bg-white/10 px-10 py-3 font-semibold no-underline transition hover:bg-white/20"
 				>
 					Sign in

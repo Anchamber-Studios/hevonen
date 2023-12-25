@@ -24,14 +24,27 @@ export default function RootLayout({
 	children: React.ReactNode;
 }) {
 	return (
-		<html lang="en" className="dark">
+		<html lang="en" className="dark h-full w-full">
 			<body
-				className={`font-sans ${inter.variable} bg-gray-100 dark:bg-gray-900`}
+				className={`h-full w-full flex m-0 overflow-hidden font-sans ${inter.variable} bg-gray-100 dark:bg-gray-900`}
 			>
 				<TRPCReactProvider cookies={cookies().toString()}>
-					<Header />
-					<Sidebar visible={true} />
-					{children}
+					<div id="left-sidebar" className="h-100 flex flex-col w-48">
+						<div id="brand" className="h-12 pl-2 flex items-center border-b-[1px]">
+							<h1 className="uppercase font-extrabold">Hevonen</h1>
+						</div>
+						<div className="flex-grow-1 overflow-y-auto">
+							<Sidebar visible={true} />
+						</div>
+					</div>
+					<div className="h-100 flex flex-col flex-auto">
+						<div className="flex-shrink-0">
+							<Header />
+						</div>
+						<div className="flex-grow-1 overflow-y-auto">
+							{children}
+						</div>
+					</div>
 				</TRPCReactProvider>
 			</body>
 		</html>
