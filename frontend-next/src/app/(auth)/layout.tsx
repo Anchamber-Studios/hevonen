@@ -10,20 +10,19 @@ const inter = Inter({
 export const metadata = {
 	title: 'Hevonen Authentication',
 	description: '',
-  }
-  
-  export default function RootLayout({
+}
+
+export default function RootLayout({
 	children,
-  }: {
+}: {
 	children: React.ReactNode
-  }) {
+}) {
 	return (
 		<html lang="en" className="dark h-full w-full">
-		<body
+			<body
 				className={`h-full w-full flex items-center m-0 overflow-hidden font-sans ${inter.variable} bg-gray-100 dark:bg-gray-900`}>
-			{children}
+				{children}
 			</body>
-	  </html>
+		</html>
 	)
-  }
-  
+}
