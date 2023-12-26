@@ -5,7 +5,7 @@ import (
 
 	"github.com/anchamber-studios/hevonen/lib/config"
 	"github.com/anchamber-studios/hevonen/services/users/db"
-	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/jackc/pgx/v5"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/sqids/sqids-go"
@@ -14,7 +14,7 @@ import (
 type CustomContext struct {
 	echo.Context
 	Config       config.Config
-	DB           *pgxpool.Conn
+	DB           *pgx.Conn
 	IdConversion *sqids.Sqids
 	Repos        Repos
 }
@@ -24,16 +24,11 @@ type Repos struct {
 }
 
 func Middleware(e *echo.Echo, conf config.Config) {
-
-	// check db on startup
-	pool := setupDb(conf, e.Logger)
-	defer pool.Close()
-
 	// middleware
 	e.Use(middleware.CORS())
 	e.Use(middleware.RequestID())
 	e.Use(middleware.Logger())
-	e.Use(customContext(pool, conf))
+	e.Use(customContext(conf))
 }
 
 func Routes(e *echo.Echo) {
@@ -42,14 +37,15 @@ func Routes(e *echo.Echo) {
 	e.GET("/users/:userId", details)
 }
 
-func customContext(pool *pgxpool.Pool, conf config.Config) echo.MiddlewareFunc {
+func customContext(conf config.Config) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
-			conn, err := pool.Acquire(c.Request().Context())
+			conn, err := openConnection(conf, c.Logger())
 			if err != nil {
 				c.Logger().Errorf("Unable to connect to database: %v\n", err)
 				c.Error(fmt.Errorf("internal server error"))
 			}
+			defer conn.Close(c.Request().Context())
 			idc, err := setupIdConversion()
 			if err != nil {
 				c.Logger().Errorf("Unable setup id conversion: %v\n", err)

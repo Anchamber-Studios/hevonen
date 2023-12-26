@@ -2,6 +2,8 @@ package layouts
 
 import (
 	"github.com/anchamber-studios/hevonen/frontend/pages/components"
+	"fmt"
+	"github.com/anchamber-studios/hevonen/frontend/pages/theme"
 )
 
 type LayoutProps struct {
@@ -12,7 +14,7 @@ type LayoutProps struct {
 }
 
 templ BasicLayout(props LayoutProps) {
-	<html>
+	<html lang="en" className="dark h-full w-full">
 		<head>
 			<meta charset="UTF-8"/>
 			<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
@@ -27,16 +29,16 @@ templ BasicLayout(props LayoutProps) {
              }
              </style>
         </head>
-		<body class="h-full">
-            @components.SideNav("Hevonen")
-            <main
-                class="h-full w-full pl-[200px]">
+		<body class={ fmt.Sprintf("h-full w-full flex m-0 overflow-hidden %s %s", theme.DefaultBGColor, theme.DefaultTextColor) }>
+            <div id="left-sidebar" class="h-100 flex flex-col w-44">
+				@components.SideNav("Hevonen")
+			</div>
+			<div class="h-100 flex flex-col flex-auto">
                 @components.Header(components.HeaderProps{BreadCrumbs: props.BreadCrumbs})
                 <div id="main">
 			        @props.Content
                 </div>
-            </main>
-			// <script src="/public/js/app.js"></script>
+			</div>
 			<script src="/public/js/htmx.min.js"></script>
 		</body>
 	</html>

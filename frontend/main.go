@@ -5,7 +5,8 @@ import (
 	"log"
 	"os"
 
-	"github.com/anchamber-studios/hevonen/services/club/client"
+	cclient "github.com/anchamber-studios/hevonen/services/club/client"
+	uclient "github.com/anchamber-studios/hevonen/services/users/client"
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -25,7 +26,8 @@ type TlsConfig struct {
 }
 
 type Clients struct {
-	Members *client.MemberClient
+	Members *cclient.MemberClient
+	User    *uclient.UserClient
 }
 
 func main() {
@@ -45,15 +47,21 @@ func main() {
 	e.Use(middleware.Logger())
 	e.Use(customContext(config))
 
+	e.GET("/auth/login", getLogin)
+	e.GET("/auth/register", getRegister)
+
 	e.GET("/", index)
 	e.GET("/members", memberList)
-	e.POST("/members", postNewMember)
 	e.GET("/members/new", memberNew)
+
+	e.POST("/members", postNewMember)
 
 	address := fmt.Sprintf("%s:%s", config.Host, config.Port)
 	if config.Tls.Enabled {
+		log.Println("Starting server with TLS")
 		e.Logger.Fatal(e.StartTLS(address, config.Tls.Cert, config.Tls.Key))
 	} else {
+		log.Println("Starting server without TLS")
 		e.Logger.Fatal(e.Start(address))
 	}
 }
@@ -65,7 +73,7 @@ func loadConfig() Config {
 		log.Println("Error loading .env file")
 	}
 	return Config{
-		Host:    getOrDefault(os.Getenv("HOST"), "localhost"),
+		Host:    getOrDefault(os.Getenv("HOST"), "[::0]"),
 		Port:    getOrDefault(os.Getenv("PORT"), "4443"),
 		Clients: createClients(),
 	}
@@ -89,9 +97,12 @@ func customContext(config Config) echo.MiddlewareFunc {
 
 func createClients() Clients {
 	return Clients{
-		Members: &client.MemberClient{
-			Url: getOrDefault(os.Getenv("MEMBERS_URL"), "http://localhost:8443/members"),
-		},
+		// Members: &cclient.MemberClient{
+		// 	Url: getOrDefault(os.Getenv("MEMBERS_URL"), "http://localhost:8443/members"),
+		// },
+		// User: &uclient.UserClient{
+		// 	Url: getOrDefault(os.Getenv("USERS_URL"), "http://localhost:7444/users"),
+		// },
 	}
 }
 

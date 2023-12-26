@@ -6,11 +6,11 @@ import (
 	"net/http"
 )
 
-type MemberClient struct {
+type UserClient struct {
 	Url string
 }
 
-func (c MemberClient) GetUsers() ([]User, error) {
+func (c UserClient) GetUsers() ([]User, error) {
 	resp, err := http.Get(c.Url)
 	if err != nil {
 		return nil, err
@@ -23,7 +23,7 @@ func (c MemberClient) GetUsers() ([]User, error) {
 	return members, nil
 }
 
-func (c MemberClient) CreateUser(member UserCreate) (string, error) {
+func (c UserClient) CreateUser(member UserCreate) (string, error) {
 	memberJson, err := json.Marshal(member)
 	if err != nil {
 		return "", err

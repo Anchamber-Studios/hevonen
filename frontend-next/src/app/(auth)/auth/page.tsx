@@ -1,7 +1,6 @@
 "use client";
 
 import { useForm } from "react-hook-form"
-import { signIn } from "next-auth/react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import {
 	Form,
@@ -39,7 +38,7 @@ const formSchemaRegister = z.object({
 	}
 });
 
-export default function SignIn() {
+export default function Page() {
 	const formRegister = useForm<z.infer<typeof formSchemaRegister>>({
 		resolver: zodResolver(formSchemaRegister),
 		defaultValues: {
@@ -58,15 +57,15 @@ export default function SignIn() {
 
 	async function handleLogin(data: z.infer<typeof formSchemaLogin>) {
 		console.log(data);
-		try {
-			await signIn("credentials", {
-				email: data.email,
-				password: data.password,
-				callbackUrl: "/",
-			});
-		} catch (error) {
-			console.error(error);
-		}
+		// try {
+		// 	await signIn("credentials", {
+		// 		email: data.email,
+		// 		password: data.password,
+		// 		callbackUrl: "/",
+		// 	});
+		// } catch (error) {
+		// 	console.error(error);
+		// }
 	}
 	return (
 		<div className="flex items-center align-middle p-4 rounded-md m-auto w-[400px]">
@@ -96,7 +95,7 @@ export default function SignIn() {
 									<FormItem className="pt-2">
 										<FormLabel>Password</FormLabel>
 										<FormControl>
-											<InputPassword placeholder="Password" type="password" {...field}/>		
+											<Input placeholder="Password" type="password" {...field}/>		
 										</FormControl>
 										<FormMessage />
 									</FormItem>
@@ -127,7 +126,7 @@ export default function SignIn() {
 									<FormItem className="pt-2">
 										<FormLabel>Password</FormLabel>
 										<FormControl>
-											<InputPassword placeholder="Password" type="password" {...field} />
+											<Input placeholder="Password" type="password" {...field} />
 										</FormControl>
 										<FormMessage />
 									</FormItem>
@@ -139,7 +138,7 @@ export default function SignIn() {
 									<FormItem className="pt-2">
 										<FormLabel>Repeat Password</FormLabel>
 										<FormControl>
-											<InputPassword placeholder="Reepat Password" type="password" {...field} ref={passwordLogin}/>		
+											<Input placeholder="Reepat Password" type="password" {...field} />		
 										</FormControl>
 										<FormMessage />
 									</FormItem>
@@ -150,7 +149,6 @@ export default function SignIn() {
 					</Form>
 				</TabsContent>
 			</Tabs>
-
 		</div>
 	)
 }

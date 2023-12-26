@@ -1,38 +1,27 @@
 package components
 
-import "github.com/anchamber-studios/hevonen/frontend/pages/theme"
-import "fmt"
-
 templ SideNav(brandName string) {
-	<nav
- 		id="sidenav-main"
-        hx-target="#main"
- 		class={ fmt.Sprintf("absolute left-0 top-0 h-full w-[200px] %s", theme.DefaultBGColor) }
-	>
-		<div
- 			class="p-2 flex w-full items-center border-b-[1px] border-r-[1px] border-gray-600 h-[48px]">
-			<span class="font-bold text-gray-900 dark:text-gray-100">{ brandName }</span>
-		</div>
+	<div id="brand" class="h-12 pl-2 flex items-center border-b-[1px] border-gray-600">
+		<h1 class="uppercase font-extrabold">Hevonen</h1>
+	</div>
+
+	<div class="flex-grow-1 overflow-y-auto">
 		<ul
- 			class="relative m-0 list-none px-[0.2rem] pb-12"
-		>
-            @SideNavNavigationLink(SideNavNavigationLinkProps{
+ 			class="relative m-0 list-none px-[0.2rem] pb-12">
+			@SideNavNavigationLink(SideNavNavigationLinkProps{
                 Header: "",
                 Icon: Home(),
                 Href: "/",
                 Name: "Overview",
             })
-
-            
-            @SideNavNavigationLink(SideNavNavigationLinkProps{
+			@SideNavNavigationLink(SideNavNavigationLinkProps{
                 Header: "Admin",
                 Icon: Users(),
                 Href: "/members",
                 Name: "Members",
             })
-        </ul>
-    </nav>
-	<!-- Sidenav -->
+		</ul>
+	</div>
 }
 
 type SideNavNavigationLinkProps struct {
@@ -44,21 +33,22 @@ type SideNavNavigationLinkProps struct {
 
 templ SideNavNavigationLink(props SideNavNavigationLinkProps) {
 	<li class="relative pt-2">
-        if props.Header != "" {
-            <span class="px-2 py-2 text-[0.6rem] font-bold uppercase text-gray-600 dark:text-gray-400">
-                { props.Header }
-            </span>
-        }
+		if props.Header != "" {
+			<span class="px-2 py-2 text-[0.6rem] font-bold uppercase text-gray-600 dark:text-gray-400">
+				{ props.Header }
+			</span>
+		}
 		<a
-            hx-get={ props.Href } 
-            hx-push-url="true"
+ 			hx-get={ props.Href }
+ 			hx-push-url="true"
  			class="flex cursor-pointer items-center truncate rounded-[5px] px-2 py-[0.45rem] text-[0.85rem] text-gray-600 outline-none transition duration-300 ease-linear hover:bg-slate-50 hover:text-inherit hover:outline-none focus:bg-slate-50 focus:text-inherit focus:outline-none active:bg-slate-50 active:text-inherit active:outline-none data-[te-sidenav-state-active]:text-inherit data-[te-sidenav-state-focus]:outline-none motion-reduce:transition-none dark:text-gray-300 dark:hover:bg-white/10 dark:focus:bg-white/10 dark:active:bg-white/10"
- 			data-te-sidenav-link-ref>
+ 			data-te-sidenav-link-ref
+		>
 			if props.Icon != nil {
-                <span class="pr-2 [&>svg]:h-3.5 [&>svg]:w-3.5 [&>svg]:text-gray-400 dark:[&>svg]:text-gray-300">
-				    @props.Icon
-			    </span>
-            }
+				<span class="pr-2 [&>svg]:h-3.5 [&>svg]:w-3.5 [&>svg]:text-gray-400 dark:[&>svg]:text-gray-300">
+					@props.Icon
+				</span>
+			}
 			<span>{ props.Name }</span>
 		</a>
 	</li>

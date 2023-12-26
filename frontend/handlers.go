@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/anchamber-studios/hevonen/frontend/pages"
+	a "github.com/anchamber-studios/hevonen/frontend/pages/auth"
 	m "github.com/anchamber-studios/hevonen/frontend/pages/members"
 	"github.com/anchamber-studios/hevonen/services/club/client"
 	"github.com/labstack/echo/v4"
@@ -73,4 +74,20 @@ func postNewMember(c echo.Context) error {
 		return c.String(500, "Unable to add member")
 	}
 	return c.Redirect(302, loc)
+}
+
+func getLogin(c echo.Context) error {
+	cc := c.(*CustomContext)
+	csrf := c.Get("csrf").(string)
+	// hxRequest := cc.Request().Header.Get(HX_REQUEST_HEADER)
+	cc.Response().Header().Set("HX-Target", "html")
+	return a.LoginPage(csrf, a.LoginPageProps{}).Render(c.Request().Context(), c.Response().Writer)
+}
+
+func getRegister(c echo.Context) error {
+	cc := c.(*CustomContext)
+	csrf := c.Get("csrf").(string)
+	// hxRequest := cc.Request().Header.Get(HX_REQUEST_HEADER)
+	cc.Response().Header().Set("HX-Target", "html")
+	return a.RegisterPage(csrf, a.RegisterPageProps{}).Render(c.Request().Context(), c.Response().Writer)
 }

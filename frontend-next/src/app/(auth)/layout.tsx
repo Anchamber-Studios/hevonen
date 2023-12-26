@@ -21,7 +21,9 @@ export default function RootLayout({
 		<html lang="en" className="dark h-full w-full">
 			<body
 				className={`h-full w-full flex items-center m-0 overflow-hidden font-sans ${inter.variable} bg-gray-100 dark:bg-gray-900`}>
+				<div>
 				{children}
+				</div>
 			</body>
 		</html>
 	)

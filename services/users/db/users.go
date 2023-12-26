@@ -5,7 +5,7 @@ import (
 
 	"github.com/anchamber-studios/hevonen/lib"
 	"github.com/anchamber-studios/hevonen/services/users/client"
-	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/jackc/pgx/v5"
 	"github.com/labstack/echo/v4"
 	"github.com/sqids/sqids-go"
 	"golang.org/x/crypto/bcrypt"
@@ -18,7 +18,7 @@ type UserRepo interface {
 
 type UserRepoPostgre struct {
 	Logger       echo.Logger
-	DB           *pgxpool.Conn
+	DB           *pgx.Conn
 	IdConversion *sqids.Sqids
 }
 
