@@ -5,6 +5,12 @@ import "fmt"
 
 type HeaderProps struct {
 	BreadCrumbs []BreadCrumbProp
+	User		User
+}
+
+type User struct {
+	ID    string
+	Email string
 }
 
 type BreadCrumbProp struct {
@@ -15,10 +21,10 @@ type BreadCrumbProp struct {
 templ Header(props HeaderProps) {
 	<nav class={ fmt.Sprintf("flex-no-wrap relative flex w-full items-center justify-between h-[48px] border-b-[1px] border-gray-600 %s", theme.DefaultBGColor) }>
 		<div class="flex px-3 ">
-            @BreadCrumbs(props.BreadCrumbs)
+			@BreadCrumbs(props.BreadCrumbs)
 		</div>
 		<div class="flex flex-row-reverse flex-wrap grow items-center justify-between px-3">
-			@userArea()
+			@userArea(props.User)
 		</div>
 	</nav>
 }
@@ -37,8 +43,8 @@ templ BreadCrumbs(breadCrumbs []BreadCrumbProp) {
 				}
 				<li>
 					<a
-                        hx-get={ breadCrumb.Href } 
-                        hx-push-url="true"
+ 						hx-get={ breadCrumb.Href }
+ 						hx-push-url="true"
  						class={ fmt.Sprintf("transition duration-150 ease-in-out hover:text-primary-600 focus:text-primary-600 active:text-primary-700 dark:text-primary-400 dark:hover:text-primary-500 dark:focus:text-primary-500 dark:active:text-primary-600 %s", theme.DefaultTextColor) }
 					>
 						{ breadCrumb.Text }
@@ -49,56 +55,16 @@ templ BreadCrumbs(breadCrumbs []BreadCrumbProp) {
 	</nav>
 }
 
-templ userArea() {
+templ userArea(user User) {
 	<div class="relative flex items-center">
-		<!-- Container with two dropdown menus -->
-		<div
- 			class="relative"
-		>
-			<!-- Second dropdown container -->
-			<div
- 				class="relative"
-			>
-				<!-- Second dropdown trigger -->
-				<a
- 					class="hidden-arrow flex items-center whitespace-nowrap transition duration-150 ease-in-out motion-reduce:transition-none"
- 					href="#"
- 					id="dropdownMenuButton2"
- 					role="button"
- 					aria-expanded="false"
-				>
-					<!-- User avatar -->
-					<img
- 						src="https://tecdn.b-cdn.net/img/new/avatars/2.jpg"
- 						class="rounded-full"
- 						style="height: 25px; width: 25px"
- 						alt=""
- 						loading="lazy"
-					/>
-				</a>
-				<ul
- 					class="absolute z-[1000] float-left m-0 hidden min-w-max list-none overflow-hidden rounded-lg border-none bg-white bg-clip-padding text-left text-base shadow-lg dark:bg-neutral-700 [&[data-te-dropdown-show]]:block"
- 					aria-labelledby="dropdownMenuButton2"
-				>
-					<li>
-						<a
- 							class="block w-full whitespace-nowrap bg-transparent px-4 py-2 text-sm font-normal text-neutral-700 hover:bg-neutral-100 active:text-neutral-800 active:no-underline disabled:pointer-events-none disabled:bg-transparent disabled:text-neutral-400 dark:text-neutral-200 dark:hover:bg-white/30"
- 							href="#"
- 							data-te-dropdown-item-ref
-						>
-							Profile
-						</a>
-					</li>
-					<li>
-						<a
- 							class="block w-full whitespace-nowrap bg-transparent px-4 py-2 text-sm font-normal text-neutral-700 hover:bg-neutral-100 active:text-neutral-800 active:no-underline disabled:pointer-events-none disabled:bg-transparent disabled:text-neutral-400 dark:text-neutral-200 dark:hover:bg-white/30"
- 							href="#"
-						>
-							Logout
-						</a>
-					</li>
-				</ul>
-			</div>
-		</div>
+		if user.ID != "" {
+			<a href="/auth/logout" class="underline text-sm text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-500">
+				Logout
+			</a>
+		} else {
+			<a href="/auth/login" class="text-sm text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-500">
+				Login
+			</a>
+		}
 	</div>
 }

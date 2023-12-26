@@ -3,7 +3,6 @@ package auth
 import "fmt"
 import "github.com/anchamber-studios/hevonen/frontend/pages/theme"
 
-
 type LoginPageProps struct {
 }
 
@@ -15,8 +14,8 @@ templ LoginPage(csrftoken string, props LoginPageProps) {
 			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 			<link rel="icon" href="/public/favicon.svg"/>
 			<title>Login</title>
-            <script src="https://cdn.tailwindcss.com/3.3.0"></script>
-            <style>
+			<script src="https://cdn.tailwindcss.com/3.3.0"></script>
+			<style>
              body {
                 font-family: Tahoma, sans-serif;
              }
@@ -28,17 +27,32 @@ templ LoginPage(csrftoken string, props LoginPageProps) {
 				<form class="w-full">
 					<div class="pb-2">
 						<label for="email">Email</label>
-						<input id="email" type="email" name="email" autocomplete="email" required class="w-full"/>
+						<input
+ 							id="email"
+ 							type="email"
+ 							name="email"
+ 							autocomplete="email"
+ 							required
+ 							class="w-full p-1 dark:text-gray-900"
+						/>
 					</div>
 					<div class="pb-2">
 						<label for="password">Password</label>
-						<input id="password" type="password" name="password" autocomplete="password" required class="w-full"/>
+						<input
+ 							id="password"
+ 							type="password"
+ 							name="password"
+ 							autocomplete="password"
+ 							required
+ 							class="w-full p-1 dark:text-gray-900"
+						/>
 						<p class="text-xs">Forgot your password? <a href="/auth/reset" class="underline">Reset</a></p>
 					</div>
+					<input type="hidden" name="csrf" value={ csrftoken }/>
 					<button type="submit" class="my-2 p-1 w-full bg-green-800">Login</button>
 					<div>
 						<p class="text-xs">Don't have an account? <a href="/auth/register" class="underline">Register</a></p>
-						</div>
+					</div>
 				</form>
 			</div>
 			<script src="/public/js/htmx.min.js"></script>

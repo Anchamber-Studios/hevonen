@@ -3,7 +3,6 @@ package auth
 import "fmt"
 import "github.com/anchamber-studios/hevonen/frontend/pages/theme"
 
-
 type RegisterPageProps struct {
 }
 
@@ -15,8 +14,8 @@ templ RegisterPage(csrftoken string, props RegisterPageProps) {
 			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 			<link rel="icon" href="/public/favicon.svg"/>
 			<title>Register</title>
-            <script src="https://cdn.tailwindcss.com/3.3.0"></script>
-            <style>
+			<script src="https://cdn.tailwindcss.com/3.3.0"></script>
+			<style>
              body {
                 font-family: Tahoma, sans-serif;
              }
@@ -28,16 +27,37 @@ templ RegisterPage(csrftoken string, props RegisterPageProps) {
 				<form class="w-full">
 					<div class="pb-2">
 						<label for="email">Email</label>
-						<input id="email" type="email" name="email" autocomplete="email" required class="w-full"/>
+						<input
+ 							id="email"
+ 							type="email"
+ 							name="email"
+ 							autocomplete="email"
+ 							required
+ 							class="w-full dark:text-gray-900"
+						/>
 					</div>
 					<div class="pb-2">
 						<label for="password">Password</label>
-						<input id="password" type="password" name="password" autocomplete="password" required class="w-full"/>
+						<input
+ 							id="password"
+ 							type="password"
+ 							name="password"
+ 							autocomplete="password"
+ 							required
+ 							class="w-full dark:text-gray-900"
+						/>
 					</div>
 					<div class="pb-2">
 						<label for="password-confirmation">Confirm Password</label>
-						<input id="password-confirmation" type="password" name="password-confirmation" required class="w-full"/>
+						<input
+ 							id="password-confirmation"
+ 							type="password"
+ 							name="password-confirmation"
+ 							required
+ 							class="w-full dark:text-gray-900"
+						/>
 					</div>
+					<input type="hidden" name="csrf" value={ csrftoken }/>
 					<button type="submit" class="my-2 p-1 w-full bg-green-800">Register</button>
 					<div>
 						<p class="text-xs">Already have an account? <a href="/auth/login" class="underline">Login</a></p>
