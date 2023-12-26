@@ -6,7 +6,7 @@ templ SideNav(brandName string) {
 	</div>
 
 	<div class="flex-grow-1 overflow-y-auto">
-		<ul
+		<ul hx-target="#main"
  			class="relative m-0 list-none px-[0.2rem] pb-12">
 			@SideNavNavigationLink(SideNavNavigationLinkProps{
                 Header: "",

@@ -97,12 +97,12 @@ func customContext(config Config) echo.MiddlewareFunc {
 
 func createClients() Clients {
 	return Clients{
-		// Members: &cclient.MemberClient{
-		// 	Url: getOrDefault(os.Getenv("MEMBERS_URL"), "http://localhost:8443/members"),
-		// },
-		// User: &uclient.UserClient{
-		// 	Url: getOrDefault(os.Getenv("USERS_URL"), "http://localhost:7444/users"),
-		// },
+		Members: &cclient.MemberClient{
+			Url: getOrDefault(os.Getenv("MEMBERS_URL"), "http://localhost:8443/members"),
+		},
+		User: &uclient.UserClient{
+			Url: getOrDefault(os.Getenv("USERS_URL"), "http://localhost:7444/users"),
+		},
 	}
 }
 
