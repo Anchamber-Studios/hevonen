@@ -100,7 +100,12 @@ func postLogin(c echo.Context) error {
 	user, err := cc.Config.Clients.User.Login(login)
 	if err != nil {
 		c.Logger().Errorf("Unable to login: %v\n", err)
-		return c.String(http.StatusUnauthorized, "invalid login")
+		csrf := c.Get("csrf").(string)
+		return a.LoginForm(csrf, a.LoginPageProps{
+			EmailError:    "",
+			PasswordError: "",
+			Error:         "email or password is incorrect",
+		}).Render(c.Request().Context(), c.Response().Writer)
 	}
 	c.Logger().Infof("user '%s' logged in\n", user.Id)
 	cc.Response().Header().Set("HX-Target", "html")
