@@ -48,6 +48,7 @@ func main() {
 	e.Use(customContext(config))
 
 	e.GET("/auth/login", getLogin)
+	e.POST("/auth/login", postLogin)
 	e.GET("/auth/register", getRegister)
 
 	e.GET("/", index)
@@ -101,7 +102,7 @@ func createClients() Clients {
 			Url: getOrDefault(os.Getenv("MEMBERS_URL"), "http://localhost:8443/members"),
 		},
 		User: &uclient.UserClient{
-			Url: getOrDefault(os.Getenv("USERS_URL"), "http://localhost:7444/users"),
+			Url: getOrDefault(os.Getenv("USERS_URL"), "http://localhost:7443/users"),
 		},
 	}
 }

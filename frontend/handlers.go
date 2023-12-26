@@ -1,11 +1,16 @@
 package main
 
 import (
+	"net/http"
+	"time"
+
 	"github.com/anchamber-studios/hevonen/frontend/pages"
 	a "github.com/anchamber-studios/hevonen/frontend/pages/auth"
 	m "github.com/anchamber-studios/hevonen/frontend/pages/members"
 	"github.com/anchamber-studios/hevonen/services/club/client"
+	uc "github.com/anchamber-studios/hevonen/services/users/client"
 	"github.com/labstack/echo/v4"
+	"github.com/segmentio/encoding/json"
 )
 
 const (
@@ -73,7 +78,7 @@ func postNewMember(c echo.Context) error {
 		c.Logger().Errorf("Unable to add member: %v\n", err)
 		return c.String(500, "Unable to add member")
 	}
-	return c.Redirect(302, loc)
+	return c.Redirect(http.StatusFound, loc)
 }
 
 func getLogin(c echo.Context) error {
@@ -82,6 +87,35 @@ func getLogin(c echo.Context) error {
 	// hxRequest := cc.Request().Header.Get(HX_REQUEST_HEADER)
 	cc.Response().Header().Set("HX-Target", "html")
 	return a.LoginPage(csrf, a.LoginPageProps{}).Render(c.Request().Context(), c.Response().Writer)
+}
+
+func postLogin(c echo.Context) error {
+	cc := c.(*CustomContext)
+	login := uc.UserLogin{}
+	if err := c.Bind(&login); err != nil {
+		c.Logger().Errorf("Unable to bind login: %v\n", err)
+		return c.String(http.StatusUnauthorized, "invalid logn")
+	}
+
+	user, err := cc.Config.Clients.User.Login(login)
+	if err != nil {
+		c.Logger().Errorf("Unable to login: %v\n", err)
+		return c.String(http.StatusUnauthorized, "invalid login")
+	}
+	c.Logger().Infof("user '%s' logged in\n", user.Id)
+	cc.Response().Header().Set("HX-Target", "html")
+
+	cookieValue, _ := json.Marshal(user)
+	// generate a new session cookit
+	cookie := &http.Cookie{
+		Name:     "session",
+		Value:    string(cookieValue),
+		Expires:  time.Now().Add(24 * time.Hour),
+		HttpOnly: true,
+	}
+
+	c.SetCookie(cookie)
+	return c.Redirect(http.StatusFound, "/")
 }
 
 func getRegister(c echo.Context) error {
