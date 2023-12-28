@@ -14,7 +14,9 @@ import { Input } from "@components/ui/input";
 import { Button } from "@components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@components/ui/tabs";
 import { z } from "zod";
-import { InputPassword } from "~/app/_components/ui/input-password";
+import { signIn } from "next-auth/react"
+import { UserClient } from "~/client/users";
+import { env } from "~/env";
 
 const formSchemaLogin = z.object({
 	email: z.string().email().toLowerCase(),
@@ -55,21 +57,32 @@ export default function Page() {
 		},
 	});
 
+	const openTab: "login" | "register" = "login";
+
 	async function handleLogin(data: z.infer<typeof formSchemaLogin>) {
-		console.log(data);
-		// try {
-		// 	await signIn("credentials", {
-		// 		email: data.email,
-		// 		password: data.password,
-		// 		callbackUrl: "/",
-		// 	});
-		// } catch (error) {
-		// 	console.error(error);
-		// }
+		try {
+			await signIn("credentials", {
+				email: data.email,
+				password: data.password,
+				callbackUrl: "/",
+			});
+		} catch (error) {
+			console.error(error);
+		}
+	}
+
+	async function handleRegister(data: z.infer<typeof formSchemaRegister>) {
+		try {
+			let client = new UserClient(env.USER_SERVICE_URL);
+			await client.register(data.email, data.password);
+		} catch (error) {
+			console.error(error);
+		}
+		
 	}
 	return (
 		<div className="flex items-center align-middle p-4 rounded-md m-auto w-[400px]">
-			<Tabs defaultValue="login" className="w-full">
+			<Tabs defaultValue={openTab} className="w-full">
 				<TabsList className="w-full">
 					<TabsTrigger value="login" className="uppercase font-bold w-full">Login</TabsTrigger>
 					<TabsTrigger value="register" className="uppercase font-bold w-full">Register</TabsTrigger>
@@ -107,7 +120,7 @@ export default function Page() {
 				</TabsContent>
 				<TabsContent value="register">
 					<Form {...formRegister}>
-						<form onSubmit={formRegister.handleSubmit((data) => console.log(data))}>
+						<form action="/api/register" method="POST">
 							<FormField control={formRegister.control}
 								name="email"
 								render={({ field }) => (

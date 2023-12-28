@@ -15,6 +15,9 @@ export class UserClient {
 			let response = await fetch(`${this.url}/login`, {
 				method: 'POST',
 				body: JSON.stringify({ email, password }),
+				headers: {
+					'Content-Type': 'application/json'
+				},
 			});
 
 			if (!response.ok) {
@@ -27,7 +30,24 @@ export class UserClient {
 		}
 	}
 
-	async create() {
-		// ...
+	async register(email: string, password: string): Promise<User> {
+		try {
+			let response = await fetch(`${this.url}/register`, {
+				method: 'POST',
+				body: JSON.stringify({ email, password }),
+				headers: {
+					'Content-Type': 'application/json'
+				},
+			});
+
+			if (!response.ok) {
+				throw new Error('Register failed');
+			}
+
+			return response.json();
+		} catch (e) {
+			console.log(`register request failed: ${e}`)
+			throw new Error('Create failed');
+		}
 	}
 }

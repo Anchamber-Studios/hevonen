@@ -18,7 +18,16 @@ func list(c echo.Context) error {
 }
 
 func new(c echo.Context) error {
-	return echo.NewHTTPError(echo.ErrNotImplemented.Code, "not implemented")
+	cc := c.(*CustomContext)
+	var newUser client.UserCreate
+	if err := cc.Bind(&newUser); err != nil {
+		return echo.NewHTTPError(echo.ErrBadRequest.Code, err.Error())
+	}
+	user, err := cc.Repos.Users.Create(c.Request().Context(), newUser)
+	if err != nil {
+		return echo.NewHTTPError(echo.ErrBadRequest.Code, err.Error())
+	}
+	return c.JSON(http.StatusOK, &user)
 }
 
 func login(c echo.Context) error {
