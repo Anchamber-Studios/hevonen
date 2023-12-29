@@ -54,15 +54,26 @@ func main() {
 	e.Use(session.Middleware((sessions.NewCookieStore([]byte(config.SessionSecret)))))
 	e.Use(customContext(config))
 
-	e.GET("/auth/login", getLogin)
-	e.POST("/auth/login", postLogin)
-	e.GET("/auth/register", getRegister)
+	unrestricted := e.Group("/auth")
+	unrestricted.GET("/login", getLogin)
+	unrestricted.POST("/login", postLogin)
+	unrestricted.GET("/register", getRegister)
 
-	e.GET("/", index)
-	e.GET("/members", memberList)
-	e.GET("/members/new", memberNew)
+	restricted := e.Group("")
+	restricted.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			cc := c.(*CustomContext)
+			if !cc.Session.LoggedIn {
+				return c.Redirect(302, "/auth/login")
+			}
+			return next(c)
+		}
+	})
+	restricted.GET("/", index)
+	restricted.GET("/members", memberList)
+	restricted.GET("/members/new", memberNew)
 
-	e.POST("/members", postNewMember)
+	restricted.POST("/members", postNewMember)
 
 	address := fmt.Sprintf("%s:%s", config.Host, config.Port)
 	if config.Tls.Enabled {
