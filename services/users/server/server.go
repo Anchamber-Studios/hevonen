@@ -40,7 +40,7 @@ func Routes(e *echo.Echo) {
 func customContext(conf config.Config) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
-			conn, err := openConnection(conf, c.Logger())
+			conn, err := db.OpenConnection(conf, c.Logger())
 			if err != nil {
 				c.Logger().Errorf("Unable to connect to database: %v\n", err)
 				c.Error(fmt.Errorf("internal server error"))

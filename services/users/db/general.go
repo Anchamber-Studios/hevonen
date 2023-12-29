@@ -1,4 +1,4 @@
-package server
+package db
 
 import (
 	"context"
@@ -14,10 +14,10 @@ import (
 //go:embed migrations/*.sql
 var migrationFiles embed.FS
 
-func setupDb(conf config.Config, logger echo.Logger) *pgx.Conn {
+func SetupDb(conf config.Config, logger echo.Logger) *pgx.Conn {
 	logger.Infof("Setup database\n")
 	fmt.Printf("Setup database\n")
-	conn, err := openConnection(conf, logger)
+	conn, err := OpenConnection(conf, logger)
 	if err != nil {
 		logger.Fatalf("Unable to connect to database: %v\n", err)
 	}
@@ -29,7 +29,7 @@ func setupDb(conf config.Config, logger echo.Logger) *pgx.Conn {
 	return conn
 }
 
-func openConnection(conf config.Config, logger echo.Logger) (*pgx.Conn, error) {
+func OpenConnection(conf config.Config, logger echo.Logger) (*pgx.Conn, error) {
 	dsn := fmt.Sprintf("postgres://%s:%s@%s:%s/%s", conf.DB.User, conf.DB.Password, conf.DB.Url, conf.DB.Port, conf.DB.Database)
 
 	conn, err := pgx.Connect(context.Background(), dsn)

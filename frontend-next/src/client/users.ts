@@ -32,7 +32,7 @@ export class UserClient {
 
 	async register(email: string, password: string): Promise<User> {
 		try {
-			let response = await fetch(`${this.url}/register`, {
+			const response = await fetch(`${this.url}/register`, {
 				method: 'POST',
 				body: JSON.stringify({ email, password }),
 				headers: {
