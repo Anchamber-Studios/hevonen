@@ -5,6 +5,7 @@ import (
 	c "github.com/anchamber-studios/hevonen/frontend/pages/components"
 	"github.com/anchamber-studios/hevonen/services/club/client"
 	"fmt"
+	"github.com/anchamber-studios/hevonen/frontend/types"
 )
 
 type MemberListProps struct {
@@ -24,8 +25,8 @@ templ MemberList(props MemberListProps) {
 	@memberTable(props)
 }
 
-templ MemberListWL(props MemberListProps) {
-	@l.BasicLayout(l.LayoutProps{
+templ MemberListWL(session types.Session, props MemberListProps) {
+	@l.BasicLayout(session, l.LayoutProps{
         Title: "Hevonen - Members",
         BrandName: "Hevonen",
         Content: memberTable(props),

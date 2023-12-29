@@ -5,18 +5,22 @@ import (
 	"log"
 	"os"
 
+	"github.com/anchamber-studios/hevonen/frontend/types"
 	cclient "github.com/anchamber-studios/hevonen/services/club/client"
 	uclient "github.com/anchamber-studios/hevonen/services/users/client"
+	"github.com/gorilla/sessions"
 	"github.com/joho/godotenv"
+	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
 
 type Config struct {
-	Host    string
-	Port    string
-	Tls     TlsConfig
-	Clients Clients
+	Host          string
+	Port          string
+	Tls           TlsConfig
+	Clients       Clients
+	SessionSecret string
 }
 
 type TlsConfig struct {
@@ -44,7 +48,10 @@ func main() {
 	}))
 	e.Use(middleware.Secure())
 	e.Use(middleware.RequestID())
-	e.Use(middleware.Logger())
+	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
+		Format: "method=${method}, uri=${uri}, status=${status}\n",
+	}))
+	e.Use(session.Middleware((sessions.NewCookieStore([]byte(config.SessionSecret)))))
 	e.Use(customContext(config))
 
 	e.GET("/auth/login", getLogin)
@@ -74,23 +81,33 @@ func loadConfig() Config {
 		log.Println("Error loading .env file")
 	}
 	return Config{
-		Host:    getOrDefault(os.Getenv("HOST"), "[::0]"),
-		Port:    getOrDefault(os.Getenv("PORT"), "4443"),
-		Clients: createClients(),
+		Host:          getOrDefault(os.Getenv("HOST"), "[::0]"),
+		Port:          getOrDefault(os.Getenv("PORT"), "4443"),
+		Clients:       createClients(),
+		SessionSecret: getOrDefault(os.Getenv("SESSION_SECRET"), "session_secret"),
 	}
 }
 
 type CustomContext struct {
 	echo.Context
-	Config Config
+	Config  Config
+	Session types.Session
 }
 
 func customContext(config Config) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
-
-			cc := &CustomContext{c, config}
-
+			cc := &CustomContext{c, config, types.Session{LoggedIn: false}}
+			sess, _ := session.Get("session", c)
+			if sess != nil {
+				if val, ok := sess.Values["id"].(string); ok {
+					cc.Session.ID = val
+				}
+				if val, ok := sess.Values["email"].(string); ok {
+					cc.Session.Email = val
+				}
+				cc.Session.LoggedIn = cc.Session.ID != "" && cc.Session.Email != ""
+			}
 			return next(cc)
 		}
 	}

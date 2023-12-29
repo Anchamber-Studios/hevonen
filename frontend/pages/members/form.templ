@@ -3,9 +3,11 @@ package members;
 import (
 	l "github.com/anchamber-studios/hevonen/frontend/pages/layouts"
 	c "github.com/anchamber-studios/hevonen/frontend/pages/components"
+	"github.com/anchamber-studios/hevonen/frontend/types"
 )
 
 type MemberFormProps struct {
+	Csrf string
 }
 
 var bcNew []c.BreadCrumbProp = []c.BreadCrumbProp{
@@ -19,23 +21,23 @@ var bcNew []c.BreadCrumbProp = []c.BreadCrumbProp{
 	},
 }
 
-templ NewForm(csrf string, props MemberFormProps) {
+templ NewForm(props MemberFormProps) {
     @c.BreadCrumbs(bcNew)
-	@newMemberForm(csrf, props)
+	@newMemberForm(props)
 }
 
-templ NewFormWL(csrf string, props MemberFormProps) {
-	@l.BasicLayout(l.LayoutProps{
+templ NewFormWL(session types.Session, props MemberFormProps) {
+	@l.BasicLayout(session, l.LayoutProps{
         Title: "Hevonen - New Member",
         BrandName: "Hevonen",
-        Content: newMemberForm(csrf, props),
+        Content: newMemberForm(props),
         BreadCrumbs: bcNew,
     })
 }
 
-templ newMemberForm(csrf string, props MemberFormProps) {
+templ newMemberForm(props MemberFormProps) {
 	<form class="p-2 w-full max-w-[1024px]" hx-post="/members">
-        <input type="hidden" name="csrf" value={csrf} />
+        <input type="hidden" name="csrf" value={props.Csrf} />
 		<div class="flex flex-wrap -mx-3 mb-6">
 			@c.TextInput(c.InputProps{
             ID: "firstName",

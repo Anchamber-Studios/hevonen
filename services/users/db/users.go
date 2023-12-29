@@ -52,9 +52,8 @@ func (r *UserRepoPostgre) Login(ctx context.Context, login client.UserLogin) (cl
 	var hashedPassword string
 	err := r.DB.QueryRow(
 		ctx,
-		"SELECT id, email, password FROM users.users WHERE email = $1 AND password = $2;",
-		login.Email,
-		login.Password).Scan(&id, &user.Email, &hashedPassword)
+		"SELECT id, email, password FROM users.users WHERE email = $1;",
+		login.Email).Scan(&id, &user.Email, &hashedPassword)
 	if err != nil {
 		return client.User{}, err
 	}

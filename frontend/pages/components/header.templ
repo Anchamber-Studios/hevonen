@@ -1,16 +1,11 @@
 package components
 
-import "github.com/anchamber-studios/hevonen/frontend/pages/theme"
 import "fmt"
+import "github.com/anchamber-studios/hevonen/frontend/types"
+import "github.com/anchamber-studios/hevonen/frontend/pages/theme"
 
 type HeaderProps struct {
 	BreadCrumbs []BreadCrumbProp
-	User		User
-}
-
-type User struct {
-	ID    string
-	Email string
 }
 
 type BreadCrumbProp struct {
@@ -18,13 +13,13 @@ type BreadCrumbProp struct {
 	Href string
 }
 
-templ Header(props HeaderProps) {
+templ Header(session types.Session, props HeaderProps) {
 	<nav class={ fmt.Sprintf("flex-no-wrap relative flex w-full items-center justify-between h-[48px] border-b-[1px] border-gray-600 %s", theme.DefaultBGColor) }>
 		<div class="flex px-3 ">
 			@BreadCrumbs(props.BreadCrumbs)
 		</div>
 		<div class="flex flex-row-reverse flex-wrap grow items-center justify-between px-3">
-			@userArea(props.User)
+			@userArea(session)
 		</div>
 	</nav>
 }
@@ -55,9 +50,10 @@ templ BreadCrumbs(breadCrumbs []BreadCrumbProp) {
 	</nav>
 }
 
-templ userArea(user User) {
+templ userArea(session types.Session) {
 	<div class="relative flex items-center">
-		if user.ID != "" {
+		if session.ID != "" {
+			<p>Welcome {session.Email} | </p>
 			<a href="/auth/logout" class="underline text-sm text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-500">
 				Logout
 			</a>

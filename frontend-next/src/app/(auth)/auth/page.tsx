@@ -15,8 +15,7 @@ import { Button } from "@components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@components/ui/tabs";
 import { z } from "zod";
 import { signIn } from "next-auth/react"
-import { UserClient } from "~/client/users";
-import { env } from "~/env";
+import { useSearchParams } from "next/navigation";
 
 const formSchemaLogin = z.object({
 	email: z.string().email().toLowerCase(),
@@ -40,7 +39,23 @@ const formSchemaRegister = z.object({
 	}
 });
 
+async function handleLogin(data: z.infer<typeof formSchemaLogin>) {
+	console.log(data);
+	try {
+		await signIn("credentials", {
+			email: data.email,
+			password: data.password,
+			callbackUrl: "/",
+		});
+	} catch (error) {
+		console.error(error);
+	}
+}
+
 export default function Page() {
+	const params = useSearchParams();
+	const error = params.get("error");
+
 	const formRegister = useForm<z.infer<typeof formSchemaRegister>>({
 		resolver: zodResolver(formSchemaRegister),
 		defaultValues: {
@@ -57,29 +72,8 @@ export default function Page() {
 		},
 	});
 
-	const openTab: "login" | "register" = "login";
+	const openTab: "login" | "register" = params.get("tab") === "register" ? "register" : "login";
 
-	async function handleLogin(data: z.infer<typeof formSchemaLogin>) {
-		try {
-			await signIn("credentials", {
-				email: data.email,
-				password: data.password,
-				callbackUrl: "/",
-			});
-		} catch (error) {
-			console.error(error);
-		}
-	}
-
-	async function handleRegister(data: z.infer<typeof formSchemaRegister>) {
-		try {
-			let client = new UserClient(env.USER_SERVICE_URL);
-			await client.register(data.email, data.password);
-		} catch (error) {
-			console.error(error);
-		}
-		
-	}
 	return (
 		<div className="flex items-center align-middle p-4 rounded-md m-auto w-[400px]">
 			<Tabs defaultValue={openTab} className="w-full">
@@ -108,12 +102,13 @@ export default function Page() {
 									<FormItem className="pt-2">
 										<FormLabel>Password</FormLabel>
 										<FormControl>
-											<Input placeholder="Password" type="password" {...field}/>		
+											<Input placeholder="Password" type="password" {...field} />
 										</FormControl>
 										<FormMessage />
 									</FormItem>
 								)
 								} />
+							<FormMessage className="text-red-500">{error}</FormMessage>
 							<Button type="submit" className="w-full mt-4">Sign In</Button>
 						</form>
 					</Form>
@@ -151,7 +146,7 @@ export default function Page() {
 									<FormItem className="pt-2">
 										<FormLabel>Repeat Password</FormLabel>
 										<FormControl>
-											<Input placeholder="Reepat Password" type="password" {...field} />		
+											<Input placeholder="Reepat Password" type="password" {...field} />
 										</FormControl>
 										<FormMessage />
 									</FormItem>

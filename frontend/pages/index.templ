@@ -3,6 +3,7 @@ package pages
 import (
 	l "github.com/anchamber-studios/hevonen/frontend/pages/layouts"
 	c "github.com/anchamber-studios/hevonen/frontend/pages/components"
+	"github.com/anchamber-studios/hevonen/frontend/types"
 )
 
 var bcIndex []c.BreadCrumbProp = []c.BreadCrumbProp{
@@ -17,8 +18,8 @@ templ Index() {
     @content()
 }
 
-templ IndexWL() {
-    @l.BasicLayout(l.LayoutProps{
+templ IndexWL(session types.Session) {
+    @l.BasicLayout(session, l.LayoutProps{
         Title: "Hevonen - Home",
         BrandName: "Hevonen",
         Content: content(),

@@ -11,8 +11,8 @@ export async function POST(req: Request) {
 	console.log(`email: ${email}, password: ${password}`);
 
 	try {
-		let client = new UserClient(env.USER_SERVICE_URL);
-		let user = await client.register(email, password);
+		const client = new UserClient(env.USER_SERVICE_URL);
+		const user = await client.register(email, password);
 		return Response.json(user);
 	} catch (error) {
 		console.error(error);

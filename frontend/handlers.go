@@ -2,15 +2,16 @@ package main
 
 import (
 	"net/http"
-	"time"
 
+	"github.com/a-h/templ"
 	"github.com/anchamber-studios/hevonen/frontend/pages"
 	a "github.com/anchamber-studios/hevonen/frontend/pages/auth"
 	m "github.com/anchamber-studios/hevonen/frontend/pages/members"
 	"github.com/anchamber-studios/hevonen/services/club/client"
 	uc "github.com/anchamber-studios/hevonen/services/users/client"
+	"github.com/gorilla/sessions"
+	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
-	"github.com/segmentio/encoding/json"
 )
 
 const (
@@ -23,7 +24,7 @@ func index(c echo.Context) error {
 	if hxRequest == "true" {
 		return pages.Index().Render(c.Request().Context(), c.Response().Writer)
 	}
-	return pages.IndexWL().Render(c.Request().Context(), c.Response().Writer)
+	return pages.IndexWL(cc.Session).Render(c.Request().Context(), c.Response().Writer)
 }
 
 func memberList(c echo.Context) error {
@@ -52,17 +53,20 @@ func memberList(c echo.Context) error {
 		return m.MemberList(props).Render(c.Request().Context(), c.Response().Writer)
 	}
 	cc.Logger().Errorf("render with layout\n")
-	return m.MemberListWL(props).Render(c.Request().Context(), c.Response().Writer)
+	return m.MemberListWL(cc.Session, props).Render(c.Request().Context(), c.Response().Writer)
 }
 
 func memberNew(c echo.Context) error {
 	cc := c.(*CustomContext)
 	csrf := c.Get("csrf").(string)
 	hxRequest := cc.Request().Header.Get(HX_REQUEST_HEADER)
+	var tmpl templ.Component
 	if hxRequest == "true" {
-		return m.NewForm(csrf, m.MemberFormProps{}).Render(c.Request().Context(), c.Response().Writer)
+		tmpl = m.NewForm(m.MemberFormProps{Csrf: csrf})
+	} else {
+		tmpl = m.NewFormWL(cc.Session, m.MemberFormProps{Csrf: csrf})
 	}
-	return m.NewFormWL(csrf, m.MemberFormProps{}).Render(c.Request().Context(), c.Response().Writer)
+	return tmpl.Render(c.Request().Context(), c.Response().Writer)
 }
 
 func postNewMember(c echo.Context) error {
@@ -92,35 +96,39 @@ func getLogin(c echo.Context) error {
 func postLogin(c echo.Context) error {
 	cc := c.(*CustomContext)
 	login := uc.UserLogin{}
-	if err := c.Bind(&login); err != nil {
-		c.Logger().Errorf("Unable to bind login: %v\n", err)
+	if err := cc.Bind(&login); err != nil {
+		cc.Logger().Errorf("Unable to bind login: %v\n", err)
 		return c.String(http.StatusUnauthorized, "invalid logn")
 	}
 
 	user, err := cc.Config.Clients.User.Login(login)
 	if err != nil {
-		c.Logger().Errorf("Unable to login: %v\n", err)
-		csrf := c.Get("csrf").(string)
+		cc.Logger().Errorf("Unable to login: %v\n", err)
+		csrf := cc.Get("csrf").(string)
 		return a.LoginForm(csrf, a.LoginPageProps{
 			EmailError:    "",
 			PasswordError: "",
 			Error:         "email or password is incorrect",
-		}).Render(c.Request().Context(), c.Response().Writer)
+		}).Render(cc.Request().Context(), cc.Response().Writer)
 	}
-	c.Logger().Infof("user '%s' logged in\n", user.Id)
+	cc.Logger().Errorf("user '%s' logged in\n", user.Id)
 	cc.Response().Header().Set("HX-Target", "html")
 
-	cookieValue, _ := json.Marshal(user)
-	// generate a new session cookit
-	cookie := &http.Cookie{
-		Name:     "session",
-		Value:    string(cookieValue),
-		Expires:  time.Now().Add(24 * time.Hour),
+	cc.Response().Header().Set("HX-Redirect", "/")
+	sess, _ := session.Get("session", cc)
+	sess.Options = &sessions.Options{
+		Path:     "/",
+		MaxAge:   86400 * 7,
 		HttpOnly: true,
 	}
-
-	c.SetCookie(cookie)
-	return c.Redirect(http.StatusFound, "/")
+	sess.Values["id"] = user.Id
+	sess.Values["email"] = user.Email
+	cc.Logger().Errorf("save session")
+	if err := sess.Save(cc.Request(), cc.Response()); err != nil {
+		cc.Logger().Errorf("Unable to save session: %v\n", err)
+	}
+	cc.Logger().Errorf("session: %v\n", sess.Values["session"])
+	return c.NoContent(http.StatusNoContent)
 }
 
 func getRegister(c echo.Context) error {

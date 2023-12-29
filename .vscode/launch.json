@@ -1,7 +1,4 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
         {
@@ -24,11 +21,18 @@
             "trace": "verbose"
         },
         {
-            "name": "members",
+            "name": "club",
             "type": "go",
             "request": "launch",
             "mode": "auto",
             "program": "${workspaceFolder}/services/club"
+        },
+        {
+            "name": "users",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/services/users"
         }
     ]
 }
