@@ -5,6 +5,8 @@ import (
 	"log"
 	"os"
 
+	"github.com/anchamber-studios/hevonen/frontend/pages/auth"
+	"github.com/anchamber-studios/hevonen/frontend/pages/members"
 	"github.com/anchamber-studios/hevonen/frontend/types"
 	cclient "github.com/anchamber-studios/hevonen/services/club/client"
 	uclient "github.com/anchamber-studios/hevonen/services/users/client"
@@ -14,25 +16,6 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
-
-type Config struct {
-	Host          string
-	Port          string
-	Tls           TlsConfig
-	Clients       Clients
-	SessionSecret string
-}
-
-type TlsConfig struct {
-	Enabled bool
-	Key     string
-	Cert    string
-}
-
-type Clients struct {
-	Members *cclient.MemberClient
-	User    *uclient.UserClient
-}
 
 func main() {
 	config := loadConfig()
@@ -55,14 +38,14 @@ func main() {
 	e.Use(customContext(config))
 
 	unrestricted := e.Group("/auth")
-	unrestricted.GET("/login", getLogin)
-	unrestricted.POST("/login", postLogin)
-	unrestricted.GET("/register", getRegister)
+	unrestricted.GET("/login", auth.GetLogin)
+	unrestricted.POST("/login", auth.PostLogin)
+	unrestricted.GET("/register", auth.GetRegister)
 
 	restricted := e.Group("")
 	restricted.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
-			cc := c.(*CustomContext)
+			cc := c.(*types.CustomContext)
 			if !cc.Session.LoggedIn {
 				return c.Redirect(302, "/auth/login")
 			}
@@ -70,10 +53,9 @@ func main() {
 		}
 	})
 	restricted.GET("/", index)
-	restricted.GET("/members", memberList)
-	restricted.GET("/members/new", memberNew)
-
-	restricted.POST("/members", postNewMember)
+	restricted.GET("/members", members.GetMemberList)
+	restricted.GET("/members/new", members.GetNewMemberForm)
+	restricted.POST("/members", members.GetNewMemberForm)
 
 	address := fmt.Sprintf("%s:%s", config.Host, config.Port)
 	if config.Tls.Enabled {
@@ -85,13 +67,13 @@ func main() {
 	}
 }
 
-func loadConfig() Config {
+func loadConfig() types.Config {
 	// configuration
 	err := godotenv.Load(".env")
 	if err != nil {
 		log.Println("Error loading .env file")
 	}
-	return Config{
+	return types.Config{
 		Host:          getOrDefault(os.Getenv("HOST"), "[::0]"),
 		Port:          getOrDefault(os.Getenv("PORT"), "4443"),
 		Clients:       createClients(),
@@ -99,16 +81,14 @@ func loadConfig() Config {
 	}
 }
 
-type CustomContext struct {
-	echo.Context
-	Config  Config
-	Session types.Session
-}
-
-func customContext(config Config) echo.MiddlewareFunc {
+func customContext(config types.Config) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
-			cc := &CustomContext{c, config, types.Session{LoggedIn: false}}
+			cc := &types.CustomContext{
+				Context: c,
+				Config:  config,
+				Session: types.Session{LoggedIn: false},
+			}
 			sess, _ := session.Get("session", c)
 			if sess != nil {
 				if val, ok := sess.Values["id"].(string); ok {
@@ -124,8 +104,8 @@ func customContext(config Config) echo.MiddlewareFunc {
 	}
 }
 
-func createClients() Clients {
-	return Clients{
+func createClients() types.Clients {
+	return types.Clients{
 		Members: &cclient.MemberClient{
 			Url: getOrDefault(os.Getenv("MEMBERS_URL"), "http://localhost:8443/members"),
 		},
