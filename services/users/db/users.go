@@ -68,7 +68,7 @@ func (r *UserRepoPostgre) Login(ctx context.Context, login client.UserLogin) (cl
 		r.Logger.Errorf("id conversion for '%d' failed: %v\n", id, err)
 		return client.User{}, err
 	}
-	user.Id = cId
+	user.ID = cId
 	r.Logger.Info("user '%s' logged in", cId)
 	return user, nil
 }

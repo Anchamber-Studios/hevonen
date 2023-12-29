@@ -36,7 +36,7 @@ func PostLogin(c echo.Context) error {
 			Error:         "email or password is incorrect",
 		}).Render(cc.Request().Context(), cc.Response().Writer)
 	}
-	cc.Logger().Errorf("user '%s' logged in\n", user.Id)
+	cc.Logger().Errorf("user '%s' logged in\n", user.ID)
 	cc.Response().Header().Set("HX-Target", "html")
 
 	cc.Response().Header().Set("HX-Redirect", "/")
@@ -46,7 +46,7 @@ func PostLogin(c echo.Context) error {
 		MaxAge:   86400 * 7,
 		HttpOnly: true,
 	}
-	sess.Values["id"] = user.Id
+	sess.Values["id"] = user.ID
 	sess.Values["email"] = user.Email
 	cc.Logger().Errorf("save session")
 	if err := sess.Save(cc.Request(), cc.Response()); err != nil {

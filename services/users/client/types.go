@@ -1,5 +1,7 @@
 package client
 
+import "time"
+
 type UserCreate struct {
 	Email    string          `json:"email" form:"email"`
 	Password string          `json:"password" form:"password"`
@@ -17,7 +19,10 @@ type UserLogin struct {
 }
 
 type User struct {
-	Id    string   `json:"id"`
-	Email string   `json:"email"`
-	Apps  []string `json:"apps"`
+	ID             string    `json:"id"`
+	Email          string    `json:"email"`
+	EmailConfirmed bool      `json:"emailConfirmed"`
+	UpdatedAt      time.Time `json:"updatedAt"`
+	CreatedAt      time.Time `json:"createdAt"`
+	Apps           []string  `json:"apps"`
 }
