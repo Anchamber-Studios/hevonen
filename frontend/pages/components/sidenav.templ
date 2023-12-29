@@ -8,36 +8,59 @@ templ SideNav(brandName string) {
 	<div class="flex-grow-1 overflow-y-auto">
 		<ul hx-target="#main"
  			class="relative m-0 list-none px-[0.2rem] pb-12">
-			@SideNavNavigationLink(SideNavNavigationLinkProps{
+			@SideNavGroup(SideNavGroupProps{
                 Header: "",
-                Icon: Home(),
-                Href: "/",
-                Name: "Overview",
-            })
-			@SideNavNavigationLink(SideNavNavigationLinkProps{
-                Header: "Admin",
-                Icon: Users(),
-                Href: "/members",
-                Name: "Members",
-            })
+				Links: []SideNavNavigationLinkProps{
+					{
+						Icon: Home(),
+						Href: "/",
+						Name: "Overview",
+					},
+				},
+			})
+			@SideNavGroup(SideNavGroupProps{
+                Header: "Club",
+				Links: []SideNavNavigationLinkProps{
+					{
+						Href: "/members",
+						Name: "Members",
+					},
+					{
+						Href: "/plan",
+						Name: "Riding Plan",
+					},
+				},
+			})
 		</ul>
 	</div>
 }
 
-type SideNavNavigationLinkProps struct {
-	Header string
-	Name   string
-	Href   string
-	Icon   templ.Component
-}
 
-templ SideNavNavigationLink(props SideNavNavigationLinkProps) {
+
+type SideNavGroupProps struct {
+	Header   string
+	Links 	[]SideNavNavigationLinkProps
+}
+templ SideNavGroup(props SideNavGroupProps) {
 	<li class="relative pt-2">
 		if props.Header != "" {
 			<span class="px-2 py-2 text-[0.6rem] font-bold uppercase text-gray-600 dark:text-gray-400">
 				{ props.Header }
 			</span>
 		}
+		for _, link := range props.Links {
+			@SideNavNavigationLink(link)
+		}
+	</li>
+}
+
+type SideNavNavigationLinkProps struct {
+	Name   string
+	Href   string
+	Icon   templ.Component
+}
+templ SideNavNavigationLink(props SideNavNavigationLinkProps) {
+
 		<a
  			hx-get={ props.Href }
  			hx-push-url="true"
@@ -51,5 +74,4 @@ templ SideNavNavigationLink(props SideNavNavigationLinkProps) {
 			}
 			<span>{ props.Name }</span>
 		</a>
-	</li>
 }
