@@ -22,6 +22,7 @@ type User struct {
 	ID             string    `json:"id"`
 	Email          string    `json:"email"`
 	EmailConfirmed bool      `json:"emailConfirmed"`
+	Active         bool      `json:"active"`
 	UpdatedAt      time.Time `json:"updatedAt"`
 	CreatedAt      time.Time `json:"createdAt"`
 	Apps           []string  `json:"apps"`

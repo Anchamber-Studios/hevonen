@@ -39,6 +39,15 @@ templ SideNav(brandName string) {
 					},
 				},
 			})
+			@SideNavGroup(SideNavGroupProps{
+                Header: "Admin",
+				Links: []SideNavNavigationLinkProps{
+					{
+						Href: "/admin/users",
+						Name: "Users",
+					},
+				},
+			})
 		</ul>
 	</div>
 }

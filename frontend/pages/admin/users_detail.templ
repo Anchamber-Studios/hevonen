@@ -1,0 +1,41 @@
+package admin
+
+import (
+	"github.com/anchamber-studios/hevonen/services/users/client"
+	"github.com/anchamber-studios/hevonen/frontend/types"
+	l "github.com/anchamber-studios/hevonen/frontend/pages/layouts"
+	c "github.com/anchamber-studios/hevonen/frontend/pages/components"
+	"github.com/anchamber-studios/hevonen/frontend/pages/components"
+)
+
+type UserDetailsProps struct {
+	User     client.User
+	EditMode bool
+}
+
+templ UserDetailsWL(session types.Session, props UserDetailsProps) {
+	@l.BasicLayout(session, l.LayoutProps{
+        Title: "Hevonen - Members",
+        BrandName: "Hevonen",
+        Content: UserDetails(props),
+        BreadCrumbs: append(bcList, c.BreadCrumbProp{
+			Text: props.User.Email,
+			Href: "/admin/users/" + props.User.ID,
+		}),
+    })
+}
+
+templ UserDetails(props UserDetailsProps) {
+	@components.BreadCrumbs(append(bcList, c.BreadCrumbProp{
+			Text: props.User.Email,
+			Href: "/admin/users/" + props.User.ID,
+	}))
+	@details(props)
+}
+
+templ details(props UserDetailsProps) {
+	<section>
+		<h2>Details for { props.User.Email }</h2>
+	</section>
+}
+

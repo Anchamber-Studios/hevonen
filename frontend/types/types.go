@@ -14,8 +14,9 @@ type Session struct {
 
 type CustomContext struct {
 	echo.Context
-	Config  Config
-	Session Session
+	Config    Config
+	Session   Session
+	HXRequest bool
 }
 
 type Config struct {

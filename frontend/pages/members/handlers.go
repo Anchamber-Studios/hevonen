@@ -9,17 +9,12 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-const (
-	HX_REQUEST_HEADER = "hx-request"
-)
-
 func GetMemberList(c echo.Context) error {
 	cc := c.(*types.CustomContext)
 	props := MemberListProps{
 		Members: []client.Member{},
 	}
 	members, err := cc.Config.Clients.Members.GetMembers()
-	hxRequest := cc.Request().Header.Get(HX_REQUEST_HEADER)
 	if err != nil {
 		c.Logger().Errorf("Unable to get members: %v\n", err)
 		members = []client.Member{}
@@ -34,8 +29,7 @@ func GetMemberList(c echo.Context) error {
 			Phone:      member.Phone,
 		})
 	}
-	cc.Logger().Errorf("HX Request: %v\n", hxRequest)
-	if hxRequest == "true" {
+	if cc.HXRequest {
 		return MemberList(props).Render(c.Request().Context(), c.Response().Writer)
 	}
 	cc.Logger().Errorf("render with layout\n")
@@ -45,9 +39,8 @@ func GetMemberList(c echo.Context) error {
 func GetNewMemberForm(c echo.Context) error {
 	cc := c.(*types.CustomContext)
 	csrf := c.Get("csrf").(string)
-	hxRequest := cc.Request().Header.Get(HX_REQUEST_HEADER)
 	var tmpl templ.Component
-	if hxRequest == "true" {
+	if cc.HXRequest {
 		tmpl = NewForm(MemberFormProps{Csrf: csrf})
 	} else {
 		tmpl = NewFormWL(cc.Session, MemberFormProps{Csrf: csrf})

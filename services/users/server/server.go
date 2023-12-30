@@ -32,6 +32,7 @@ func Middleware(e *echo.Echo, conf config.Config) {
 }
 
 func Routes(e *echo.Echo) {
+	e.GET("/users", list)
 	e.POST("/users/login", login)
 	e.POST("/users/register", new)
 	e.GET("/users/:userId", details)

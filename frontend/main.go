@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/anchamber-studios/hevonen/frontend/pages/admin"
 	"github.com/anchamber-studios/hevonen/frontend/pages/auth"
 	"github.com/anchamber-studios/hevonen/frontend/pages/members"
 	"github.com/anchamber-studios/hevonen/frontend/types"
@@ -57,6 +58,9 @@ func main() {
 	restricted.GET("/members/new", members.GetNewMemberForm)
 	restricted.POST("/members", members.GetNewMemberForm)
 
+	restricted.GET("/admin/users", admin.GetUsers)
+	restricted.GET("/admin/users/:userId", admin.GetUser)
+
 	address := fmt.Sprintf("%s:%s", config.Host, config.Port)
 	if config.Tls.Enabled {
 		log.Println("Starting server with TLS")
@@ -85,9 +89,10 @@ func customContext(config types.Config) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			cc := &types.CustomContext{
-				Context: c,
-				Config:  config,
-				Session: types.Session{LoggedIn: false},
+				Context:   c,
+				Config:    config,
+				Session:   types.Session{LoggedIn: false},
+				HXRequest: c.Request().Header.Get(HX_REQUEST_HEADER) == "true",
 			}
 			sess, _ := session.Get("session", c)
 			if sess != nil {

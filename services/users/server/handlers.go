@@ -8,13 +8,18 @@ import (
 )
 
 const (
-	PathParamMemberId = "memberId"
+	PathParamMemberId = "userId"
 )
 
 type MemberHandler struct{}
 
 func list(c echo.Context) error {
-	return echo.NewHTTPError(echo.ErrNotImplemented.Code, "not implemented")
+	cc := c.(*CustomContext)
+	users, err := cc.Repos.Users.List(c.Request().Context())
+	if err != nil {
+		return echo.NewHTTPError(echo.ErrBadRequest.Code, err.Error())
+	}
+	return c.JSON(http.StatusOK, &users)
 }
 
 func new(c echo.Context) error {
@@ -44,5 +49,10 @@ func login(c echo.Context) error {
 }
 
 func details(c echo.Context) error {
-	return echo.NewHTTPError(echo.ErrNotImplemented.Code, "not implemented")
+	cc := c.(*CustomContext)
+	user, err := cc.Repos.Users.Get(c.Request().Context(), c.Param(PathParamMemberId))
+	if err != nil {
+		return echo.NewHTTPError(echo.ErrBadRequest.Code, err.Error())
+	}
+	return c.JSON(http.StatusOK, &user)
 }

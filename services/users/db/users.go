@@ -12,6 +12,8 @@ import (
 )
 
 type UserRepo interface {
+	List(ctx context.Context) ([]client.User, error)
+	Get(ctx context.Context, id string) (client.User, error)
 	Create(ctx context.Context, user client.UserCreate) (string, error)
 	Login(ctx context.Context, user client.UserLogin) (client.User, error)
 }
@@ -25,6 +27,43 @@ type UserRepoPostgre struct {
 const (
 	IdOffset uint64 = 2345678901
 )
+
+func (r *UserRepoPostgre) List(ctx context.Context) ([]client.User, error) {
+	rows, err := r.DB.Query(ctx, "SELECT id, email, email_confirmed, active, updated_at, created_at FROM users.users;")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var users []client.User
+	for rows.Next() {
+		var id uint64
+		var user client.User
+		err = rows.Scan(&id, &user.Email, &user.EmailConfirmed, &user.Active, &user.UpdatedAt, &user.CreatedAt)
+		if err != nil {
+			return nil, err
+		}
+		cId, err := r.IdConversion.Encode([]uint64{id, IdOffset})
+		if err != nil {
+			r.Logger.Errorf("id conversion for '%d' failed: %v\n", id, err)
+			return nil, err
+		}
+		user.ID = cId
+		users = append(users, user)
+	}
+	return users, nil
+}
+
+func (r *UserRepoPostgre) Get(ctx context.Context, id string) (client.User, error) {
+	var user client.User
+	cId := r.IdConversion.Decode(id)
+	var dbId uint64
+	err := r.DB.QueryRow(ctx, "SELECT id, email, email_confirmed, active, updated_at, created_at FROM users.users WHERE id = $1;", cId[0]).Scan(&dbId, &user.Email, &user.EmailConfirmed, &user.Active, &user.UpdatedAt, &user.CreatedAt)
+	if err != nil {
+		return client.User{}, err
+	}
+	user.ID = id
+	return user, nil
+}
 
 func (r *UserRepoPostgre) Create(ctx context.Context, user client.UserCreate) (string, error) {
 	var id uint64
