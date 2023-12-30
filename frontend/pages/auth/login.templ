@@ -25,7 +25,7 @@ templ LoginPage(csrftoken string, props LoginPageProps) {
              </style>
 		</head>
 		<body class={ fmt.Sprintf("h-full w-full flex justify-center items-center m-0 overflow-hidden %s %s", theme.DefaultBGColor, theme.DefaultTextColor) }>
-			<div className="flex items-center align-middle p-4 w-[400px] bg-gray-100 dark:bg-gray-800">
+			<div class="w-96">
 				<h2 class="uppercase font-bold pb-2">Login</h2>
 				@LoginForm(csrftoken, props)
 			</div>
