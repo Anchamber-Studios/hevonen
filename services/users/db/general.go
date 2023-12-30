@@ -16,7 +16,6 @@ var migrationFiles embed.FS
 
 func SetupDb(conf config.Config, logger echo.Logger) *pgx.Conn {
 	logger.Infof("Setup database\n")
-	fmt.Printf("Setup database\n")
 	conn, err := OpenConnection(conf, logger)
 	if err != nil {
 		logger.Fatalf("Unable to connect to database: %v\n", err)

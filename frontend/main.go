@@ -78,10 +78,11 @@ func loadConfig() types.Config {
 		log.Println("Error loading .env file")
 	}
 	return types.Config{
-		Host:          getOrDefault(os.Getenv("HOST"), "[::0]"),
-		Port:          getOrDefault(os.Getenv("PORT"), "4443"),
+		Host:          getOrDefault("HOST", "[::0]"),
+		Port:          getOrDefault("PORT", "4443"),
 		Clients:       createClients(),
-		SessionSecret: getOrDefault(os.Getenv("SESSION_SECRET"), "session_secret"),
+		SessionSecret: getOrDefault("SESSION_SECRET", "session_secret"),
+		TokenSecret:   getOrDefault("TOKEN_SECRET", "1234567890123456789012345678901212345678901234567890123456789012"),
 	}
 }
 
@@ -102,6 +103,9 @@ func customContext(config types.Config) echo.MiddlewareFunc {
 				if val, ok := sess.Values["email"].(string); ok {
 					cc.Session.Email = val
 				}
+				if val, ok := sess.Values["token"].(string); ok {
+					cc.Session.Token = val
+				}
 				cc.Session.LoggedIn = cc.Session.ID != "" && cc.Session.Email != ""
 			}
 			return next(cc)
@@ -111,17 +115,18 @@ func customContext(config types.Config) echo.MiddlewareFunc {
 
 func createClients() types.Clients {
 	return types.Clients{
-		Members: &cclient.MemberClient{
-			Url: getOrDefault(os.Getenv("MEMBERS_URL"), "http://localhost:8443/members"),
+		Members: cclient.MemberClient{
+			Url: getOrDefault("MEMBERS_URL", "http://localhost:8443/members"),
 		},
-		User: &uclient.UserClient{
-			Url: getOrDefault(os.Getenv("USERS_URL"), "http://localhost:7443/users"),
+		User: &uclient.UserClientHttp{
+			Url: getOrDefault("USERS_URL", "http://localhost:7443/users"),
 		},
 	}
 }
 
 func getOrDefault(s string, d string) string {
-	if s == "" {
+	v := os.Getenv(s)
+	if v == "" {
 		return d
 	}
 	return s

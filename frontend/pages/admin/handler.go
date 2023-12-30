@@ -7,7 +7,7 @@ import (
 
 func GetUsers(e echo.Context) error {
 	cc := e.(*types.CustomContext)
-	users, err := cc.Config.Clients.User.GetUsers()
+	users, err := cc.Config.Clients.User.GetUsers(cc.ClientContext())
 	if err != nil {
 		return err
 	}
@@ -19,8 +19,9 @@ func GetUsers(e echo.Context) error {
 
 func GetUser(e echo.Context) error {
 	cc := e.(*types.CustomContext)
-	user, err := cc.Config.Clients.User.GetUser(e.Param("userId"))
+	user, err := cc.Config.Clients.User.GetUser(cc.ClientContext(), e.Param("userId"))
 	if err != nil {
+		e.Logger().Errorf("Unable to get user: %v\n", err)
 		return err
 	}
 	if cc.HXRequest {

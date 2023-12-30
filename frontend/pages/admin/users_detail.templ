@@ -17,7 +17,7 @@ templ UserDetailsWL(session types.Session, props UserDetailsProps) {
 	@l.BasicLayout(session, l.LayoutProps{
         Title: "Hevonen - Members",
         BrandName: "Hevonen",
-        Content: UserDetails(props),
+        Content: details(props),
         BreadCrumbs: append(bcList, c.BreadCrumbProp{
 			Text: props.User.Email,
 			Href: "/admin/users/" + props.User.ID,

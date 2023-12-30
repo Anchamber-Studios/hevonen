@@ -23,17 +23,19 @@ type DB struct {
 	Password string
 }
 type Config struct {
-	Port string
-	Host string
-	Tls  TlsConfig
-	Auth Auth
-	DB   DB
+	Port        string
+	Host        string
+	Tls         TlsConfig
+	Auth        Auth
+	DB          DB
+	TokenSecret string
 }
 
 func LoadConfig() Config {
 	config := Config{
-		Port: getOrDefault("PORT", "8443"),
-		Host: getOrDefault("HOST", "[::1]"),
+		Port:        getOrDefault("PORT", "8443"),
+		Host:        getOrDefault("HOST", "[::1]"),
+		TokenSecret: getOrDefault("TOKEN_SECRET", "1234567890123456789012345678901212345678901234567890123456789012"),
 		Tls: TlsConfig{
 			Enabled: false,
 			Key:     getOrDefault("TLS_KEY", "certs/key.pem"),

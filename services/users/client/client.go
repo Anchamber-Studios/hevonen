@@ -3,17 +3,32 @@ package client
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/anchamber-studios/hevonen/lib"
 )
 
-type UserClient struct {
+type UserClient interface {
+	GetUsers(ctx lib.ClientContext) ([]User, error)
+	GetUser(ctx lib.ClientContext, id string) (User, error)
+	Login(ctx lib.ClientContext, login UserLogin) (User, error)
+	Register(ctx lib.ClientContext, user UserCreate) (string, error)
+}
+
+type UserClientHttp struct {
 	Url string
 }
 
-func (c UserClient) GetUsers() ([]User, error) {
-	resp, err := http.Get(c.Url)
+func (c *UserClientHttp) GetUsers(ctx lib.ClientContext) ([]User, error) {
+	client := &http.Client{}
+	req, err := http.NewRequest("GET", c.Url, nil)
+	if err != nil {
+		return nil, err
+	}
+	ctx.SetHeader(req)
+	resp, err := client.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -25,21 +40,14 @@ func (c UserClient) GetUsers() ([]User, error) {
 	return members, nil
 }
 
-func (c UserClient) CreateUser(user UserCreate) (string, error) {
-	userJson, err := json.Marshal(user)
+func (c *UserClientHttp) GetUser(ctx lib.ClientContext, id string) (User, error) {
+	client := &http.Client{}
+	req, err := http.NewRequest("GET", fmt.Sprintf("%s/%s", c.Url, id), nil)
 	if err != nil {
-		return "", err
+		return User{}, err
 	}
-	res, err := http.Post(c.Url, "application/json", bytes.NewReader(userJson))
-	if err != nil {
-		return "", err
-	}
-	location := res.Header.Get("Location")
-	return location, nil
-}
-
-func (c UserClient) GetUser(id string) (User, error) {
-	resp, err := http.Get(c.Url + "/" + id)
+	ctx.SetHeader(req)
+	resp, err := client.Do(req)
 	if err != nil {
 		return User{}, err
 	}
@@ -51,13 +59,44 @@ func (c UserClient) GetUser(id string) (User, error) {
 	return user, nil
 }
 
-func (c UserClient) Login(login UserLogin) (User, error) {
+func (c *UserClientHttp) Register(ctx lib.ClientContext, user UserCreate) (string, error) {
+	client := &http.Client{}
+
+	userJson, err := json.Marshal(user)
+	if err != nil {
+		return "", err
+	}
+	req, err := http.NewRequest("POST", c.Url+"/register", bytes.NewReader(userJson))
+	if err != nil {
+		return "", err
+	}
+	ctx.SetHeader(req)
+	req.Header.Set("Content-Type", "application/json")
+	res, err := client.Do(req)
+	if err != nil {
+		return "", err
+	}
+	location := res.Header.Get("Location")
+	return location, nil
+}
+
+func (c *UserClientHttp) Login(ctx lib.ClientContext, login UserLogin) (User, error) {
+	client := &http.Client{}
+
 	loginJson, err := json.Marshal(login)
 	if err != nil {
 		return User{}, err
 	}
-	resp, err := http.Post(c.Url+"/login", "application/json", bytes.NewReader(loginJson))
+	req, err := http.NewRequest("POST", c.Url+"/login", bytes.NewReader(loginJson))
 	if err != nil {
+		log.Printf("req err: %v\n", err)
+		return User{}, err
+	}
+	ctx.SetHeader(req)
+	req.Header.Set("Content-Type", "application/json")
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Printf("resp err: %v\n", err)
 		return User{}, err
 	}
 	if resp.StatusCode != http.StatusOK {

@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/anchamber-studios/hevonen/lib/config"
+	m "github.com/anchamber-studios/hevonen/lib/middleware"
 	"github.com/anchamber-studios/hevonen/services/users/db"
 	"github.com/jackc/pgx/v5"
 	"github.com/labstack/echo/v4"
@@ -31,11 +32,15 @@ func Middleware(e *echo.Echo, conf config.Config) {
 	e.Use(customContext(conf))
 }
 
-func Routes(e *echo.Echo) {
-	e.GET("/users", list)
-	e.POST("/users/login", login)
-	e.POST("/users/register", new)
-	e.GET("/users/:userId", details)
+func Routes(e *echo.Echo, conf config.Config) {
+	unrestricted := e.Group("/users")
+	unrestricted.POST("/login", login)
+	unrestricted.POST("/register", new)
+
+	restricted := e.Group("")
+	restricted.Use(m.AuthPaseto(conf.TokenSecret))
+	restricted.GET("/users", list)
+	restricted.GET("/users/:userId", details)
 }
 
 func customContext(conf config.Config) echo.MiddlewareFunc {

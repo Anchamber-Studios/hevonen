@@ -21,7 +21,7 @@ func main() {
 	e := echo.New()
 	db.SetupDb(conf, e.Logger)
 	server.Middleware(e, conf)
-	server.Routes(e)
+	server.Routes(e, conf)
 
 	address := fmt.Sprintf("%s:%s", conf.Host, conf.Port)
 	if conf.Tls.Enabled {
