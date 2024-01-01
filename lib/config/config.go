@@ -22,6 +22,9 @@ type DB struct {
 	User     string
 	Password string
 }
+type Broker struct {
+	Url string
+}
 type Config struct {
 	Port        string
 	Host        string
@@ -29,6 +32,7 @@ type Config struct {
 	Auth        Auth
 	DB          DB
 	TokenSecret string
+	Broker      Broker
 }
 
 func LoadConfig() Config {
@@ -51,6 +55,9 @@ func LoadConfig() Config {
 			Database: os.Getenv("DB_DATABASE"),
 			User:     os.Getenv("DB_USER"),
 			Password: os.Getenv("DB_PASSWORD"),
+		},
+		Broker: Broker{
+			Url: getOrDefault(os.Getenv("BROKER_URL"), "localhost:19092"),
 		},
 	}
 

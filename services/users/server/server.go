@@ -4,8 +4,10 @@ import (
 	"fmt"
 
 	"github.com/anchamber-studios/hevonen/lib/config"
+	"github.com/anchamber-studios/hevonen/lib/events"
 	m "github.com/anchamber-studios/hevonen/lib/middleware"
 	"github.com/anchamber-studios/hevonen/services/users/db"
+	"github.com/anchamber-studios/hevonen/services/users/services"
 	"github.com/jackc/pgx/v5"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -17,18 +19,18 @@ type CustomContext struct {
 	Config       config.Config
 	DB           *pgx.Conn
 	IdConversion *sqids.Sqids
-	Repos        Repos
+	Services     Services
 }
 
-type Repos struct {
-	Users db.UserRepo
+type Services struct {
+	Users *services.UserService
 }
 
 func Middleware(e *echo.Echo, conf config.Config) {
 	// middleware
 	e.Use(middleware.CORS())
 	e.Use(middleware.RequestID())
-	e.Use(middleware.Logger())
+	e.Use(m.Logging())
 	e.Use(customContext(conf))
 }
 
@@ -57,13 +59,19 @@ func customContext(conf config.Config) echo.MiddlewareFunc {
 				c.Logger().Errorf("Unable setup id conversion: %v\n", err)
 				c.Error(fmt.Errorf("internal server error"))
 			}
-			cc := &CustomContext{c, conf, conn, idc, Repos{
-				Users: &db.UserRepoPostgre{
-					DB:           conn,
-					IdConversion: idc,
-					Logger:       c.Logger(),
-				},
-			}}
+			producer, err := events.NewEventProducerRedpanda(conf.Broker.Url)
+			if err != nil {
+				c.Logger().Errorf("Unable to connect to broker: %v\n", err)
+				c.Error(fmt.Errorf("internal server error"))
+			}
+			repo := &db.UserRepoPostgre{
+				DB:           conn,
+				IdConversion: idc,
+				Logger:       c.Logger(),
+			}
+			cc := &CustomContext{c, conf, conn, idc,
+				Services{Users: services.NewUserService(repo, producer)},
+			}
 
 			return next(cc)
 		}

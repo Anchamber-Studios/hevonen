@@ -15,7 +15,7 @@ type MemberHandler struct{}
 
 func list(c echo.Context) error {
 	cc := c.(*CustomContext)
-	users, err := cc.Repos.Users.List(c.Request().Context())
+	users, err := cc.Services.Users.List(c.Request().Context())
 	if err != nil {
 		return echo.NewHTTPError(echo.ErrBadRequest.Code, err.Error())
 	}
@@ -28,7 +28,7 @@ func new(c echo.Context) error {
 	if err := cc.Bind(&newUser); err != nil {
 		return echo.NewHTTPError(echo.ErrBadRequest.Code, err.Error())
 	}
-	user, err := cc.Repos.Users.Create(c.Request().Context(), newUser)
+	user, err := cc.Services.Users.Create(c.Request().Context(), newUser)
 	if err != nil {
 		return echo.NewHTTPError(echo.ErrBadRequest.Code, err.Error())
 	}
@@ -41,7 +41,8 @@ func login(c echo.Context) error {
 	if err := cc.Bind(&login); err != nil {
 		return echo.NewHTTPError(echo.ErrBadRequest.Code, err.Error())
 	}
-	user, err := cc.Repos.Users.Login(c.Request().Context(), login)
+
+	user, err := cc.Services.Users.Login(c.Request().Context(), login)
 	if err != nil {
 		return echo.NewHTTPError(echo.ErrBadRequest.Code, err.Error())
 	}
@@ -50,7 +51,7 @@ func login(c echo.Context) error {
 
 func details(c echo.Context) error {
 	cc := c.(*CustomContext)
-	user, err := cc.Repos.Users.Get(c.Request().Context(), c.Param(PathParamMemberId))
+	user, err := cc.Services.Users.Get(c.Request().Context(), c.Param(PathParamMemberId))
 	if err != nil {
 		return echo.NewHTTPError(echo.ErrBadRequest.Code, err.Error())
 	}

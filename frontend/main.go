@@ -9,6 +9,7 @@ import (
 	"github.com/anchamber-studios/hevonen/frontend/pages/auth"
 	"github.com/anchamber-studios/hevonen/frontend/pages/members"
 	"github.com/anchamber-studios/hevonen/frontend/types"
+	m "github.com/anchamber-studios/hevonen/lib/middleware"
 	cclient "github.com/anchamber-studios/hevonen/services/club/client"
 	uclient "github.com/anchamber-studios/hevonen/services/users/client"
 	"github.com/gorilla/sessions"
@@ -32,9 +33,7 @@ func main() {
 	}))
 	e.Use(middleware.Secure())
 	e.Use(middleware.RequestID())
-	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
-		Format: "method=${method}, uri=${uri}, status=${status}\n",
-	}))
+	e.Use(m.Logging())
 	e.Use(session.Middleware((sessions.NewCookieStore([]byte(config.SessionSecret)))))
 	e.Use(customContext(config))
 
