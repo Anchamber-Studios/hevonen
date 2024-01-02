@@ -2,8 +2,8 @@ package types
 
 import (
 	"github.com/anchamber-studios/hevonen/lib"
+	uclient "github.com/anchamber-studios/hevonen/services/admin/users/client"
 	cclient "github.com/anchamber-studios/hevonen/services/club/client"
-	uclient "github.com/anchamber-studios/hevonen/services/users/client"
 	"github.com/labstack/echo/v4"
 )
 

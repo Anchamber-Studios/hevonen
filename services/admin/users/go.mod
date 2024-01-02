@@ -1,4 +1,4 @@
-module github.com/anchamber-studios/hevonen/services/users
+module github.com/anchamber-studios/hevonen/services/admin/users
 
 go 1.21.5
 

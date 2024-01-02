@@ -7,7 +7,7 @@ import (
 	"aidanwoods.dev/go-paseto"
 	"github.com/anchamber-studios/hevonen/frontend/types"
 	"github.com/anchamber-studios/hevonen/lib"
-	"github.com/anchamber-studios/hevonen/services/users/client"
+	"github.com/anchamber-studios/hevonen/services/admin/users/client"
 	"github.com/gorilla/sessions"
 	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"

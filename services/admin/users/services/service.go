@@ -6,8 +6,8 @@ import (
 
 	"github.com/anchamber-studios/hevonen/lib/events"
 	"github.com/anchamber-studios/hevonen/lib/logger"
-	"github.com/anchamber-studios/hevonen/services/users/client"
-	"github.com/anchamber-studios/hevonen/services/users/db"
+	"github.com/anchamber-studios/hevonen/services/admin/users/client"
+	"github.com/anchamber-studios/hevonen/services/admin/users/db"
 )
 
 type UserService struct {

@@ -10,8 +10,8 @@ import (
 	"github.com/anchamber-studios/hevonen/frontend/pages/members"
 	"github.com/anchamber-studios/hevonen/frontend/types"
 	m "github.com/anchamber-studios/hevonen/lib/middleware"
+	uclient "github.com/anchamber-studios/hevonen/services/admin/users/client"
 	cclient "github.com/anchamber-studios/hevonen/services/club/client"
-	uclient "github.com/anchamber-studios/hevonen/services/users/client"
 	"github.com/gorilla/sessions"
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo-contrib/session"
@@ -118,7 +118,7 @@ func createClients() types.Clients {
 			Url: getOrDefault("MEMBERS_URL", "http://localhost:8443/members"),
 		},
 		User: &uclient.UserClientHttp{
-			Url: getOrDefault("USERS_URL", "http://localhost:7443/users"),
+			Url: getOrDefault("USERS_URL", "http://localhost:7000/users"),
 		},
 	}
 }

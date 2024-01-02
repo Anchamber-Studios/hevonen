@@ -5,8 +5,7 @@ import (
 	"log"
 
 	"github.com/anchamber-studios/hevonen/lib/config"
-	"github.com/anchamber-studios/hevonen/services/users/db"
-	"github.com/anchamber-studios/hevonen/services/users/server"
+	"github.com/anchamber-studios/hevonen/services/admin/permissions/server"
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
 )
@@ -19,7 +18,6 @@ func main() {
 	conf := config.LoadConfig()
 
 	e := echo.New()
-	db.SetupDb(conf, e.Logger)
 	server.Middleware(e, conf)
 	server.Routes(e, conf)
 

@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/anchamber-studios/hevonen/lib"
-	"github.com/anchamber-studios/hevonen/services/users/client"
+	"github.com/anchamber-studios/hevonen/services/admin/users/client"
 	"github.com/jackc/pgx/v5"
 	"github.com/labstack/echo/v4"
 	"github.com/sqids/sqids-go"

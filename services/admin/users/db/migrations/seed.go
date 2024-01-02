@@ -6,7 +6,7 @@ import (
 	"log"
 
 	"github.com/anchamber-studios/hevonen/lib/config"
-	"github.com/anchamber-studios/hevonen/services/users/client"
+	"github.com/anchamber-studios/hevonen/services/admin/users/client"
 	"github.com/jackc/pgx/v5"
 	"github.com/joho/godotenv"
 	"golang.org/x/crypto/bcrypt"

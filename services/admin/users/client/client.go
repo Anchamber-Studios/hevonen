@@ -13,8 +13,9 @@ import (
 type UserClient interface {
 	GetUsers(ctx lib.ClientContext) ([]User, error)
 	GetUser(ctx lib.ClientContext, id string) (User, error)
-	Login(ctx lib.ClientContext, login UserLogin) (User, error)
 	Register(ctx lib.ClientContext, user UserCreate) (string, error)
+	Login(ctx lib.ClientContext, login UserLogin) (User, error)
+	Logout(ctx lib.ClientContext, id string) error
 }
 
 type UserClientHttp struct {
@@ -108,4 +109,18 @@ func (c *UserClientHttp) Login(ctx lib.ClientContext, login UserLogin) (User, er
 		return User{}, err
 	}
 	return user, nil
+}
+
+func (c *UserClientHttp) Logout(ctx lib.ClientContext, id string) error {
+	client := &http.Client{}
+	req, err := http.NewRequest("POST", fmt.Sprintf("%s/%s/logout", c.Url, id), nil)
+	if err != nil {
+		return err
+	}
+	ctx.SetHeader(req)
+	_, err = client.Do(req)
+	if err != nil {
+		return err
+	}
+	return nil
 }

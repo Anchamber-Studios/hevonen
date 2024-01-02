@@ -3,6 +3,7 @@ go 1.21.5
 use (
 	./frontend
 	./lib
+	./services/admin/permissions
+	./services/admin/users
 	./services/club
-	./services/users
 )

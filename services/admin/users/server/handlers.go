@@ -3,7 +3,7 @@ package server
 import (
 	"net/http"
 
-	"github.com/anchamber-studios/hevonen/services/users/client"
+	"github.com/anchamber-studios/hevonen/services/admin/users/client"
 	"github.com/labstack/echo/v4"
 )
 
@@ -47,6 +47,10 @@ func login(c echo.Context) error {
 		return echo.NewHTTPError(echo.ErrBadRequest.Code, err.Error())
 	}
 	return c.JSON(http.StatusOK, &user)
+}
+
+func logout(c echo.Context) error {
+	return c.NoContent(http.StatusOK)
 }
 
 func details(c echo.Context) error {

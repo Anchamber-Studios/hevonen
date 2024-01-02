@@ -6,8 +6,8 @@ import (
 	"github.com/anchamber-studios/hevonen/lib/config"
 	"github.com/anchamber-studios/hevonen/lib/events"
 	m "github.com/anchamber-studios/hevonen/lib/middleware"
-	"github.com/anchamber-studios/hevonen/services/users/db"
-	"github.com/anchamber-studios/hevonen/services/users/services"
+	"github.com/anchamber-studios/hevonen/services/admin/users/db"
+	"github.com/anchamber-studios/hevonen/services/admin/users/services"
 	"github.com/jackc/pgx/v5"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -43,6 +43,7 @@ func Routes(e *echo.Echo, conf config.Config) {
 	restricted.Use(m.AuthPaseto(conf.TokenSecret))
 	restricted.GET("/users", list)
 	restricted.GET("/users/:userId", details)
+	restricted.POST("/users/:userId/logout", logout)
 }
 
 func customContext(conf config.Config) echo.MiddlewareFunc {
