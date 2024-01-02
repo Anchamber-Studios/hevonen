@@ -52,6 +52,8 @@ func main() {
 			return next(c)
 		}
 	})
+	restricted.GET("/auth/logout", auth.GetLogout)
+
 	restricted.GET("/", index)
 	restricted.GET("/members", members.GetMemberList)
 	restricted.GET("/members/new", members.GetNewMemberForm)

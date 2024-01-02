@@ -76,3 +76,18 @@ func GetRegister(c echo.Context) error {
 	cc.Response().Header().Set("HX-Target", "html")
 	return RegisterPage(csrf, RegisterPageProps{}).Render(c.Request().Context(), c.Response().Writer)
 }
+
+func GetLogout(c echo.Context) error {
+	cc := c.(*types.CustomContext)
+	cc.Response().Header().Set("HX-Target", "html")
+	sess, _ := session.Get("session", cc)
+	sess.Options = &sessions.Options{
+		Path:     "/",
+		MaxAge:   -1,
+		HttpOnly: true,
+	}
+	if err := sess.Save(cc.Request(), cc.Response()); err != nil {
+		cc.Logger().Errorf("Unable to save session: %v\n", err)
+	}
+	return c.Redirect(http.StatusTemporaryRedirect, "/auth/login")
+}
