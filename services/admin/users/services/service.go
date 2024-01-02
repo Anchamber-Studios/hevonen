@@ -16,6 +16,10 @@ type UserService struct {
 }
 
 const (
+	TopicUsers = "users"
+)
+
+const (
 	Version = "1.0.0"
 )
 
@@ -32,6 +36,13 @@ const (
 )
 
 func NewUserService(repo db.UserRepo, broker events.EventProducer) *UserService {
+	broker.CreateTopics(
+		logger.WithCtx(context.Background(), logger.Get()),
+		events.TopicConfig{ReplicationFactor: 1, Partitions: 1},
+		GetTopicName(ActionCreate),
+		GetTopicName(ActionLogin),
+		GetTopicName(ActionLogout),
+	)
 	return &UserService{
 		repo:   repo,
 		broker: broker,
@@ -43,8 +54,8 @@ func (s *UserService) Create(ctx context.Context, user client.UserCreate) (strin
 	if err != nil {
 		return "", err
 	}
-	topic := getTopicName(ActionCreate, id)
-	err = s.broker.Publish(ctx, topic, user)
+	topic := GetTopicName(ActionCreate)
+	err = s.broker.Publish(ctx, topic, user, map[string]string{})
 	if err != nil {
 		return "", err
 	}
@@ -56,9 +67,9 @@ func (s *UserService) Login(ctx context.Context, login client.UserLogin) (client
 	if err != nil {
 		return client.User{}, err
 	}
-	topic := getTopicName(ActionLogin, user.ID)
+	topic := GetTopicName(ActionLogin)
 	msgCtx := logger.WithCtx(context.Background(), logger.FromContext(ctx))
-	err = s.broker.Publish(msgCtx, topic, user)
+	err = s.broker.Publish(msgCtx, topic, user, map[string]string{})
 	if err != nil {
 		return client.User{}, err
 	}
@@ -73,6 +84,6 @@ func (s *UserService) Get(ctx context.Context, id string) (client.User, error) {
 	return s.repo.Get(ctx, id)
 }
 
-func getTopicName(action string, id string) string {
-	return fmt.Sprintf("users_%s_%s_%s", Version, action, id)
+func GetTopicName(action string) string {
+	return fmt.Sprintf("admin_%s_%s", TopicUsers, action)
 }

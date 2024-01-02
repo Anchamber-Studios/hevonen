@@ -20,6 +20,7 @@ func main() {
 	e := echo.New()
 	server.Middleware(e, conf)
 	server.Routes(e, conf)
+	server.Events(e, conf)
 
 	address := fmt.Sprintf("%s:%s", conf.Host, conf.Port)
 	if conf.Tls.Enabled {

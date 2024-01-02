@@ -3,7 +3,6 @@ package events
 import (
 	"context"
 	"encoding/json"
-	"log"
 
 	"github.com/anchamber-studios/hevonen/lib/logger"
 	"github.com/google/uuid"
@@ -18,14 +17,11 @@ type TopicConfig struct {
 	Configs           map[string]*string
 }
 
-type EventAdmin interface {
-	TopicExists(ctx context.Context, topic string) (bool, error)
-	CreateTopic(ctx context.Context, topic string, config TopicConfig) error
-	DeleteTopic(ctx context.Context, topic string) error
-}
-
 type EventProducer interface {
-	Publish(ctx context.Context, topic string, msg any) error
+	TopicExists(ctx context.Context, topic string) (bool, error)
+	CreateTopics(ctx context.Context, config TopicConfig, topics ...string) error
+	DeleteTopics(ctx context.Context, topics ...string) error
+	Publish(ctx context.Context, topic string, msg any, headers map[string]string) error
 }
 
 type EventProducerRedpanda struct {
@@ -61,23 +57,26 @@ func (c *EventProducerRedpanda) TopicExists(ctx context.Context, topic string) (
 	return false, nil
 }
 
-func (c *EventProducerRedpanda) CreateTopic(ctx context.Context, topic string, config TopicConfig) error {
+func (c *EventProducerRedpanda) CreateTopics(ctx context.Context, config TopicConfig, topics ...string) error {
 	log := logger.FromContext(ctx)
-	log.Sugar().Infof("Creating topic '%s'\n", topic)
-	resp, err := c.admin.CreateTopic(ctx, int32(config.Partitions), int16(config.ReplicationFactor), config.Configs, topic)
+	log.Sugar().Infof("Creating topics '%s'\n", topics)
+	resp, err := c.admin.CreateTopics(ctx, int32(config.Partitions), int16(config.ReplicationFactor), config.Configs, topics...)
+
 	if err != nil {
-		log.Sugar().Errorf("Failed to create topic '%s': %v\n", topic, err)
+		log.Sugar().Errorf("Failed to create topic '%s': %v\n", topics, err)
 		return err
 	}
-	if resp.Err != nil {
-		log.Sugar().Errorf("Failed to create topic '%s': %v\n", topic, resp.Err)
-		return resp.Err
+	for _, r := range resp {
+		if r.Err != nil {
+			log.Sugar().Errorf("Failed to create topic '%s': %v\n", topics, r.Err)
+			return r.Err
+		}
 	}
 	return nil
 }
 
-func (c *EventProducerRedpanda) DeleteTopic(ctx context.Context, topic string) error {
-	resp, err := c.admin.DeleteTopics(ctx, topic)
+func (c *EventProducerRedpanda) DeleteTopics(ctx context.Context, topics ...string) error {
+	resp, err := c.admin.DeleteTopics(ctx, topics...)
 	if err != nil {
 		return err
 	}
@@ -89,17 +88,18 @@ func (c *EventProducerRedpanda) DeleteTopic(ctx context.Context, topic string) e
 	return nil
 }
 
-func (c *EventProducerRedpanda) Publish(ctx context.Context, topic string, msg any) error {
-	if exists, err := c.TopicExists(ctx, topic); err != nil && !exists {
-		c.CreateTopic(ctx, topic, TopicConfig{ReplicationFactor: 1, Partitions: 1})
-	}
+func (c *EventProducerRedpanda) Publish(ctx context.Context, topic string, msg any, headers map[string]string) error {
 	data, err := json.Marshal(msg)
 	if err != nil {
 		return err
 	}
 	log := logger.FromContext(ctx)
 	log.Sugar().Infof("Publishing to topic '%s'\n", topic)
-	c.client.Produce(ctx, &kgo.Record{Topic: topic, Value: data}, func(r *kgo.Record, err error) {
+	c.client.Produce(ctx, &kgo.Record{
+		Topic:   topic,
+		Value:   data,
+		Headers: MapToKgoHeaders(headers),
+	}, func(r *kgo.Record, err error) {
 		if err != nil {
 			log.Sugar().Errorf("Failed to publish to topic '%s': %v\n", topic, err)
 		}
@@ -113,15 +113,14 @@ func (c *EventProducerRedpanda) Close() {
 }
 
 type EventConsumer interface {
-	Subscribe(ctx context.Context, topic string, handler func(context.Context, *Event) error) error
+	Subscribe(ctx context.Context, handler func(context.Context, *Event) error) error
 }
 
 type EventConsumerRedpanda struct {
-	logger *log.Logger
 	client *kgo.Client
 }
 
-func NewEventConsumerRedpanda(logger *log.Logger, brokers []string, topics ...string) (*EventConsumerRedpanda, error) {
+func NewEventConsumerRedpanda(brokers []string, topics ...string) (*EventConsumerRedpanda, error) {
 	groupID := uuid.New().String()
 	client, err := kgo.NewClient(
 		kgo.SeedBrokers(brokers...),
@@ -134,28 +133,42 @@ func NewEventConsumerRedpanda(logger *log.Logger, brokers []string, topics ...st
 	}
 	return &EventConsumerRedpanda{
 		client: client,
-		logger: logger,
 	}, nil
 }
 
-func (c *EventConsumerRedpanda) Subscribe(ctx context.Context, topic string, handler func(context.Context, Event) error) error {
+func (c *EventConsumerRedpanda) Subscribe(ctx context.Context, handler func(context.Context, []byte, map[string]string) error) error {
+	log := logger.FromContext(ctx)
 	go func() {
 		for {
 			fetches := c.client.PollFetches(ctx)
 			iter := fetches.RecordIter()
 			for !iter.Done() {
 				rec := iter.Next()
-				var event Event
-				err := json.Unmarshal(rec.Value, &event)
+				err := handler(ctx, rec.Value, FromKgoHeaders(rec.Headers))
 				if err != nil {
-					c.logger.Printf("error unmarshalling event: %v", err)
-				}
-				err = handler(ctx, event)
-				if err != nil {
-					c.logger.Printf("error handling event: %v", err)
+					log.Sugar().Errorf("error handling event: %v", err)
 				}
 			}
 		}
 	}()
 	return nil
+}
+
+func MapToKgoHeaders(headers map[string]string) []kgo.RecordHeader {
+	var recordHeaders []kgo.RecordHeader
+	for k, v := range headers {
+		recordHeaders = append(recordHeaders, kgo.RecordHeader{
+			Key:   k,
+			Value: []byte(v),
+		})
+	}
+	return recordHeaders
+}
+
+func FromKgoHeaders(headers []kgo.RecordHeader) map[string]string {
+	recordHeaders := make(map[string]string) // Initialize the map
+	for _, header := range headers {
+		recordHeaders[header.Key] = string(header.Value)
+	}
+	return recordHeaders
 }

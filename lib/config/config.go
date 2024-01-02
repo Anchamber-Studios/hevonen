@@ -57,7 +57,7 @@ func LoadConfig() Config {
 			Password: os.Getenv("DB_PASSWORD"),
 		},
 		Broker: Broker{
-			Url: getOrDefault(os.Getenv("BROKER_URL"), "localhost:19092"),
+			Url: getOrDefault("BROKER_URL", "localhost:19092"),
 		},
 	}
 
