@@ -2,7 +2,9 @@ package server
 
 import (
 	"net/http"
+	"time"
 
+	"aidanwoods.dev/go-paseto"
 	"github.com/anchamber-studios/hevonen/services/admin/users/client"
 	"github.com/labstack/echo/v4"
 )
@@ -46,7 +48,22 @@ func login(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(echo.ErrBadRequest.Code, err.Error())
 	}
-	return c.JSON(http.StatusOK, &user)
+	key, err := paseto.V4SymmetricKeyFromHex(cc.Config.TokenSecret)
+	if err != nil {
+		cc.Logger().Errorf("Unable to create token key: %v\n", err)
+	}
+	token := paseto.NewToken()
+	token.SetIssuedAt(time.Now())
+	token.SetNotBefore(time.Now())
+	token.SetExpiration(time.Now().Add(2 * time.Hour))
+	token.SetString("user-id", user.ID)
+	signed := token.V4Encrypt(key, nil)
+
+	return c.JSON(http.StatusOK, &client.UserLoginResponse{
+		Token: signed,
+		Email: user.Email,
+		ID:    user.ID,
+	})
 }
 
 func logout(c echo.Context) error {

@@ -14,7 +14,7 @@ type UserClient interface {
 	GetUsers(ctx lib.ClientContext) ([]User, error)
 	GetUser(ctx lib.ClientContext, id string) (User, error)
 	Register(ctx lib.ClientContext, user UserCreate) (string, error)
-	Login(ctx lib.ClientContext, login UserLogin) (User, error)
+	Login(ctx lib.ClientContext, login UserLogin) (UserLoginResponse, error)
 	Logout(ctx lib.ClientContext, id string) error
 }
 
@@ -81,34 +81,34 @@ func (c *UserClientHttp) Register(ctx lib.ClientContext, user UserCreate) (strin
 	return location, nil
 }
 
-func (c *UserClientHttp) Login(ctx lib.ClientContext, login UserLogin) (User, error) {
+func (c *UserClientHttp) Login(ctx lib.ClientContext, login UserLogin) (UserLoginResponse, error) {
 	client := &http.Client{}
 
 	loginJson, err := json.Marshal(login)
 	if err != nil {
-		return User{}, err
+		return UserLoginResponse{}, err
 	}
 	req, err := http.NewRequest("POST", c.Url+"/login", bytes.NewReader(loginJson))
 	if err != nil {
 		log.Printf("req err: %v\n", err)
-		return User{}, err
+		return UserLoginResponse{}, err
 	}
 	ctx.SetHeader(req)
 	req.Header.Set("Content-Type", "application/json")
 	resp, err := client.Do(req)
 	if err != nil {
 		log.Printf("resp err: %v\n", err)
-		return User{}, err
+		return UserLoginResponse{}, err
 	}
 	if resp.StatusCode != http.StatusOK {
-		return User{}, lib.ErrUnauthorized
+		return UserLoginResponse{}, lib.ErrUnauthorized
 	}
-	var user User
-	err = json.NewDecoder(resp.Body).Decode(&user)
+	var loginResponse UserLoginResponse
+	err = json.NewDecoder(resp.Body).Decode(&loginResponse)
 	if err != nil {
-		return User{}, err
+		return UserLoginResponse{}, err
 	}
-	return user, nil
+	return loginResponse, nil
 }
 
 func (c *UserClientHttp) Logout(ctx lib.ClientContext, id string) error {
