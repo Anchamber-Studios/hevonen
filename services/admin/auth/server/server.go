@@ -29,6 +29,7 @@ func Routes(e *echo.Echo, conf config.Config) {
 
 	restricted.GET("/auth", GetAuthorizations)
 
+	restricted.GET("/services", GetServices)
 	restricted.GET("/services/:serviceId/auth", GetAuthorizationsForService)
 }
 

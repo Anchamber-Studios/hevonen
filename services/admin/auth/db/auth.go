@@ -2,6 +2,7 @@ package db
 
 import (
 	"context"
+	"time"
 
 	"github.com/anchamber-studios/hevonen/services/admin/auth/client"
 	"github.com/google/uuid"
@@ -15,12 +16,13 @@ type AuthRepository interface {
 	GetAuthorizations(ctx context.Context) ([]client.Authorization, error)
 	GetAuthorizationsForService(ctx context.Context, serviceId string) ([]client.Authorization, error)
 	GetGroups(ctx context.Context) ([]client.Group, error)
+	GetServices(ctx context.Context) ([]client.Service, error)
 }
 
 type AuthRepositoryPostgre struct{}
 
 func (a *AuthRepositoryPostgre) GetAuthorizations(ctx context.Context) ([]client.Authorization, error) {
-	return systemAuthorizations(), nil
+	return authAuthorizations(), nil
 }
 
 func (a *AuthRepositoryPostgre) GetAuthorizationsForService(ctx context.Context, serviceId string) ([]client.Authorization, error) {
@@ -38,14 +40,18 @@ func (a *AuthRepositoryPostgre) GetAuthorizationsForService(ctx context.Context,
 }
 
 func (a *AuthRepositoryPostgre) GetGroups(ctx context.Context) ([]client.Group, error) {
-	return systemGroups(), nil
+	return authGroups(), nil
+}
+
+func (a *AuthRepositoryPostgre) GetServices(ctx context.Context) ([]client.Service, error) {
+	return []client.Service{authService()}, nil
 }
 
 func NewAuthRepositoryPostgre() AuthRepository {
 	return &AuthRepositoryPostgre{}
 }
 
-func systemAuthorizations() []client.Authorization {
+func authAuthorizations() []client.Authorization {
 	serviceID := uuid.Must(uuid.Parse(ServiceUUID))
 	return []client.Authorization{
 		{
@@ -75,15 +81,26 @@ func systemAuthorizations() []client.Authorization {
 	}
 }
 
-func systemGroups() []client.Group {
+func authGroups() []client.Group {
 	return []client.Group{
 		{
 			ID:            uuid.Must(uuid.Parse("018cd07e-4f63-7de9-b5bc-eddd8302ce06")),
 			Name:          "admin",
 			Description:   "Admin group for the auth service",
 			Users:         []client.User{},
-			Authorization: systemAuthorizations(),
+			Authorization: authAuthorizations(),
 			Parent:        nil,
 		},
+	}
+}
+
+func authService() client.Service {
+	return client.Service{
+		ID:                    uuid.Must(uuid.Parse(ServiceUUID)),
+		Name:                  "admin/auth",
+		Description:           "Authentorizations service for users",
+		AuthorizationEndpoint: "/services/" + ServiceUUID + "/auth",
+		UpdatedAt:             time.Date(2023, 1, 1, 0, 0, 0, 0, time.UTC),
+		CreatedAt:             time.Date(2023, 1, 1, 0, 0, 0, 0, time.UTC),
 	}
 }

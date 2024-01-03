@@ -11,6 +11,7 @@ type AuthService interface {
 	GetAuthorizations(ctx context.Context) ([]client.Authorization, error)
 	GetAuthorizationsForService(ctx context.Context, serviceId string) ([]client.Authorization, error)
 	GetGroups(ctx context.Context) ([]client.Group, error)
+	GetServices(ctx context.Context) ([]client.Service, error)
 }
 
 type AuthServiceImpl struct {
@@ -27,4 +28,8 @@ func (a *AuthServiceImpl) GetAuthorizationsForService(ctx context.Context, servi
 
 func (a *AuthServiceImpl) GetGroups(ctx context.Context) ([]client.Group, error) {
 	return a.AuthRepo.GetGroups(ctx)
+}
+
+func (a *AuthServiceImpl) GetServices(ctx context.Context) ([]client.Service, error) {
+	return a.AuthRepo.GetServices(ctx)
 }

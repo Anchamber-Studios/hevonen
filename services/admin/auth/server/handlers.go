@@ -32,10 +32,6 @@ func GetAuthorizationsForService(e echo.Context) error {
 	return e.JSON(200, authorizations)
 }
 
-func GetAuthorizationForService(e echo.Context) error {
-	return echo.NewHTTPError(500, "Not implemented")
-}
-
 func RegisterServiceAuthorizations(e echo.Context) error {
 	return echo.NewHTTPError(500, "Not implemented")
 }
@@ -49,7 +45,12 @@ func UpdateServiceAuthorizations(e echo.Context) error {
 }
 
 func GetServices(e echo.Context) error {
-	return echo.NewHTTPError(500, "Not implemented")
+	cc := e.(*CustomContext)
+	services, err := cc.Services.AuthService.GetServices(cc.Request().Context())
+	if err != nil {
+		return echo.NewHTTPError(500, "Could not get services")
+	}
+	return e.JSON(200, services)
 }
 
 func RegisterSercice(e echo.Context) error {
