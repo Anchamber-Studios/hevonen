@@ -7,7 +7,9 @@ import (
 	"github.com/anchamber-studios/hevonen/lib/events"
 	"github.com/anchamber-studios/hevonen/lib/logger"
 	m "github.com/anchamber-studios/hevonen/lib/middleware"
-	"github.com/anchamber-studios/hevonen/services/admin/users/services"
+	"github.com/anchamber-studios/hevonen/services/admin/auth/db"
+	"github.com/anchamber-studios/hevonen/services/admin/auth/services"
+	us "github.com/anchamber-studios/hevonen/services/admin/users/services"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
@@ -23,10 +25,15 @@ func Middleware(e *echo.Echo, conf config.Config) {
 func Routes(e *echo.Echo, conf config.Config) {
 	restricted := e.Group("")
 	restricted.Use(m.AuthPaseto(conf.TokenSecret))
+	restricted.GET("/groups", GetGroups)
+
+	restricted.GET("/auth", GetAuthorizations)
+
+	restricted.GET("/services/:serviceId/auth", GetAuthorizationsForService)
 }
 
 func Events(e *echo.Echo, conf config.Config) {
-	topic := services.GetTopicName(services.ActionLogin)
+	topic := us.GetTopicName(us.ActionLogin)
 	loginEvents, err := events.NewEventConsumerRedpanda([]string{conf.Broker.Url}, topic)
 	if err != nil {
 		e.Logger.Fatal(err)
@@ -43,7 +50,12 @@ func Events(e *echo.Echo, conf config.Config) {
 
 type CustomContext struct {
 	echo.Context
-	Config config.Config
+	Config   config.Config
+	Services Services
+}
+
+type Services struct {
+	AuthService services.AuthService
 }
 
 func customContext(conf config.Config) echo.MiddlewareFunc {
@@ -52,6 +64,11 @@ func customContext(conf config.Config) echo.MiddlewareFunc {
 			cc := &CustomContext{
 				Context: c,
 				Config:  conf,
+				Services: Services{
+					AuthService: &services.AuthServiceImpl{
+						AuthRepo: &db.AuthRepositoryPostgre{},
+					},
+				},
 			}
 			return next(cc)
 		}

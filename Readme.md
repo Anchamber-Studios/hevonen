@@ -9,7 +9,7 @@ The project might be overly complex for the actual use case and scale, but since
 ### Planned
 - admin area
   - user managment
-  - permission managment
+  - auth managment
 - member management
 - working hours tracking
 - riding plan
