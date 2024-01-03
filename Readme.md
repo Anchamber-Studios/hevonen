@@ -2,23 +2,38 @@
 
 Simplify some of the organization and tasks a riding school has to do on a daily basis.
 
+The project might be overly complex for the actual use case and scale, but since it is a project for me in my spare time I wanted to use stuff I'm not able to use at work and try out implementations which are not possible at work.
 
 ## Features
 
-### Implemented
-
 ### Planned
-
+- admin area
+  - user managment
+  - permission managment
 - member management
 - working hours tracking
 - riding plan
 
 
+### User Managment
+
+The registartion and login process is currenlty implemented as own service. In a later stage this should probably be changed and a solution like (ory)[https://www.ory.sh/] should be used. For now this was the easier solution.
+
+To be able to switch out the IDP, the services itself only check a token. The token validation itslef is in a shared module. This should enable an easy switch of the used IDP later.
+
 ## Architecture/Design Decision
 
-### 2023/12/16 - Filtering/Sorting/Paging
+Hevonen is build using a service oriented architecture. Each service is responsible for a specific part of the applicaiton. Communications between service can be asyncronus via a pub/sub mechanism (using Redpanda) or it can call the service directly using a client from the services client module.
 
-Since the tables will not contain too much entries for one club, all the entries will be pushed to the frontend and filtering/sorting will happen on the frontend side. This avoids unecessary roundtrips from frontend -> backend -> service -> database for small amounts of data.
+### Structure of a service
+The service modules should follow the same folder strucutre.
+
+- `main.go` - start a the service
+- `server/` - contains the setup for the server. This way, the application can also be started as a single service
+- `services/` - service implementaions used by the handlers
+- `db/` - database repositries used by services
+- `db/migrations/` - sql migration scripts for the database
+- `client/` - client implementation to be used by other moduels to communicate with this service.
 
 
 ## Tech Stack
