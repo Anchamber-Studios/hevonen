@@ -2,14 +2,17 @@ package server
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/anchamber-studios/hevonen/lib/config"
+	ldb "github.com/anchamber-studios/hevonen/lib/db"
 	"github.com/anchamber-studios/hevonen/lib/events"
 	"github.com/anchamber-studios/hevonen/lib/logger"
 	m "github.com/anchamber-studios/hevonen/lib/middleware"
 	"github.com/anchamber-studios/hevonen/services/admin/auth/db"
 	"github.com/anchamber-studios/hevonen/services/admin/auth/services"
 	us "github.com/anchamber-studios/hevonen/services/admin/users/services"
+	"github.com/jackc/pgx/v5"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
@@ -51,6 +54,7 @@ func Events(e *echo.Echo, conf config.Config) {
 
 type CustomContext struct {
 	echo.Context
+	DB       *pgx.Conn
 	Config   config.Config
 	Services Services
 }
@@ -62,7 +66,15 @@ type Services struct {
 func customContext(conf config.Config) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
+			conn, err := ldb.OpenConnection(conf, c.Logger())
+			if err != nil {
+				c.Logger().Errorf("Unable to connect to database: %v\n", err)
+				c.Error(fmt.Errorf("internal server error"))
+			}
+			defer conn.Close(c.Request().Context())
+
 			cc := &CustomContext{
+				DB:      conn,
 				Context: c,
 				Config:  conf,
 				Services: Services{
