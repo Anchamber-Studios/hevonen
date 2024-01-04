@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 
@@ -19,7 +20,7 @@ func main() {
 	conf := config.LoadConfig()
 
 	e := echo.New()
-	db.SetupDb(conf, e.Logger)
+	db.SetupDB(conf, e.Logger).Close(context.Background())
 	server.Middleware(e, conf)
 	server.Routes(e, conf)
 

@@ -1,9 +1,7 @@
 package db
 
 import (
-	"context"
 	"embed"
-	"fmt"
 
 	"github.com/anchamber-studios/hevonen/lib/config"
 	"github.com/anchamber-studios/hevonen/lib/db"
@@ -12,33 +10,8 @@ import (
 )
 
 //go:embed migrations/*.sql
-var migrationFiles embed.FS
+var MigrationFiles embed.FS
 
-func SetupDb(conf config.Config, logger echo.Logger) *pgx.Conn {
-	logger.Infof("Setup database\n")
-	conn, err := OpenConnection(conf, logger)
-	if err != nil {
-		logger.Fatalf("Unable to connect to database: %v\n", err)
-	}
-	migrationCtx := context.Background()
-	err = db.Migrate(migrationCtx, logger, "users", conn, migrationFiles)
-	if err != nil {
-		logger.Fatalf("Migration failed: %v\n", err)
-	}
-	return conn
-}
-
-func OpenConnection(conf config.Config, logger echo.Logger) (*pgx.Conn, error) {
-	dsn := fmt.Sprintf("postgres://%s:%s@%s:%s/%s", conf.DB.User, conf.DB.Password, conf.DB.Url, conf.DB.Port, conf.DB.Database)
-
-	conn, err := pgx.Connect(context.Background(), dsn)
-	if err != nil {
-		logger.Errorf("Unable to connect to database: %v\n", err)
-		return nil, err
-	}
-	if err := conn.Ping(context.Background()); err != nil {
-		logger.Errorf("Unable to ping database: %v\n", err)
-		return nil, err
-	}
-	return conn, nil
+func SetupDB(conf config.Config, logger echo.Logger) *pgx.Conn {
+	return db.SetupDB("users", conf, logger, MigrationFiles)
 }

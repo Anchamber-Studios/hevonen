@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/anchamber-studios/hevonen/lib/config"
+	ldb "github.com/anchamber-studios/hevonen/lib/db"
 	"github.com/anchamber-studios/hevonen/lib/events"
 	m "github.com/anchamber-studios/hevonen/lib/middleware"
 	"github.com/anchamber-studios/hevonen/services/admin/users/db"
@@ -49,7 +50,7 @@ func Routes(e *echo.Echo, conf config.Config) {
 func customContext(conf config.Config) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
-			conn, err := db.OpenConnection(conf, c.Logger())
+			conn, err := ldb.OpenConnection(conf, c.Logger())
 			if err != nil {
 				c.Logger().Errorf("Unable to connect to database: %v\n", err)
 				c.Error(fmt.Errorf("internal server error"))
