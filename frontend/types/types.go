@@ -5,6 +5,7 @@ import (
 	uclient "github.com/anchamber-studios/hevonen/services/admin/users/client"
 	cclient "github.com/anchamber-studios/hevonen/services/club/client"
 	"github.com/labstack/echo/v4"
+	ory "github.com/ory/client-go"
 )
 
 type Session struct {
@@ -19,6 +20,7 @@ type CustomContext struct {
 	Config    Config
 	Session   Session
 	HXRequest bool
+	Auth      *ory.APIClient
 }
 
 func (cc *CustomContext) ClientContext() lib.ClientContext {

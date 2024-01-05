@@ -4,11 +4,12 @@ import (
 	"net/http"
 
 	"github.com/anchamber-studios/hevonen/frontend/types"
-	"github.com/anchamber-studios/hevonen/lib"
 	"github.com/anchamber-studios/hevonen/services/admin/users/client"
 	"github.com/gorilla/sessions"
 	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
+
+	ory "github.com/ory/client-go"
 )
 
 func GetLogin(c echo.Context) error {
@@ -27,7 +28,27 @@ func PostLogin(c echo.Context) error {
 		return c.String(http.StatusUnauthorized, "invalid logn")
 	}
 
-	user, err := cc.Config.Clients.User.Login(lib.NewClientContext(c, ""), login)
+	body := ory.UpdateLoginFlowBody{
+		UpdateLoginFlowWithPasswordMethod: &ory.UpdateLoginFlowWithPasswordMethod{
+			Password:   login.Password,
+			Identifier: login.Email,
+			Method:     "password",
+			AdditionalProperties: map[string]interface{}{
+				"expires_at": "60",
+			},
+		},
+	}
+	flow, _, err := cc.Auth.FrontendAPI.CreateNativeLoginFlow(c.Request().Context()).
+		Refresh(false).
+		Execute()
+	if err != nil {
+		cc.Logger().Errorf("Unable to create login flow: %v\n", err)
+		return err
+	}
+	flowResponse, _, err := cc.Auth.FrontendAPI.UpdateLoginFlow(c.Request().Context()).
+		Flow(flow.Id).
+		UpdateLoginFlowBody(body).
+		Execute()
 	if err != nil {
 		cc.Logger().Errorf("Unable to login: %v\n", err)
 		csrf := cc.Get("csrf").(string)
@@ -37,23 +58,19 @@ func PostLogin(c echo.Context) error {
 			Error:         "email or password is incorrect",
 		}).Render(cc.Request().Context(), cc.Response().Writer)
 	}
-	cc.Logger().Errorf("user '%s' logged in\n", user.ID)
-	cc.Response().Header().Set("HX-Target", "html")
 
+	cc.Logger().Infof("user '%s' logged in\n", flowResponse.GetSession().Identity.Id)
+	cc.Response().Header().Set("HX-Target", "html")
 	cc.Response().Header().Set("HX-Redirect", "/")
-	sess, _ := session.Get("session", cc)
-	sess.Options = &sessions.Options{
+
+	cookie := &http.Cookie{
+		Name:     "session",
+		Value:    *flowResponse.SessionToken,
 		Path:     "/",
-		MaxAge:   86400 * 2,
 		HttpOnly: true,
 	}
-	sess.Values["id"] = user.ID
-	sess.Values["email"] = user.Email
-	sess.Values["token"] = user.Token
-	cc.Logger().Errorf("save session")
-	if err := sess.Save(cc.Request(), cc.Response()); err != nil {
-		cc.Logger().Errorf("Unable to save session: %v\n", err)
-	}
+	http.SetCookie(cc.Response().Writer, cookie)
+
 	return c.NoContent(http.StatusNoContent)
 }
 

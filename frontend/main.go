@@ -17,6 +17,8 @@ import (
 	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+
+	ory "github.com/ory/client-go"
 )
 
 func main() {
@@ -88,27 +90,41 @@ func loadConfig() types.Config {
 }
 
 func customContext(config types.Config) echo.MiddlewareFunc {
+	c := ory.NewConfiguration()
+	c.Servers = ory.ServerConfigurations{{URL: fmt.Sprintf("http://localhost:%s/.ory", "4000")}}
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
-		return func(c echo.Context) error {
+		return func(ctx echo.Context) error {
 			cc := &types.CustomContext{
-				Context:   c,
+				Context:   ctx,
+				Auth:      ory.NewAPIClient(c),
 				Config:    config,
 				Session:   types.Session{LoggedIn: false},
-				HXRequest: c.Request().Header.Get(HX_REQUEST_HEADER) == "true",
+				HXRequest: ctx.Request().Header.Get(HX_REQUEST_HEADER) == "true",
 			}
-			sess, _ := session.Get("session", c)
-			if sess != nil {
-				if val, ok := sess.Values["id"].(string); ok {
-					cc.Session.ID = val
-				}
-				if val, ok := sess.Values["email"].(string); ok {
-					cc.Session.Email = val
-				}
-				if val, ok := sess.Values["token"].(string); ok {
-					cc.Session.Token = val
-				}
-				cc.Session.LoggedIn = cc.Session.ID != "" && cc.Session.Email != ""
+
+			// Get the session cookie from the request
+			cookie, err := ctx.Cookie("session")
+			if err != nil || cookie == nil {
+				return next(cc)
 			}
+			// todo how to tokenize session token
+			// https://www.ory.sh/docs/identities/session-to-jwt-cors
+			session, _, err := cc.Auth.FrontendAPI.ToSession(ctx.Request().Context()).
+				XSessionToken(cookie.Value).
+				Execute()
+			if err != nil {
+				cc.Logger().Errorf("Unable to get session: %v\n", err)
+				return next(cc)
+			}
+			cc.Logger().Infof("session: %v\n", session)
+			if session != nil {
+				cc.Session.Token = session.Id
+				if traits, ok := session.Identity.Traits.(map[string]interface{}); ok {
+					cc.Session.Email = traits["email"].(string)
+				}
+				cc.Session.LoggedIn = true
+			}
+
 			return next(cc)
 		}
 	}
