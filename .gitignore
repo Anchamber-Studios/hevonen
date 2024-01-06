@@ -5,5 +5,7 @@ go.work.sum
 **/.env
 **/__debug*
 **/node_modules
+**/.*
+!.gitignore
 
 frontend/pages/**/*_templ.go

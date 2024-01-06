@@ -1,0 +1,221 @@
+cookies:
+  domain: objective-greider-ct5vdw4vvi.projects.oryapis.com
+  path: /
+  same_site: Lax
+courier:
+  smtp:
+    from_name: Hevonen via Ory
+  templates:
+    login_code:
+      valid:
+        email:
+          body: {}
+    recovery:
+      invalid:
+        email:
+          body: {}
+      valid:
+        email:
+          body: {}
+    recovery_code:
+      invalid:
+        email:
+          body: {}
+      valid:
+        email:
+          body: {}
+    registration_code:
+      valid:
+        email:
+          body: {}
+    verification:
+      invalid:
+        email:
+          body: {}
+      valid:
+        email:
+          body: {}
+    verification_code:
+      invalid:
+        email:
+          body: {}
+      valid:
+        email:
+          body: {}
+feature_flags:
+  cacheable_sessions: false
+  use_continue_with_transitions: false
+identity:
+  default_schema_id: preset://email
+  schemas:
+  - id: preset://email
+    url: base64://ewogICIkaWQiOiAiaHR0cHM6Ly9zY2hlbWFzLm9yeS5zaC9wcmVzZXRzL2tyYXRvcy9pZGVudGl0eS5lbWFpbC5zY2hlbWEuanNvbiIsCiAgIiRzY2hlbWEiOiAiaHR0cDovL2pzb24tc2NoZW1hLm9yZy9kcmFmdC0wNy9zY2hlbWEjIiwKICAidGl0bGUiOiAiUGVyc29uIiwKICAidHlwZSI6ICJvYmplY3QiLAogICJwcm9wZXJ0aWVzIjogewogICAgInRyYWl0cyI6IHsKICAgICAgInR5cGUiOiAib2JqZWN0IiwKICAgICAgInByb3BlcnRpZXMiOiB7CiAgICAgICAgImVtYWlsIjogewogICAgICAgICAgInR5cGUiOiAic3RyaW5nIiwKICAgICAgICAgICJmb3JtYXQiOiAiZW1haWwiLAogICAgICAgICAgInRpdGxlIjogIkUtTWFpbCIsCiAgICAgICAgICAib3J5LnNoL2tyYXRvcyI6IHsKICAgICAgICAgICAgImNyZWRlbnRpYWxzIjogewogICAgICAgICAgICAgICJwYXNzd29yZCI6IHsKICAgICAgICAgICAgICAgICJpZGVudGlmaWVyIjogdHJ1ZQogICAgICAgICAgICAgIH0sCiAgICAgICAgICAgICAgIndlYmF1dGhuIjogewogICAgICAgICAgICAgICAgImlkZW50aWZpZXIiOiB0cnVlCiAgICAgICAgICAgICAgfSwKICAgICAgICAgICAgICAidG90cCI6IHsKICAgICAgICAgICAgICAgICJhY2NvdW50X25hbWUiOiB0cnVlCiAgICAgICAgICAgICAgfSwKICAgICAgICAgICAgICAiY29kZSI6IHsKICAgICAgICAgICAgICAgICJpZGVudGlmaWVyIjogdHJ1ZSwKICAgICAgICAgICAgICAgICJ2aWEiOiAiZW1haWwiCiAgICAgICAgICAgICAgfQogICAgICAgICAgICB9LAogICAgICAgICAgICAicmVjb3ZlcnkiOiB7CiAgICAgICAgICAgICAgInZpYSI6ICJlbWFpbCIKICAgICAgICAgICAgfSwKICAgICAgICAgICAgInZlcmlmaWNhdGlvbiI6IHsKICAgICAgICAgICAgICAidmlhIjogImVtYWlsIgogICAgICAgICAgICB9CiAgICAgICAgICB9LAogICAgICAgICAgIm1heExlbmd0aCI6IDMyMAogICAgICAgIH0KICAgICAgfSwKICAgICAgInJlcXVpcmVkIjogWwogICAgICAgICJlbWFpbCIKICAgICAgXSwKICAgICAgImFkZGl0aW9uYWxQcm9wZXJ0aWVzIjogZmFsc2UKICAgIH0KICB9Cn0K
+oauth2_provider:
+  override_return_to: false
+organizations: []
+preview:
+  default_read_consistency_level: strong
+selfservice:
+  allowed_return_urls:
+  - https://objective-greider-ct5vdw4vvi.projects.oryapis.com
+  - /ui/error
+  - /ui/login
+  - /ui/recovery
+  - /ui/registration
+  - /ui/sessions
+  - /ui/settings
+  - /ui/verification
+  - /ui/welcome
+  default_browser_return_url: /ui/welcome
+  flows:
+    error:
+      ui_url: /ui/error
+    login:
+      after:
+        code:
+          hooks: []
+        hooks: []
+        lookup_secret:
+          hooks: []
+        oidc:
+          hooks: []
+        password:
+          hooks: []
+        totp:
+          hooks: []
+        webauthn:
+          hooks: []
+      before:
+        hooks: []
+      lifespan: 30m0s
+      ui_url: /ui/login
+    logout:
+      after: {}
+    recovery:
+      after:
+        hooks: []
+      before:
+        hooks: []
+      enabled: true
+      lifespan: 30m0s
+      notify_unknown_recipients: false
+      ui_url: /ui/recovery
+      use: code
+    registration:
+      after:
+        code:
+          hooks: []
+        hooks: []
+        oidc:
+          hooks:
+          - hook: session
+        password:
+          hooks:
+          - hook: session
+        webauthn:
+          hooks:
+          - hook: session
+      before:
+        hooks: []
+      enabled: true
+      lifespan: 30m0s
+      login_hints: false
+      ui_url: /ui/registration
+    settings:
+      after:
+        hooks: []
+        lookup_secret:
+          hooks: []
+        oidc:
+          hooks: []
+        password:
+          hooks: []
+        profile:
+          hooks: []
+        totp:
+          hooks: []
+        webauthn:
+          hooks: []
+      before:
+        hooks: []
+      lifespan: 30m0s
+      privileged_session_max_age: 15m0s
+      required_aal: highest_available
+      ui_url: /ui/settings
+    verification:
+      after:
+        hooks: []
+      before:
+        hooks: []
+      enabled: true
+      lifespan: 30m0s
+      notify_unknown_recipients: false
+      ui_url: /ui/verification
+      use: code
+  methods:
+    code:
+      config:
+        lifespan: 15m0s
+      enabled: true
+      passwordless_enabled: false
+    link:
+      config:
+        base_url: ""
+        lifespan: 15m0s
+      enabled: true
+    lookup_secret:
+      enabled: false
+    oidc:
+      config:
+        providers: []
+      enabled: false
+    password:
+      config:
+        haveibeenpwned_enabled: true
+        identifier_similarity_check_enabled: true
+        ignore_network_errors: true
+        max_breaches: 1
+        min_password_length: 8
+      enabled: true
+    profile:
+      enabled: true
+    totp:
+      config:
+        issuer: Manifest
+      enabled: false
+    webauthn:
+      config:
+        passwordless: false
+        rp:
+          display_name: Manifest
+          id: objective-greider-ct5vdw4vvi.projects.oryapis.com
+          origins:
+          - https://objective-greider-ct5vdw4vvi.projects.oryapis.com
+      enabled: false
+serve:
+  admin:
+    base_url: https://objective-greider-ct5vdw4vvi.projects.oryapis.com/
+    request_log:
+      disable_for_health: true
+  public:
+    base_url: https://objective-greider-ct5vdw4vvi.projects.oryapis.com/
+    cors:
+      enabled: false
+    request_log:
+      disable_for_health: true
+session:
+  cookie:
+    domain: objective-greider-ct5vdw4vvi.projects.oryapis.com
+    name: ory_session_objectivegreiderct5vdw4vvi
+    path: /
+    persistent: false
+    same_site: Lax
+  lifespan: 72h0m0s
+  whoami:
+    required_aal: highest_available
+    tokenizer:
+      templates:
+        jwt_example_template:
+          claims_mapper_url: https://storage.googleapis.com/bac-gcs-production/096ac780a2f9796a85575a0c4f1abaf30da3cc47f927517abb6d6e09469ac3843af4e042d5244ae5135bc11d37da2f0724332c80334bb04b97698b8868f56ef2.jsonnet
+          jwks_url: base64://ewogICJzZXQiOiAiaGV2b25lbi1wcm9qZWN0IiwKICAia2V5cyI6IFsKICAgIHsKICAgICAgImFsZyI6ICJFUzI1NiIsCiAgICAgICJjcnYiOiAiUC0yNTYiLAogICAgICAiZCI6ICJ5YUQxaUF5YzJtbnBMQ1pLdzNBNWgwOUliTmwybmFBdmJ2TWFiRWxEemJNIiwKICAgICAgImtpZCI6ICJmOTIyMzBjNy00YTU0LTQ2MjctOTQ0Ni01YmI5OTcxMTc0NTAiLAogICAgICAia3R5IjogIkVDIiwKICAgICAgInVzZSI6ICJzaWciLAogICAgICAieCI6ICJ1bE1mYzdzRTMyZ2JxQXBmdjdqWGs2SVplUl9oSFBPZkd0RUZ1d0dEMlo0IiwKICAgICAgInkiOiAiRWdGMVN5d0VVR1c2MTFNRW1tdmRTOFoxa0tCcUVQVlJYMmtyN19MM3RFTSIKICAgIH0KICBdCn0K
+          ttl: 10m0s
