@@ -111,6 +111,7 @@ func customContext(config types.Config) echo.MiddlewareFunc {
 			// https://www.ory.sh/docs/identities/session-to-jwt-cors
 			session, _, err := cc.Auth.FrontendAPI.ToSession(ctx.Request().Context()).
 				XSessionToken(cookie.Value).
+				TokenizeAs("jwt_example_template").
 				Execute()
 			if err != nil {
 				cc.Logger().Errorf("Unable to get session: %v\n", err)
@@ -118,7 +119,7 @@ func customContext(config types.Config) echo.MiddlewareFunc {
 			}
 			cc.Logger().Infof("session: %v\n", session)
 			if session != nil {
-				cc.Session.Token = session.Id
+				cc.Session.Token = *session.Tokenized
 				if traits, ok := session.Identity.Traits.(map[string]interface{}); ok {
 					cc.Session.Email = traits["email"].(string)
 				}
