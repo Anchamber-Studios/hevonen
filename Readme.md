@@ -52,7 +52,7 @@ The service modules should follow the same folder strucutre.
 - generate certs `go run /usr/local/go/src/crypto/tls/generate_cert.go --host localhost`
 - generate templates `templ generate`
 - (install air)[https://github.com/cosmtrek/air]
-- (start ory proxy `ory proxy http://localhost:8443`)
+- (start ory proxy `ory proxy --project <project.slug> http://localhost:4443`)
 
 
 ### Requirements
