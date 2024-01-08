@@ -43,12 +43,12 @@ templ ProfilePage(props ProfilePageProps) {
 }
 
 templ profilePage(props ProfilePageProps) {
-	<section class="container">
+	<section class="container pl-2">
 		<details open>
 			<summary>General</summary>
 			<form hx-put="/u/p">
 				<input type="hidden" name="csrf" value={ props.Csrf }/>
-				<div class="pb-2">
+				<div class="pb-2 flex flex-col">
 					<label for="firstName">First Name</label>
 					<input
  						value={ props.Profile.FirstName }
@@ -57,10 +57,10 @@ templ profilePage(props ProfilePageProps) {
  						name="firstName"
  						autocomplete="firstName"
  						required
- 						class="w-full p-1 dark:text-gray-900"
+ 						class="w-96 p-1 dark:text-gray-900"
 					/>
 				</div>
-				<div class="pb-2">
+				<div class="pb-2 flex flex-col">
 					<label for="middleName">Middle Name</label>
 					<input
  						value={ props.Profile.MiddleName }
@@ -69,10 +69,10 @@ templ profilePage(props ProfilePageProps) {
  						name="middleName"
  						autocomplete="middleName"
  						required
- 						class="w-full p-1 dark:text-gray-900"
+ 						class="w-96 p-1 dark:text-gray-900"
 					/>
 				</div>
-				<div class="pb-2">
+				<div class="pb-2 flex flex-col">
 					<label for="lastName">Last Name</label>
 					<input
  						value={ props.Profile.LastName }
@@ -81,34 +81,10 @@ templ profilePage(props ProfilePageProps) {
  						name="lastName"
  						autocomplete="lastName"
  						required
- 						class="w-full p-1 dark:text-gray-900"
+ 						class="w-96 p-1 dark:text-gray-900"
 					/>
 				</div>
-				<div class="pb-2">
-					<label for="height">Heigt</label>
-					<input
- 						value={ strconv.FormatInt(int64(props.Profile.Height), 10) }
- 						id="height"
- 						type="number"
- 						name="height"
- 						autocomplete="height"
- 						required
- 						class="w-full p-1 dark:text-gray-900"
-					/>
-				</div>
-				<div class="pb-2">
-					<label for="weight">Weight</label>
-					<input
- 						value={ strconv.FormatInt(int64(props.Profile.Weight), 10) }
- 						id="weight"
- 						type="number"
- 						name="weight"
- 						autocomplete="weight"
- 						required
- 						class="w-full p-1 dark:text-gray-900"
-					/>
-				</div>
-				<div class="pb-2">
+				<div class="pb-2 flex flex-col">
 					<label for="birthday">Birthday</label>
 					<input
  						value={ props.Profile.Birthday.Format("2006-01-02") }
@@ -117,8 +93,34 @@ templ profilePage(props ProfilePageProps) {
  						name="birthday"
  						autocomplete="birthday"
  						required
- 						class="w-full p-1 dark:text-gray-900"
+ 						class="w-48 p-1 dark:text-gray-900"
 					/>
+				</div>
+				<div class="flex">
+					<div class="w-24 pb-2 flex flex-col">
+						<label class="w-24" for="height">Heigt (cm)</label>
+						<input
+							value={ strconv.FormatInt(int64(props.Profile.Height), 10) }
+							id="height"
+							type="number"
+							name="height"
+							autocomplete="height"
+							required
+							class="w-24 p-1 dark:text-gray-900"
+						/>
+					</div>
+					<div class="w-24 pb-2 pl-2 flex flex-col">
+						<label class="w-24" for="weight">Weight (kg)</label>
+						<input
+							value={ strconv.FormatInt(int64(props.Profile.Weight), 10) }
+							id="weight"
+							type="number"
+							name="weight"
+							autocomplete="weight"
+							required
+							class="w-24 p-1 dark:text-gray-900"
+						/>
+					</div>
 				</div>
 				<button type="submit" class="my-2 px-8 py-1 bg-green-800">Save</button>
 			</form>
