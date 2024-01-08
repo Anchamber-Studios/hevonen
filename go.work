@@ -5,5 +5,6 @@ use (
 	./lib
 	./services/admin/auth
 	./services/admin/users
-	./services/club
+	./services/general/club
+	./services/general/profile
 )
