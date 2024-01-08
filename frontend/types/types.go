@@ -4,6 +4,7 @@ import (
 	"github.com/anchamber-studios/hevonen/lib"
 	uclient "github.com/anchamber-studios/hevonen/services/admin/users/client"
 	cclient "github.com/anchamber-studios/hevonen/services/club/client"
+	pclient "github.com/anchamber-studios/hevonen/services/general/profile/client"
 	"github.com/labstack/echo/v4"
 	ory "github.com/ory/client-go"
 )
@@ -45,4 +46,5 @@ type TlsConfig struct {
 type Clients struct {
 	Members cclient.MemberClient
 	User    uclient.UserClient
+	Profile pclient.ProfileClient
 }

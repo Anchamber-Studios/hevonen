@@ -7,11 +7,13 @@ import (
 
 	"github.com/anchamber-studios/hevonen/frontend/pages/admin"
 	"github.com/anchamber-studios/hevonen/frontend/pages/auth"
+	"github.com/anchamber-studios/hevonen/frontend/pages/general/profile"
 	"github.com/anchamber-studios/hevonen/frontend/pages/members"
 	"github.com/anchamber-studios/hevonen/frontend/types"
 	m "github.com/anchamber-studios/hevonen/lib/middleware"
 	uclient "github.com/anchamber-studios/hevonen/services/admin/users/client"
 	cclient "github.com/anchamber-studios/hevonen/services/club/client"
+	pclient "github.com/anchamber-studios/hevonen/services/general/profile/client"
 	"github.com/gorilla/sessions"
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo-contrib/session"
@@ -63,6 +65,8 @@ func main() {
 
 	restricted.GET("/admin/users", admin.GetUsers)
 	restricted.GET("/admin/users/:userId", admin.GetUser)
+
+	restricted.GET("/u/p", profile.GetProfile)
 
 	address := fmt.Sprintf("%s:%s", config.Host, config.Port)
 	if config.Tls.Enabled {
@@ -138,6 +142,9 @@ func createClients() types.Clients {
 		},
 		User: &uclient.UserClientHttp{
 			Url: getOrDefault("USERS_URL", "http://localhost:7000/users"),
+		},
+		Profile: &pclient.ProfileClientHttp{
+			Url: getOrDefault("PROFILE_URL", "http://localhost:7002/profiles"),
 		},
 	}
 }

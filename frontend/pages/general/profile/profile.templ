@@ -1,0 +1,141 @@
+package profile
+
+import (
+	"time"
+	"strconv"
+	l "github.com/anchamber-studios/hevonen/frontend/pages/layouts"
+	c "github.com/anchamber-studios/hevonen/frontend/pages/components"
+	"github.com/anchamber-studios/hevonen/frontend/types"
+)
+
+type Profile struct {
+	FirstName  string
+	MiddleName string
+	LastName   string
+	Height     uint
+	Weight     uint
+	Birthday   time.Time
+}
+
+type ProfilePageProps struct {
+	Csrf    string
+	Profile *Profile
+}
+
+var bcList []c.BreadCrumbProp = []c.BreadCrumbProp{
+	{
+		Text: "Profile",
+		Href: "/u/p",
+	},
+}
+
+templ ProfilePageWL(session types.Session, props ProfilePageProps) {
+	@l.BasicLayout(session, l.LayoutProps{
+        Title: "Hevonen - Members",
+        BrandName: "Hevonen",
+        Content: profilePage(props),
+        BreadCrumbs: bcList,
+    })
+}
+
+templ ProfilePage(props ProfilePageProps) {
+	@profilePage(props)
+}
+
+templ profilePage(props ProfilePageProps) {
+	<section class="container">
+		<details open>
+			<summary>General</summary>
+			<form hx-put="/u/p">
+				<input type="hidden" name="csrf" value={ props.Csrf }/>
+				<div class="pb-2">
+					<label for="firstName">First Name</label>
+					<input
+ 						value={ props.Profile.FirstName }
+ 						id="firstName"
+ 						type="text"
+ 						name="firstName"
+ 						autocomplete="firstName"
+ 						required
+ 						class="w-full p-1 dark:text-gray-900"
+					/>
+				</div>
+				<div class="pb-2">
+					<label for="middleName">Middle Name</label>
+					<input
+ 						value={ props.Profile.MiddleName }
+ 						id="middleName"
+ 						type="text"
+ 						name="middleName"
+ 						autocomplete="middleName"
+ 						required
+ 						class="w-full p-1 dark:text-gray-900"
+					/>
+				</div>
+				<div class="pb-2">
+					<label for="lastName">Last Name</label>
+					<input
+ 						value={ props.Profile.LastName }
+ 						id="lastName"
+ 						type="text"
+ 						name="lastName"
+ 						autocomplete="lastName"
+ 						required
+ 						class="w-full p-1 dark:text-gray-900"
+					/>
+				</div>
+				<div class="pb-2">
+					<label for="height">Heigt</label>
+					<input
+ 						value={ strconv.FormatInt(int64(props.Profile.Height), 10) }
+ 						id="height"
+ 						type="number"
+ 						name="height"
+ 						autocomplete="height"
+ 						required
+ 						class="w-full p-1 dark:text-gray-900"
+					/>
+				</div>
+				<div class="pb-2">
+					<label for="weight">Weight</label>
+					<input
+ 						value={ strconv.FormatInt(int64(props.Profile.Weight), 10) }
+ 						id="weight"
+ 						type="number"
+ 						name="weight"
+ 						autocomplete="weight"
+ 						required
+ 						class="w-full p-1 dark:text-gray-900"
+					/>
+				</div>
+				<div class="pb-2">
+					<label for="birthday">Birthday</label>
+					<input
+ 						value={ props.Profile.Birthday.Format("2006-01-02") }
+ 						id="birthday"
+ 						type="date"
+ 						name="birthday"
+ 						autocomplete="birthday"
+ 						required
+ 						class="w-full p-1 dark:text-gray-900"
+					/>
+				</div>
+				<button type="submit" class="my-2 px-8 py-1 bg-green-800">Save</button>
+			</form>
+		</details>
+		<details open>
+			<summary>Contact Info</summary>
+			<form>
+				<button type="submit" class="my-2 px-8 py-1 bg-green-800">Save</button>
+				<button type="submit" class="my-2 px-8 py-1 bg-green-800">Add</button>
+			</form>
+		</details>
+		<details open>
+			<summary>Addresses</summary>
+			<form>
+				<button type="submit" class="my-2 px-8 py-1 bg-green-800">Save</button>
+				<button type="submit" class="my-2 px-8 py-1 bg-green-800">Add</button>
+			</form>
+		</details>
+	</section>
+}
