@@ -11,6 +11,7 @@ import (
 	"github.com/anchamber-studios/hevonen/frontend/pages/general/profile"
 	"github.com/anchamber-studios/hevonen/frontend/pages/members"
 	"github.com/anchamber-studios/hevonen/frontend/types"
+	"github.com/anchamber-studios/hevonen/lib/logger"
 	m "github.com/anchamber-studios/hevonen/lib/middleware"
 	uclient "github.com/anchamber-studios/hevonen/services/admin/users/client"
 	cclient "github.com/anchamber-studios/hevonen/services/club/client"
@@ -42,7 +43,7 @@ func main() {
 	}))
 	e.Use(middleware.Secure())
 	e.Use(middleware.RequestID())
-	e.Use(m.Logging())
+	e.Use(m.Logging(logger.Get()))
 	e.Use(session.Middleware((sessions.NewCookieStore([]byte(config.SessionSecret)))))
 	e.Use(customContext(config))
 

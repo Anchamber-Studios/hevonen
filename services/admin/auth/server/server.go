@@ -21,7 +21,7 @@ func Middleware(e *echo.Echo, conf config.Config) {
 	// middleware
 	e.Use(middleware.CORS())
 	e.Use(middleware.RequestID())
-	e.Use(m.Logging())
+	e.Use(m.Logging(logger.Get()))
 	e.Use(customContext(conf))
 }
 

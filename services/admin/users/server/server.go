@@ -6,6 +6,7 @@ import (
 	"github.com/anchamber-studios/hevonen/lib/config"
 	ldb "github.com/anchamber-studios/hevonen/lib/db"
 	"github.com/anchamber-studios/hevonen/lib/events"
+	"github.com/anchamber-studios/hevonen/lib/logger"
 	m "github.com/anchamber-studios/hevonen/lib/middleware"
 	"github.com/anchamber-studios/hevonen/services/admin/users/db"
 	"github.com/anchamber-studios/hevonen/services/admin/users/services"
@@ -31,7 +32,7 @@ func Middleware(e *echo.Echo, conf config.Config) {
 	// middleware
 	e.Use(middleware.CORS())
 	e.Use(middleware.RequestID())
-	e.Use(m.Logging())
+	e.Use(m.Logging(logger.Get()))
 	e.Use(customContext(conf))
 }
 
