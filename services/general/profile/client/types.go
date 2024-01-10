@@ -3,6 +3,16 @@ package client
 import "time"
 
 type ProfileCreateRequest struct {
+	IdentityID string    `json:"identityId"`
+	FirstName  string    `json:"firstName"`
+	MiddleName string    `json:"middleName"`
+	LastName   string    `json:"lastName"`
+	Height     uint      `json:"height"`
+	Weight     uint      `json:"weight"`
+	Birthday   time.Time `json:"birthDate"`
+}
+
+type ProfileUpdateRequest struct {
 	FirstName  string    `json:"firstName"`
 	MiddleName string    `json:"middleName"`
 	LastName   string    `json:"lastName"`

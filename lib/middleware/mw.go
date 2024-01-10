@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"aidanwoods.dev/go-paseto"
 	"github.com/anchamber-studios/hevonen/lib/logger"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -9,22 +8,30 @@ import (
 )
 
 func AuthPaseto(tokenKey string) echo.MiddlewareFunc {
-	key, err := paseto.V4SymmetricKeyFromHex(tokenKey)
-	parser := paseto.NewParser()
-	if err != nil {
-		panic(err)
-	}
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			auth := c.Request().Header.Get("Authorization")
 			if auth == "" {
 				return echo.NewHTTPError(echo.ErrUnauthorized.Code, "missing authorization header")
 			}
-			signed := auth[len("Bearer "):]
-			_, err := parser.ParseV4Local(key, signed, nil)
-			if err != nil {
-				return echo.NewHTTPError(echo.ErrUnauthorized.Code, "invalid token")
+			// _ := auth[len("Bearer "):]
+			return next(c)
+		}
+	}
+}
+
+func AuthOry() echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			cookie, err := c.Cookie("session")
+			if err != nil || cookie == nil {
+				c.Logger().Infof("missing session cookie")
+				return echo.NewHTTPError(echo.ErrUnauthorized.Code, "missing session cookie")
 			}
+
+			// validate the session cookie with ory
+
+			// Continue with the next middleware or handler
 			return next(c)
 		}
 	}
@@ -37,6 +44,7 @@ func Logging() echo.MiddlewareFunc {
 		LogStatus: true,
 		LogValuesFunc: func(c echo.Context, v middleware.RequestLoggerValues) error {
 			logger.Info("request",
+				zap.String("method", v.Method),
 				zap.String("URI", v.URI),
 				zap.Int("status", v.Status),
 			)

@@ -2,7 +2,9 @@ package db
 
 import (
 	"context"
+	"errors"
 
+	"github.com/anchamber-studios/hevonen/lib"
 	"github.com/anchamber-studios/hevonen/services/general/profile/client"
 	"github.com/jackc/pgx/v5"
 	"github.com/labstack/echo/v4"
@@ -10,9 +12,10 @@ import (
 )
 
 type ProfileRepo interface {
-	Get(ctx context.Context, id string) (client.ProfileResponse, error)
+	GetByIdentityID(ctx context.Context, identityID string) (client.ProfileResponse, error)
 	Create(ctx context.Context, profile client.ProfileCreateRequest) (string, error)
 	Delete(ctx context.Context, id string) error
+	UpdateByIdentityID(ctx context.Context, id string, profile client.ProfileUpdateRequest) error
 
 	ListAddresses(ctx context.Context, profileId string) ([]client.AddressResponse, error)
 	CreateAddress(ctx context.Context, profileId string, address client.AddressCreateRequest) (string, error)
@@ -33,29 +36,31 @@ const (
 	IdOffset uint64 = 2345678901
 )
 
-func (r *ProfileRepoPostgre) Get(ctx context.Context, id string) (client.ProfileResponse, error) {
+func (r *ProfileRepoPostgre) GetByIdentityID(ctx context.Context, identityID string) (client.ProfileResponse, error) {
 	var profile client.ProfileResponse
-	cId := r.IdConversion.Decode(id)
 	err := r.DB.QueryRow(ctx, `
 			SELECT id, first_name, middle_name, last_name, height, weight, birthday
-			FROM profiles.profiles WHERE id = $1;
-			`, cId[0]).
+			FROM profile.profiles WHERE identity_id = $1;
+			`, identityID).
 		Scan(&profile.ID, &profile.FirstName, &profile.MiddleName, &profile.LastName, &profile.Height, &profile.Weight, &profile.Birthday)
 	if err != nil {
-		r.Logger.Errorf("unable to get profile '%s': %v\n", id, err)
+		if errors.Is(err, pgx.ErrNoRows) {
+			return client.ProfileResponse{}, lib.NewNotFoundError().WithMessage("profile not found")
+		}
+		r.Logger.Errorf("unable to get profile for identity '%s': %v\n", identityID, err)
 		return client.ProfileResponse{}, err
 	}
-	r.Logger.Infof("profile '%s' retrieved", id)
+	r.Logger.Infof("profile for identity '%s' retrieved", identityID)
 	return profile, nil
 }
 
 func (r *ProfileRepoPostgre) Create(ctx context.Context, profile client.ProfileCreateRequest) (string, error) {
 	var id string
 	err := r.DB.QueryRow(ctx, `
-			INSERT INTO profiles.profiles (first_name, middle_name, last_name, height, weight, birthday)
-			VALUES ($1, $2, $3, $4, $5, $6)
+			INSERT INTO profile.profiles (identity_id, first_name, middle_name, last_name, height, weight, birthday)
+			VALUES ($1, $2, $3, $4, $5, $6, $7)
 			RETURNING id;
-			`, profile.FirstName, profile.MiddleName, profile.LastName, profile.Height, profile.Weight, profile.Birthday).
+			`, profile.IdentityID, profile.FirstName, profile.MiddleName, profile.LastName, profile.Height, profile.Weight, profile.Birthday).
 		Scan(&id)
 	if err != nil {
 		r.Logger.Errorf("unable to create profile: %v\n", err)
@@ -67,7 +72,7 @@ func (r *ProfileRepoPostgre) Create(ctx context.Context, profile client.ProfileC
 
 func (r *ProfileRepoPostgre) Delete(ctx context.Context, id string) error {
 	cId := r.IdConversion.Decode(id)
-	_, err := r.DB.Exec(ctx, "DELETE FROM profiles.profiles WHERE id = $1;", cId[0])
+	_, err := r.DB.Exec(ctx, "DELETE FROM profile.profiles WHERE identity_id = $1;", cId[0])
 	if err != nil {
 		return err
 	}
@@ -75,11 +80,25 @@ func (r *ProfileRepoPostgre) Delete(ctx context.Context, id string) error {
 	return nil
 }
 
+func (r *ProfileRepoPostgre) UpdateByIdentityID(ctx context.Context, id string, profile client.ProfileUpdateRequest) error {
+	_, err := r.DB.Exec(ctx, `
+			UPDATE profile.profiles
+			SET first_name = $1, middle_name = $2, last_name = $3, height = $4, weight = $5, birthday = $6
+			WHERE identity_id = $7;
+			`, profile.FirstName, profile.MiddleName, profile.LastName, profile.Height, profile.Weight, profile.Birthday, id)
+	if err != nil {
+		r.Logger.Errorf("unable to update profile '%s': %v\n", id, err)
+		return err
+	}
+	r.Logger.Infof("profile '%s' updated", id)
+	return nil
+}
+
 func (r *ProfileRepoPostgre) ListAddresses(ctx context.Context, profileId string) ([]client.AddressResponse, error) {
 	cId := r.IdConversion.Decode(profileId)
 	rows, err := r.DB.Query(ctx, `
 			SELECT id, profile_id, address_line_1, address_line_2, address_line_3, city, state, zip_code, country
-			FROM profiles.addresses WHERE profile_id = $1;
+			FROM profile.addresses WHERE profile_id = $1;
 			`, cId[0])
 	if err != nil {
 		r.Logger.Errorf("unable to list addresses for profile '%s': %v\n", profileId, err)
@@ -104,7 +123,7 @@ func (r *ProfileRepoPostgre) CreateAddress(ctx context.Context, profileId string
 	var id string
 	cId := r.IdConversion.Decode(profileId)
 	err := r.DB.QueryRow(ctx, `
-			INSERT INTO profiles.addresses (profile_id, address_line_1, address_line_2, address_line_3, city, state, zip_code, country)
+			INSERT INTO profile.addresses (profile_id, address_line_1, address_line_2, address_line_3, city, state, zip_code, country)
 			VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 			RETURNING id;
 			`, cId[0], address.AddressLine1, address.AddressLine2, address.AddressLine3, address.City, address.State, address.Zip, address.Country).
@@ -120,7 +139,7 @@ func (r *ProfileRepoPostgre) CreateAddress(ctx context.Context, profileId string
 func (r *ProfileRepoPostgre) DeleteAddress(ctx context.Context, profileId string, addressId string) error {
 	cId := r.IdConversion.Decode(profileId)
 	cAddressId := r.IdConversion.Decode(addressId)
-	_, err := r.DB.Exec(ctx, "DELETE FROM profiles.addresses WHERE profile_id = $1 AND id = $2;", cId[0], cAddressId[0])
+	_, err := r.DB.Exec(ctx, "DELETE FROM profile.addresses WHERE profile_id = $1 AND id = $2;", cId[0], cAddressId[0])
 	if err != nil {
 		r.Logger.Errorf("unable to delete address '%s' for profile '%s': %v\n", addressId, profileId, err)
 		return err
@@ -133,7 +152,7 @@ func (r *ProfileRepoPostgre) ListContactInfo(ctx context.Context, profileId stri
 	cId := r.IdConversion.Decode(profileId)
 	rows, err := r.DB.Query(ctx, `
 			SELECT id, profile_id, contact_type, contact_value
-			FROM profiles.contact_information WHERE profile_id = $1;
+			FROM profile.contact_information WHERE profile_id = $1;
 			`, cId[0])
 	if err != nil {
 		r.Logger.Errorf("unable to list contact information for profile '%s': %v\n", profileId, err)
@@ -158,7 +177,7 @@ func (r *ProfileRepoPostgre) CreateContactInfo(ctx context.Context, profileId st
 	var id string
 	cId := r.IdConversion.Decode(profileId)
 	err := r.DB.QueryRow(ctx, `
-			INSERT INTO profiles.contact_information (profile_id, contact_type, contact_value)
+			INSERT INTO profile.contact_information (profile_id, contact_type, contact_value)
 			VALUES ($1, $2, $3)
 			RETURNING id;
 			`, cId[0], contactInfo.ContactType, contactInfo.ContactValue).
@@ -174,7 +193,7 @@ func (r *ProfileRepoPostgre) CreateContactInfo(ctx context.Context, profileId st
 func (r *ProfileRepoPostgre) DeleteContactInfo(ctx context.Context, profileId string, contactInfoId string) error {
 	cId := r.IdConversion.Decode(profileId)
 	cContactInfoId := r.IdConversion.Decode(contactInfoId)
-	_, err := r.DB.Exec(ctx, "DELETE FROM profiles.contact_information WHERE profile_id = $1 AND id = $2;", cId[0], cContactInfoId[0])
+	_, err := r.DB.Exec(ctx, "DELETE FROM profile.contact_information WHERE profile_id = $1 AND id = $2;", cId[0], cContactInfoId[0])
 	if err != nil {
 		r.Logger.Errorf("unable to delete contact information '%s' for profile '%s': %v\n", contactInfoId, profileId, err)
 		return err

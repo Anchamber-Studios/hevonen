@@ -63,12 +63,12 @@ func (c *EventProducerRedpanda) CreateTopics(ctx context.Context, config TopicCo
 	resp, err := c.admin.CreateTopics(ctx, int32(config.Partitions), int16(config.ReplicationFactor), config.Configs, topics...)
 
 	if err != nil {
-		log.Sugar().Errorf("Failed to create topic '%s': %v\n", topics, err)
+		// log.Sugar().Errorf("Failed to create topic '%s': %v\n", topics, err)
 		return err
 	}
 	for _, r := range resp {
 		if r.Err != nil {
-			log.Sugar().Errorf("Failed to create topic '%s': %v\n", topics, r.Err)
+			// log.Sugar().Errorf("Failed to create topic '%s': %v\n", topics, r.Err)
 			return r.Err
 		}
 	}

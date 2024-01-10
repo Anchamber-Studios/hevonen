@@ -1,6 +1,8 @@
 package types
 
 import (
+	"time"
+
 	"github.com/anchamber-studios/hevonen/lib"
 	uclient "github.com/anchamber-studios/hevonen/services/admin/users/client"
 	cclient "github.com/anchamber-studios/hevonen/services/club/client"
@@ -47,4 +49,14 @@ type Clients struct {
 	Members cclient.MemberClient
 	User    uclient.UserClient
 	Profile pclient.ProfileClient
+}
+type FormDate time.Time
+
+func (ct *FormDate) UnmarshalParam(param string) error {
+	t, err := time.Parse(`2006-01-02 15:04:05 MST`, param)
+	if err != nil {
+		return err
+	}
+	*ct = FormDate(t)
+	return nil
 }

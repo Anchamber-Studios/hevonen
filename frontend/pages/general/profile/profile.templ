@@ -1,7 +1,6 @@
 package profile
 
 import (
-	"time"
 	"strconv"
 	l "github.com/anchamber-studios/hevonen/frontend/pages/layouts"
 	c "github.com/anchamber-studios/hevonen/frontend/pages/components"
@@ -9,12 +8,13 @@ import (
 )
 
 type Profile struct {
-	FirstName  string
-	MiddleName string
-	LastName   string
-	Height     uint
-	Weight     uint
-	Birthday   time.Time
+	ID         string `json:"id" form:"id"`
+	FirstName  string `json:"firstName" form:"firstName"`
+	MiddleName string `json:"middleName" form:"middleName"`
+	LastName   string `json:"lastName" form:"lastName"`
+	Height     uint   `json:"height" form:"height"`
+	Weight     uint   `json:"weight" form:"weight"`
+	Birthday   string `json:"birthday" form:"birthday"`
 }
 
 type ProfilePageProps struct {
@@ -46,84 +46,7 @@ templ profilePage(props ProfilePageProps) {
 	<section class="container pl-2">
 		<details open>
 			<summary>General</summary>
-			<form hx-put="/u/p">
-				<input type="hidden" name="csrf" value={ props.Csrf }/>
-				<div class="pb-2 flex flex-col">
-					<label for="firstName">First Name</label>
-					<input
- 						value={ props.Profile.FirstName }
- 						id="firstName"
- 						type="text"
- 						name="firstName"
- 						autocomplete="firstName"
- 						required
- 						class="w-96 p-1 dark:text-gray-900"
-					/>
-				</div>
-				<div class="pb-2 flex flex-col">
-					<label for="middleName">Middle Name</label>
-					<input
- 						value={ props.Profile.MiddleName }
- 						id="middleName"
- 						type="text"
- 						name="middleName"
- 						autocomplete="middleName"
- 						required
- 						class="w-96 p-1 dark:text-gray-900"
-					/>
-				</div>
-				<div class="pb-2 flex flex-col">
-					<label for="lastName">Last Name</label>
-					<input
- 						value={ props.Profile.LastName }
- 						id="lastName"
- 						type="text"
- 						name="lastName"
- 						autocomplete="lastName"
- 						required
- 						class="w-96 p-1 dark:text-gray-900"
-					/>
-				</div>
-				<div class="pb-2 flex flex-col">
-					<label for="birthday">Birthday</label>
-					<input
- 						value={ props.Profile.Birthday.Format("2006-01-02") }
- 						id="birthday"
- 						type="date"
- 						name="birthday"
- 						autocomplete="birthday"
- 						required
- 						class="w-48 p-1 dark:text-gray-900"
-					/>
-				</div>
-				<div class="flex">
-					<div class="w-24 pb-2 flex flex-col">
-						<label class="w-24" for="height">Heigt (cm)</label>
-						<input
-							value={ strconv.FormatInt(int64(props.Profile.Height), 10) }
-							id="height"
-							type="number"
-							name="height"
-							autocomplete="height"
-							required
-							class="w-24 p-1 dark:text-gray-900"
-						/>
-					</div>
-					<div class="w-24 pb-2 pl-2 flex flex-col">
-						<label class="w-24" for="weight">Weight (kg)</label>
-						<input
-							value={ strconv.FormatInt(int64(props.Profile.Weight), 10) }
-							id="weight"
-							type="number"
-							name="weight"
-							autocomplete="weight"
-							required
-							class="w-24 p-1 dark:text-gray-900"
-						/>
-					</div>
-				</div>
-				<button type="submit" class="my-2 px-8 py-1 bg-green-800">Save</button>
-			</form>
+			@profileForm(props)
 		</details>
 		<details open>
 			<summary>Contact Info</summary>
@@ -140,4 +63,80 @@ templ profilePage(props ProfilePageProps) {
 			</form>
 		</details>
 	</section>
+}
+
+templ profileForm(props ProfilePageProps) {
+	<form hx-put="/u/p">
+		<input type="hidden" name="id" value={ props.Profile.ID }/>
+		<div class="pb-2 flex flex-col">
+			<label for="firstName">First Name</label>
+			<input
+ 				value={ props.Profile.FirstName }
+ 				id="firstName"
+ 				type="text"
+ 				name="firstName"
+ 				autocomplete="firstName"
+ 				required
+ 				class="w-96 p-1 dark:text-gray-900"
+			/>
+		</div>
+		<div class="pb-2 flex flex-col">
+			<label for="middleName">Middle Name</label>
+			<input
+ 				value={ props.Profile.MiddleName }
+ 				id="middleName"
+ 				type="text"
+ 				name="middleName"
+ 				autocomplete="middleName"
+ 				class="w-96 p-1 dark:text-gray-900"
+			/>
+		</div>
+		<div class="pb-2 flex flex-col">
+			<label for="lastName">Last Name</label>
+			<input
+ 				value={ props.Profile.LastName }
+ 				id="lastName"
+ 				type="text"
+ 				name="lastName"
+ 				autocomplete="lastName"
+ 				class="w-96 p-1 dark:text-gray-900"
+			/>
+		</div>
+		<div class="pb-2 flex flex-col">
+			<label for="birthday">Birthday</label>
+			<input
+ 				value={ props.Profile.Birthday }
+ 				id="birthday"
+ 				type="date"
+ 				name="birthday"
+ 				autocomplete="birthday"
+ 				class="w-48 p-1 dark:text-gray-900"
+			/>
+		</div>
+		<div class="flex">
+			<div class="w-24 pb-2 flex flex-col">
+				<label class="w-24" for="height">Heigt (cm)</label>
+				<input
+ 					value={ strconv.FormatInt(int64(props.Profile.Height), 10) }
+ 					id="height"
+ 					type="number"
+ 					name="height"
+ 					autocomplete="height"
+ 					class="w-24 p-1 dark:text-gray-900"
+				/>
+			</div>
+			<div class="w-24 pb-2 pl-2 flex flex-col">
+				<label class="w-24" for="weight">Weight (kg)</label>
+				<input
+ 					value={ strconv.FormatInt(int64(props.Profile.Weight), 10) }
+ 					id="weight"
+ 					type="number"
+ 					name="weight"
+ 					autocomplete="weight"
+ 					class="w-24 p-1 dark:text-gray-900"
+				/>
+			</div>
+		</div>
+		<button type="submit" class="my-2 px-8 py-1 bg-green-800">Save</button>
+	</form>
 }

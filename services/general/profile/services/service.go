@@ -26,6 +26,7 @@ const (
 const (
 	ActionCreate = "create"
 	ActionDelete = "delete"
+	ActionUpdate = "update"
 )
 
 func NewProfileService(repo db.ProfileRepo, broker events.EventProducer) *ProfileService {
@@ -34,6 +35,7 @@ func NewProfileService(repo db.ProfileRepo, broker events.EventProducer) *Profil
 		events.TopicConfig{ReplicationFactor: 1, Partitions: 1},
 		GetTopicName(ActionCreate),
 		GetTopicName(ActionDelete),
+		GetTopicName(ActionUpdate),
 	)
 	return &ProfileService{
 		repo:   repo,
@@ -54,8 +56,35 @@ func (s *ProfileService) Create(ctx context.Context, profile client.ProfileCreat
 	return id, nil
 }
 
-func (s *ProfileService) Get(ctx context.Context, id string) (client.ProfileResponse, error) {
-	return s.repo.Get(ctx, id)
+func (s *ProfileService) Delete(ctx context.Context, id string) error {
+	err := s.repo.Delete(ctx, id)
+	if err != nil {
+		return err
+	}
+	topic := GetTopicName(ActionDelete)
+	err = s.broker.Publish(ctx, topic, map[string]string{"id": id}, map[string]string{})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *ProfileService) Update(ctx context.Context, profileId string, update client.ProfileUpdateRequest) error {
+	fmt.Printf("update: %v\n", update)
+	err := s.repo.UpdateByIdentityID(ctx, profileId, update)
+	if err != nil {
+		return err
+	}
+	topic := GetTopicName(ActionUpdate)
+	err = s.broker.Publish(ctx, topic, update, map[string]string{})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *ProfileService) GetByIdentityID(ctx context.Context, id string) (client.ProfileResponse, error) {
+	return s.repo.GetByIdentityID(ctx, id)
 }
 
 func GetTopicName(action string) string {

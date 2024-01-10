@@ -1,12 +1,20 @@
 {
     "version": "0.2.0",
     "configurations": [
+
         {
             "name": "frontend",
             "type": "go",
             "request": "launch",
             "mode": "auto",
             "program": "${workspaceFolder}/frontend"
+        },
+        {
+            "name": "profile",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/services/general/profile"
         },
         {
             "name": "frontend attach",

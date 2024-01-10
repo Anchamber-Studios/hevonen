@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 
 	"github.com/anchamber-studios/hevonen/frontend/pages/admin"
@@ -33,7 +34,11 @@ func main() {
 
 	e.Use(middleware.CORS())
 	e.Use(middleware.CSRFWithConfig(middleware.CSRFConfig{
-		TokenLookup: "form:csrf",
+		TokenLookup:    "cookie:_csrf",
+		CookiePath:     "/",
+		CookieSecure:   true,
+		CookieHTTPOnly: true,
+		CookieSameSite: http.SameSiteStrictMode,
 	}))
 	e.Use(middleware.Secure())
 	e.Use(middleware.RequestID())
@@ -67,6 +72,7 @@ func main() {
 	restricted.GET("/admin/users/:userId", admin.GetUser)
 
 	restricted.GET("/u/p", profile.GetProfile)
+	restricted.PUT("/u/p", profile.UpdateProfile)
 
 	address := fmt.Sprintf("%s:%s", config.Host, config.Port)
 	if config.Tls.Enabled {
@@ -127,6 +133,7 @@ func customContext(config types.Config) echo.MiddlewareFunc {
 				if traits, ok := session.Identity.Traits.(map[string]interface{}); ok {
 					cc.Session.Email = traits["email"].(string)
 				}
+				cc.Session.ID = session.Identity.Id
 				cc.Session.LoggedIn = true
 			}
 

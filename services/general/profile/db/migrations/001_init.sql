@@ -3,7 +3,7 @@ create schema if not exists profile;
 create table if not exists profile.profiles (
     id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
 	uuid uuid not null unique default uuid_generate_v4(),
-	idenitity_id uuid unique,
+	identity_id uuid unique,
 	first_name text not null,
 	middle_name text,
 	last_name text not null,

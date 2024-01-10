@@ -37,7 +37,9 @@ func Middleware(e *echo.Echo, conf config.Config) {
 
 func Routes(e *echo.Echo, conf config.Config) {
 	restricted := e.Group("/profiles")
-	restricted.GET("/:profileId", details)
+	restricted.POST("", new)
+	restricted.GET("/:profileIdnetityId", details)
+	restricted.PUT("/:profileIdnetityId", update)
 }
 
 func customContext(conf config.Config) echo.MiddlewareFunc {
