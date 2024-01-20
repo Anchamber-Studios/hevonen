@@ -57,7 +57,7 @@ func main() {
 		return func(c echo.Context) error {
 			cc := c.(*types.CustomContext)
 			if !cc.Session.LoggedIn {
-				return c.Redirect(302, "/auth/login")
+				return c.Redirect(302, "/auth/login?redirect="+c.Request().URL.String())
 			}
 			return next(c)
 		}

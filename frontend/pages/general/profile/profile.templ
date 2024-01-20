@@ -2,9 +2,11 @@ package profile
 
 import (
 	"strconv"
-	l "github.com/anchamber-studios/hevonen/frontend/pages/layouts"
-	c "github.com/anchamber-studios/hevonen/frontend/pages/components"
+	l "github.com/anchamber-studios/hevonen/frontend/layouts"
+	c "github.com/anchamber-studios/hevonen/frontend/components"
 	"github.com/anchamber-studios/hevonen/frontend/types"
+	"fmt"
+	"github.com/anchamber-studios/hevonen/frontend/theme"
 )
 
 type Profile struct {
@@ -51,15 +53,15 @@ templ profilePage(props ProfilePageProps) {
 		<details open>
 			<summary>Contact Info</summary>
 			<form>
-				<button type="submit" class="my-2 px-8 py-1 bg-green-800">Save</button>
-				<button type="submit" class="my-2 px-8 py-1 bg-green-800">Add</button>
+				<button type="submit" class={ fmt.Sprintf("my-2 px-8 py-1 %s", theme.PrimaryActionBGColor)}>Save</button>
+				<button type="submit" class={ fmt.Sprintf("my-2 px-8 py-1 %s", theme.PrimaryActionBGColor)}>Add</button>
 			</form>
 		</details>
 		<details open>
 			<summary>Addresses</summary>
 			<form>
-				<button type="submit" class="my-2 px-8 py-1 bg-green-800">Save</button>
-				<button type="submit" class="my-2 px-8 py-1 bg-green-800">Add</button>
+				<button type="submit" class={ fmt.Sprintf("my-2 px-8 py-1 %s", theme.PrimaryActionBGColor)}>Save</button>
+				<button type="submit" class={ fmt.Sprintf("my-2 px-8 py-1 %s", theme.PrimaryActionBGColor)}>Add</button>
 			</form>
 		</details>
 	</section>
@@ -137,6 +139,6 @@ templ profileForm(props ProfilePageProps) {
 				/>
 			</div>
 		</div>
-		<button type="submit" class="my-2 px-8 py-1 bg-green-800">Save</button>
+		<button type="submit" class={ fmt.Sprintf("my-2 px-8 py-1 %s", theme.PrimaryActionBGColor) }>Save</button>
 	</form>
 }

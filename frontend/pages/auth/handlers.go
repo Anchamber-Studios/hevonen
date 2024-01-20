@@ -16,8 +16,9 @@ func GetLogin(c echo.Context) error {
 	cc := c.(*types.CustomContext)
 	csrf := c.Get("csrf").(string)
 	// hxRequest := cc.Request().Header.Get(HX_REQUEST_HEADER)
+	redirect := c.QueryParam("redirect")
 	cc.Response().Header().Set("HX-Target", "html")
-	return LoginPage(csrf, LoginPageProps{}).Render(c.Request().Context(), c.Response().Writer)
+	return LoginPage(csrf, LoginPageProps{RedirectUrl: redirect}).Render(c.Request().Context(), c.Response().Writer)
 }
 
 func PostLogin(c echo.Context) error {
@@ -61,7 +62,12 @@ func PostLogin(c echo.Context) error {
 
 	cc.Logger().Infof("user '%s' logged in\n", flowResponse.GetSession().Identity.Id)
 	cc.Response().Header().Set("HX-Target", "html")
-	cc.Response().Header().Set("HX-Redirect", "/")
+	rediectUrl := cc.FormValue("redirect")
+	if rediectUrl != "" {
+		cc.Response().Header().Set("HX-Redirect", rediectUrl)
+	} else {
+		cc.Response().Header().Set("HX-Redirect", "/")
+	}
 
 	cookie := &http.Cookie{
 		Name:     "session",

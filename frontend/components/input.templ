@@ -1,0 +1,115 @@
+package components
+
+import "fmt"
+import "strconv"
+
+type InputProps struct {
+	ID           string
+	Label        string
+	Placeholder  string
+	Value        string
+    Required     bool
+	Disabled     bool
+	Error        bool
+	ErrorMessage string
+}
+
+templ TextInput(props InputProps) {
+	<div class="w-full md:w-1/3 px-3 mb-6 md:mb-0">
+		<label
+ 			class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+ 			for={ props.ID }
+		>
+			{ props.Label }
+		</label>
+		@input(props, "text")
+		if props.Error {
+			<p class="text-red-500 text-xs italic">{ props.ErrorMessage }</p>
+		}
+	</div>
+}
+
+templ EmailInput(props InputProps) {
+	<div class="w-full md:w-1/3 px-3 mb-6 md:mb-0">
+		<label
+ 			class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+ 			for={ props.ID }
+		>
+			{ props.Label }
+		</label>
+		@input(props, "email")
+		if props.Error {
+			<p class="text-red-500 text-xs italic">{ props.ErrorMessage }</p>
+		}
+	</div>
+}
+
+templ TelInput(props InputProps) {
+	<div class="w-full md:w-1/3 px-3 mb-6 md:mb-0">
+		<label
+ 			class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+ 			for={ props.ID }
+		>
+			{ props.Label }
+		</label>
+		@input(props, "tel")
+		if props.Error {
+			<p class="text-red-500 text-xs italic">{ props.ErrorMessage }</p>
+		}
+	</div>
+}
+
+templ NumberInput(props InputProps) {
+	<div class="w-full md:w-1/3 px-3 mb-6 md:mb-0">
+		<label
+ 			class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+ 			for={ props.ID }
+		>
+			{ props.Label }
+		</label>
+		@input(props, "number")
+		if props.Error {
+			<p class="text-red-500 text-xs italic">{ props.ErrorMessage }</p>
+		}
+	</div>
+}
+
+templ input(props InputProps, t string) {
+	if props.Disabled {
+		<input
+ 			value={ props.Value }
+ 			class={ inputClass(props.Error, props.Disabled) }
+            name={ props.ID }
+ 			id={ props.ID }
+ 			placeholder={ props.Placeholder }
+            readonly={ strconv.FormatBool(props.Disabled)  }
+            required={ strconv.FormatBool(props.Required)  }
+ 			type={ t }
+		/>
+	} else {
+		<input
+ 			value={ props.Value }
+ 			class={ inputClass(props.Error, props.Disabled) }
+            name={ props.ID }
+ 			id={ props.ID }
+ 			placeholder={ props.Placeholder }
+            required={ strconv.FormatBool(props.Required)  }
+ 			type={ t }
+		/>
+	}
+}
+
+func inputClass(error bool, disabled bool) string {
+	var border string
+	if error {
+		border = "border-red-500  focus:outline-none focus:bg-white"
+	} else if disabled {
+		border = "border-gray-400 focus:outline-none"
+	} else {
+		border = "border-gray-700 focus:outline-none focus:bg-white"
+	}
+	return fmt.Sprintf(
+		"appearance-none block w-full bg-gray-200 text-gray-700 border rounded py-3 px-4 mb-3 leading-tight %s",
+		border,
+	)
+}

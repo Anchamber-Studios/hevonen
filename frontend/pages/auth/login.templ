@@ -1,9 +1,11 @@
 package auth
 
 import "fmt"
-import "github.com/anchamber-studios/hevonen/frontend/pages/theme"
+import "github.com/anchamber-studios/hevonen/frontend/theme"
+import "github.com/anchamber-studios/hevonen/frontend/components"
 
 type LoginPageProps struct {
+	RedirectUrl   string
 	EmailError    string
 	PasswordError string
 	Error         string
@@ -24,7 +26,7 @@ templ LoginPage(csrftoken string, props LoginPageProps) {
              }
              </style>
 		</head>
-		<body class={ fmt.Sprintf("h-full w-full flex justify-center items-center m-0 overflow-hidden %s %s", theme.DefaultBGColor, theme.DefaultTextColor) }>
+		<body class={ fmt.Sprintf("h-full w-full flex justify-center items-center m-0 overflow-hidden %s %s", theme.BackgroundGradient, theme.DefaultTextColor) }>
 			<div class="w-96">
 				<h2 class="uppercase font-bold pb-2">Login</h2>
 				@LoginForm(csrftoken, props)
@@ -63,15 +65,18 @@ templ LoginForm(csrftoken string, props LoginPageProps) {
 			if (props.PasswordError != "") {
 				<p class="text-xs text-red-500">{ props.PasswordError }</p>
 			}
-			<p class="text-xs">Forgot your password? <a href="/auth/reset" class="underline">Reset</a></p>
+			// <p class="text-xs">Forgot your password? 
+			// <a href="/auth/reset" class={ fmt.Sprintf("underline %s", theme.AccentTextCoolor)}>Reset</a></p>
 		</div>
 		<input type="hidden" name="csrf" value={ csrftoken }/>
+		<input type="hidden" name="redirect" value={ props.RedirectUrl }/>
 		if (props.Error != "") {
 			<p class="text-xs text-red-500">{ props.Error }</p>
 		}
-		<button type="submit" class="my-2 p-1 w-full bg-green-800">Login</button>
-		<div>
-			<p class="text-xs">Don't have an account? <a href="/auth/register" class="underline">Register</a></p>
-		</div>
+		@components.PrimaryButton(components.ButtonProps{ Label: "Login" })
+		// <div>
+		// 	<p class="text-xs">Don't have an account? 
+		// 	<a href="/auth/register" class={fmt.Sprintf("underline %s", theme.AccentTextCoolor)}>Register</a></p>
+		// </div>
 	</form>
 }

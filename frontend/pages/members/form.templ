@@ -1,8 +1,8 @@
 package members;
 
 import (
-	l "github.com/anchamber-studios/hevonen/frontend/pages/layouts"
-	c "github.com/anchamber-studios/hevonen/frontend/pages/components"
+	l "github.com/anchamber-studios/hevonen/frontend/layouts"
+	c "github.com/anchamber-studios/hevonen/frontend/components"
 	"github.com/anchamber-studios/hevonen/frontend/types"
 )
 
@@ -88,7 +88,7 @@ templ newMemberForm(props MemberFormProps) {
         })
 		</div>
 		<div class="md:flex md:items-center">
-			@c.Button(c.ButtonProps{Text: "Create"})
+			@c.Button(c.ButtonProps{Label: "Create"})
 		</div>
 	</form>
 }
