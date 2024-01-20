@@ -12,11 +12,26 @@ import (
 
 const (
 	PathParamMemberId = "memberId"
+	PathIdentityId    = "identityId"
 )
+
+type ClubHandler struct{}
+
+func (h *ClubHandler) ListForIdentity(c echo.Context) error {
+	cc := c.(*CustomContext)
+	identityId := c.Param(PathIdentityId)
+	clubs, err := cc.Repos.Clubs.ListForIdentity(c.Request().Context(), identityId)
+	if err != nil {
+		cc.Logger().Errorf("Unable to get clubs for identity %s: %v\n", identityId, err)
+		echo.NewHTTPError(http.StatusInternalServerError, "internal server error")
+	}
+	cc.Logger().Infof("Found %d clubs for identity %s\n", len(clubs), identityId)
+	return c.JSON(http.StatusOK, &clubs)
+}
 
 type MemberHandler struct{}
 
-func list(c echo.Context) error {
+func (h *MemberHandler) list(c echo.Context) error {
 	cc := c.(*CustomContext)
 	members, err := cc.Repos.Members.List(c.Request().Context())
 	if err != nil {
@@ -25,7 +40,7 @@ func list(c echo.Context) error {
 	return c.JSON(http.StatusOK, &members)
 }
 
-func new(c echo.Context) error {
+func (h *MemberHandler) new(c echo.Context) error {
 	cc := c.(*CustomContext)
 	var member client.MemberCreate
 	if err := c.Bind(&member); err != nil {
@@ -41,7 +56,7 @@ func new(c echo.Context) error {
 	return cc.NoContent(http.StatusCreated)
 }
 
-func details(c echo.Context) error {
+func (h *MemberHandler) details(c echo.Context) error {
 	cc := c.(*CustomContext)
 	memberIdEncoded := cc.Param(PathParamMemberId)
 	member, err := cc.Repos.Members.Get(c.Request().Context(), memberIdEncoded)

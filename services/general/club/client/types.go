@@ -3,6 +3,21 @@ package client
 type ClubCreate struct {
 	Name    string `json:"name" form:"name"`
 	Website string `json:"website" form:"website"`
+	Email   string `json:"email" form:"email"`
+	Phone   string `json:"phone" form:"phone"`
+}
+
+type Club struct {
+	ID      string `json:"id" form:"id"`
+	Name    string `json:"name" form:"name"`
+	Website string `json:"website" form:"website"`
+	Email   string `json:"email" form:"email"`
+	Phone   string `json:"phone" form:"phone"`
+}
+
+type ClubMember struct {
+	ID   string `json:"id" form:"id"`
+	Name string `json:"name" form:"name"`
 }
 
 type Member struct {

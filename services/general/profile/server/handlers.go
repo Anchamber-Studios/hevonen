@@ -32,32 +32,32 @@ func new(c echo.Context) error {
 
 func details(c echo.Context) error {
 	cc := c.(*CustomContext)
-	profileId := c.Param(PathParamProfileId)
-	profile, err := cc.Services.Profiles.GetByIdentityID(c.Request().Context(), profileId)
+	identityID := c.Param(PathParamProfileId)
+	profile, err := cc.Services.Profiles.GetByIdentityID(c.Request().Context(), identityID)
 	if err != nil {
-		cc.Logger().Errorf("Unable to get profile for %s: %v\n", profileId, err)
+		cc.Logger().Errorf("Unable to get profile for identity %s: %v\n", identityID, err)
 		if e, ok := err.(*lib.ApiError); ok {
 			return c.JSON(e.StatusCode, e)
 		}
 		return echo.NewHTTPError(echo.ErrBadRequest.Code, err.Error())
 	}
-	cc.Logger().Infof("Found profile %v\n", profileId)
+	cc.Logger().Infof("Found profile for identity %v\n", identityID)
 	return cc.JSON(http.StatusOK, &profile)
 }
 
 func update(c echo.Context) error {
 	cc := c.(*CustomContext)
-	profileId := c.Param(PathParamProfileId)
-	cc.Logger().Infof("Updating profile %v\n", profileId)
+	identityID := c.Param(PathParamProfileId)
+	cc.Logger().Infof("Updating profile %v\n", identityID)
 	var updateProfile client.ProfileUpdateRequest
 	if err := cc.Bind(&updateProfile); err != nil {
 		return echo.NewHTTPError(echo.ErrBadRequest.Code, err.Error())
 	}
-	err := cc.Services.Profiles.Update(c.Request().Context(), profileId, updateProfile)
+	err := cc.Services.Profiles.Update(c.Request().Context(), identityID, updateProfile)
 	if err != nil {
-		cc.Logger().Errorf("Unable to update profile for %s: %v\n", profileId, err)
+		cc.Logger().Errorf("Unable to update profile for identity %s: %v\n", identityID, err)
 		return echo.NewHTTPError(echo.ErrBadRequest.Code, err.Error())
 	}
-	cc.Logger().Infof("Updated profile %v\n", profileId)
+	cc.Logger().Infof("Updated profile for identity %v\n", identityID)
 	return cc.NoContent(http.StatusNoContent)
 }

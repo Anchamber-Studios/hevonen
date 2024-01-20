@@ -1,0 +1,34 @@
+package clubs
+
+import "github.com/anchamber-studios/hevonen/frontend/layouts"
+import "github.com/anchamber-studios/hevonen/frontend/types"
+
+templ NoClubs() {
+	<div class="no-clubs">
+		<p>
+			You are not a member of any clubs.
+		</p>
+		<p>
+			You can create a new club or join an existing one.
+		</p>
+	</div>
+}
+
+templ NoClubsWL(session types.Session) {
+	@layouts.BasicLayout(session, layouts.LayoutProps{
+        Title: "Hevonen - Members",
+        BrandName: "Hevonen",
+        Content: page(),
+    })
+}
+
+templ page() {
+	<div class="no-clubs">
+		<p>
+			You are not a member of any clubs.
+		</p>
+		<p>
+			You can create a new club or join an existing one.
+		</p>
+	</div>
+}

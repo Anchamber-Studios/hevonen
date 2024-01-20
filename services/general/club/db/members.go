@@ -1,4 +1,4 @@
-package repo
+package db
 
 import (
 	"context"
@@ -6,7 +6,7 @@ import (
 
 	"github.com/anchamber-studios/hevonen/lib"
 	"github.com/anchamber-studios/hevonen/services/club/client"
-	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/jackc/pgx/v5"
 	"github.com/sqids/sqids-go"
 )
 
@@ -17,7 +17,7 @@ type MemberRepo interface {
 }
 
 type MemberRepoPostgre struct {
-	DB           *pgxpool.Conn
+	DB           *pgx.Conn
 	IdConversion *sqids.Sqids
 }
 

@@ -4,8 +4,9 @@ import (
 	"fmt"
 
 	"github.com/anchamber-studios/hevonen/lib/config"
-	repo "github.com/anchamber-studios/hevonen/services/club/db"
-	"github.com/jackc/pgx/v5/pgxpool"
+	ldb "github.com/anchamber-studios/hevonen/lib/db"
+	"github.com/anchamber-studios/hevonen/services/club/db"
+	"github.com/jackc/pgx/v5"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/sqids/sqids-go"
@@ -14,38 +15,39 @@ import (
 type CustomContext struct {
 	echo.Context
 	Config       config.Config
-	DB           *pgxpool.Conn
+	DB           *pgx.Conn
 	IdConversion *sqids.Sqids
 	Repos        Repos
 }
 
 type Repos struct {
-	Members repo.MemberRepo
+	Clubs   db.ClubRepo
+	Members db.MemberRepo
 }
 
 func Middleware(e *echo.Echo, conf config.Config) {
-
-	// check db on startup
-	pool := setupDb(conf, e.Logger)
-	defer pool.Close()
 
 	// middleware
 	e.Use(middleware.CORS())
 	e.Use(middleware.RequestID())
 	e.Use(middleware.Logger())
-	e.Use(customContext(pool, conf))
+	e.Use(customContext(conf))
 }
 
 func Routes(e *echo.Echo) {
-	e.GET("/members", list)
-	e.POST("/members", new)
-	e.GET("/members/:memberId", details)
+	clubHandler := &ClubHandler{}
+	e.GET("/i/:identityID/c", clubHandler.ListForIdentity).Name = "ListForIdentity"
+
+	memberHandler := &MemberHandler{}
+	e.GET("/members", memberHandler.list)
+	e.POST("/members", memberHandler.new)
+	e.GET("/members/:memberId", memberHandler.details)
 }
 
-func customContext(pool *pgxpool.Pool, conf config.Config) echo.MiddlewareFunc {
+func customContext(conf config.Config) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
-			conn, err := pool.Acquire(c.Request().Context())
+			conn, err := ldb.OpenConnection(conf, c.Logger())
 			if err != nil {
 				c.Logger().Errorf("Unable to connect to database: %v\n", err)
 				c.Error(fmt.Errorf("internal server error"))
@@ -56,7 +58,8 @@ func customContext(pool *pgxpool.Pool, conf config.Config) echo.MiddlewareFunc {
 				c.Error(fmt.Errorf("internal server error"))
 			}
 			cc := &CustomContext{c, conf, conn, idc, Repos{
-				Members: &repo.MemberRepoPostgre{DB: conn, IdConversion: idc},
+				Members: &db.MemberRepoPostgre{DB: conn, IdConversion: idc},
+				Clubs:   &db.ClubRepoPostgre{DB: conn, IdConversion: idc},
 			}}
 
 			return next(cc)

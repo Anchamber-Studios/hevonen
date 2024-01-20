@@ -10,7 +10,7 @@ import (
 	"github.com/anchamber-studios/hevonen/lib/config"
 	"github.com/anchamber-studios/hevonen/services/club/client"
 	repo "github.com/anchamber-studios/hevonen/services/club/db"
-	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/jackc/pgx/v5"
 	"github.com/labstack/echo/v4"
 )
 
@@ -23,7 +23,8 @@ func TestCreateUser(t *testing.T) {
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
-	if err := new(ctx(t, c, Repos{Members: memberRepo})); err != nil {
+	hander := MemberHandler{}
+	if err := hander.new(ctx(t, c, Repos{Members: memberRepo})); err != nil {
 		t.Errorf("Unable to create member: %v\n", err)
 	}
 
@@ -31,14 +32,14 @@ func TestCreateUser(t *testing.T) {
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	rec = httptest.NewRecorder()
 	c = e.NewContext(req, rec)
-	if err := new(ctx(t, c, Repos{Members: memberRepo})); err == nil {
+	if err := hander.new(ctx(t, c, Repos{Members: memberRepo})); err == nil {
 		t.Errorf("should return error for creating user with same mail twice: %v\n", err)
 	}
 
 	req = httptest.NewRequest(http.MethodGet, "/members", nil)
 	rec = httptest.NewRecorder()
 	c = e.NewContext(req, rec)
-	if err := list(ctx(t, c, Repos{Members: memberRepo})); err != nil {
+	if err := hander.list(ctx(t, c, Repos{Members: memberRepo})); err != nil {
 		t.Errorf("Unable to list members: %v\n", err)
 	}
 	var members []client.Member
@@ -71,7 +72,7 @@ func testConfig() config.Config {
 	}
 }
 
-func testDb() *pgxpool.Conn {
+func testDb() *pgx.Conn {
 	return nil
 }
 

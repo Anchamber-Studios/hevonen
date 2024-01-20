@@ -1,6 +1,6 @@
-create schema if not exists club;
+create schema if not exists clubs;
 
-create table if not exists club.addresses (
+create table if not exists clubs.addresses (
     id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     address_line_1 text not null,
     address_line_2 text,
@@ -12,18 +12,22 @@ create table if not exists club.addresses (
     updated_at timestamp not null default now()
 );
 
-create table if not exists club.clubs (
+create table if not exists clubs.clubs (
 	id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
 	name text not null unique,
 	website text,
+	email text,
+	phone text,
 	address_id bigint,
 	created_at timestamp not null default now(),
 	updated_at timestamp not null default now(),
-	constraint fk_club_address foreign key (address_id) references club.addresses(id)
+	constraint fk_club_address foreign key (address_id) references clubs.addresses(id)
 );
 
-create table if not exists club.members (
+create table if not exists clubs.members (
     id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+	profile_id bigint unique not null,
+	identity_id uuid unique,
     email text not null,
     first_name text not null,
     middle_name text not null,
@@ -32,17 +36,14 @@ create table if not exists club.members (
     weight integer not null,
     phone text,
     club_id bigint not null,
-	address_id bigint,
     created_at timestamp not null default now(),
     updated_at timestamp not null default now(),
 
-	constraint uq_member_email unique (club_id, email),
-	constraint fk_member_address foreign key (address_id) references club.addresses(id),
-	constraint fk_member_club foreign key (club_id) references club.clubs(id)
+	constraint fk_member_club foreign key (club_id) references clubs.clubs(id)
 );
 ---- create above / drop below ----
 
-drop table if exists club.members;
-drop table if exists club.clubs;
-drop table if exists club.addresses;
-drop schema if exists club;
+drop table if exists clubs.members;
+drop table if exists clubs.clubs;
+drop table if exists clubs.addresses;
+drop schema if exists clubs;
