@@ -8,6 +8,7 @@ import (
 
 	"github.com/anchamber-studios/hevonen/frontend/pages/admin"
 	"github.com/anchamber-studios/hevonen/frontend/pages/auth"
+	"github.com/anchamber-studios/hevonen/frontend/pages/general/clubs"
 	"github.com/anchamber-studios/hevonen/frontend/pages/general/profile"
 	"github.com/anchamber-studios/hevonen/frontend/pages/members"
 	"github.com/anchamber-studios/hevonen/frontend/types"
@@ -59,10 +60,29 @@ func main() {
 			if !cc.Session.LoggedIn {
 				return c.Redirect(302, "/auth/login?redirect="+c.Request().URL.String())
 			}
+
+			if cc.Request().URL.Path == "/no-clubs" {
+				return next(c)
+			}
+
+			if cc.Session.Clubs == nil {
+				clubs, err := cc.Config.Clients.Clubs.ListClubsForIdentity(cc.ClientContext(), cc.Session.ID)
+				if err != nil {
+					cc.Logger().Errorf("Unable to get clubs: %v\n", err)
+					return c.Redirect(302, "/no-clubs")
+				}
+				if len(clubs) == 0 {
+					cc.Logger().Warnf("User %s is not member of any clubs\n", cc.Session.ID)
+					return c.Redirect(302, "/no-clubs")
+				}
+				cc.Session.Clubs = &clubs
+			}
 			return next(c)
 		}
 	})
 	restricted.GET("/auth/logout", auth.GetLogout)
+
+	restricted.GET("/no-clubs", clubs.GetNoClubs)
 
 	restricted.GET("/", index)
 	restricted.GET("/members", members.GetMemberList)
@@ -145,8 +165,11 @@ func customContext(config types.Config) echo.MiddlewareFunc {
 
 func createClients() types.Clients {
 	return types.Clients{
-		Members: cclient.MemberClient{
-			Url: getOrDefault("MEMBERS_URL", "http://localhost:8443/members"),
+		Members: &cclient.MemberClientHttp{
+			Url: getOrDefault("MEMBERS_URL", "http://localhost:7003"),
+		},
+		Clubs: &cclient.ClubClientHttp{
+			Url: getOrDefault("CLUBS_URL", "http://localhost:7003"),
 		},
 		User: &uclient.UserClientHttp{
 			Url: getOrDefault("USERS_URL", "http://localhost:7000/users"),
