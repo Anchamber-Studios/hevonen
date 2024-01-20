@@ -4,18 +4,11 @@ import "github.com/anchamber-studios/hevonen/frontend/layouts"
 import "github.com/anchamber-studios/hevonen/frontend/types"
 
 templ NoClubs() {
-	<div class="no-clubs">
-		<p>
-			You are not a member of any clubs.
-		</p>
-		<p>
-			You can create a new club or join an existing one.
-		</p>
-	</div>
+	@page()
 }
 
 templ NoClubsWL(session types.Session) {
-	@layouts.BasicLayout(session, layouts.LayoutProps{
+	@layouts.NoSidebarLayout(session, layouts.LayoutProps{
         Title: "Hevonen - Members",
         BrandName: "Hevonen",
         Content: page(),
@@ -23,12 +16,14 @@ templ NoClubsWL(session types.Session) {
 }
 
 templ page() {
-	<div class="no-clubs">
-		<p>
-			You are not a member of any clubs.
-		</p>
-		<p>
-			You can create a new club or join an existing one.
-		</p>
+	<div class="flex items-center justify-center h-screen">
+		<div>
+			<p>
+				You are not a member of any clubs.
+			</p>
+			<p>
+				You can create a new club or join an existing one.
+			</p>
+		</div>
 	</div>
 }
