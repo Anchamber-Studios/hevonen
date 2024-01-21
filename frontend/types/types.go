@@ -8,6 +8,7 @@ import (
 	cclient "github.com/anchamber-studios/hevonen/services/club/client"
 	pclient "github.com/anchamber-studios/hevonen/services/general/profile/client"
 	"github.com/labstack/echo/v4"
+	"github.com/nicksnyder/go-i18n/v2/i18n"
 	ory "github.com/ory/client-go"
 )
 
@@ -25,6 +26,7 @@ type CustomContext struct {
 	Session   Session
 	HXRequest bool
 	Auth      *ory.APIClient
+	Tr        *i18n.Localizer
 }
 
 func (cc *CustomContext) ClientContext() lib.ClientContext {

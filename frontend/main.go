@@ -11,6 +11,7 @@ import (
 	"github.com/anchamber-studios/hevonen/frontend/pages/general/clubs"
 	"github.com/anchamber-studios/hevonen/frontend/pages/general/profile"
 	"github.com/anchamber-studios/hevonen/frontend/pages/members"
+	"github.com/anchamber-studios/hevonen/frontend/translation"
 	"github.com/anchamber-studios/hevonen/frontend/types"
 	"github.com/anchamber-studios/hevonen/lib/logger"
 	m "github.com/anchamber-studios/hevonen/lib/middleware"
@@ -22,6 +23,8 @@ import (
 	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/nicksnyder/go-i18n/v2/i18n"
+	"golang.org/x/text/language"
 
 	ory "github.com/ory/client-go"
 )
@@ -125,12 +128,14 @@ func customContext(config types.Config) echo.MiddlewareFunc {
 	c.Servers = ory.ServerConfigurations{{URL: fmt.Sprintf("http://localhost:%s/.ory", "4000")}}
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(ctx echo.Context) error {
+			accept := ctx.Request().Header.Get("Accept-Language")
 			cc := &types.CustomContext{
 				Context:   ctx,
 				Auth:      ory.NewAPIClient(c),
 				Config:    config,
 				Session:   types.Session{LoggedIn: false},
 				HXRequest: ctx.Request().Header.Get(HX_REQUEST_HEADER) == "true",
+				Tr:        i18n.NewLocalizer(translation.GetBundle(), accept, language.English.String()),
 			}
 
 			// Get the session cookie from the request

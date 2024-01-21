@@ -17,7 +17,16 @@ other = "Login"
 other = "Invalid email or password"
 
 [club]
+[club.none_joined]
+other = "You are not a member of any club"
+[club.create]
+other = "Create a club"
+[club.search]
+other = "Search for a club"
 [club.field.name]
 descritpion = "Name of a club"
 one = "Clubname"
 other = "Clubnames"
+
+[or]
+other = "or"
