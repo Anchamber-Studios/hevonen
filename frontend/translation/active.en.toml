@@ -23,6 +23,23 @@ other = "You are not a member of any club"
 other = "Create a club"
 [club.search]
 other = "Search for a club"
+
+[club.form]
+[club.form.name]
+other = "Name"
+[club.form.description]
+other = "Description"
+[club.form.website]
+other = "Website"
+[club.form.email]
+other = "Email"
+[club.form.phone]
+other = "Phone"
+[club.form.submit]
+other = "Create"
+[club.form.error.general]
+other = "An error occured"
+
 [club.field.name]
 descritpion = "Name of a club"
 one = "Clubname"

@@ -22,7 +22,7 @@ templ page(tr *i18n.Localizer) {
 	<div class="flex items-center justify-center h-screen flex-col">
 			<p>{tr.MustLocalize(&i18n.LocalizeConfig{MessageID: "club.none_joined"})}</p>
 			<a
-				href="/c/new"
+				href="/nc/new"
 				class={ fmt.Sprintf("my-2 px-8 p-1 w-64 text-center %s", theme.PrimaryActionBGColor) }>
 				{tr.MustLocalize(&i18n.LocalizeConfig{MessageID: "club.create"})}
 			</a>

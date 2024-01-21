@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/anchamber-studios/hevonen/frontend/pages/admin"
 	"github.com/anchamber-studios/hevonen/frontend/pages/auth"
@@ -64,7 +65,7 @@ func main() {
 				return c.Redirect(302, "/auth/login?redirect="+c.Request().URL.String())
 			}
 
-			if cc.Request().URL.Path == "/no-clubs" {
+			if strings.HasPrefix(cc.Request().URL.Path, "/nc") {
 				return next(c)
 			}
 
@@ -72,11 +73,11 @@ func main() {
 				clubs, err := cc.Config.Clients.Clubs.ListClubsForIdentity(cc.ClientContext(), cc.Session.ID)
 				if err != nil {
 					cc.Logger().Errorf("Unable to get clubs: %v\n", err)
-					return c.Redirect(302, "/no-clubs")
+					return c.Redirect(302, "/nc")
 				}
 				if len(clubs) == 0 {
 					cc.Logger().Warnf("User %s is not member of any clubs\n", cc.Session.ID)
-					return c.Redirect(302, "/no-clubs")
+					return c.Redirect(302, "/nc")
 				}
 				cc.Session.Clubs = &clubs
 			}
@@ -85,7 +86,9 @@ func main() {
 	})
 	restricted.GET("/auth/logout", auth.GetLogout)
 
-	restricted.GET("/no-clubs", clubs.GetNoClubs)
+	restricted.GET("/nc", clubs.GetNoClubs)
+	restricted.GET("/nc/new", clubs.GetCreateForm)
+	restricted.POST("/nc/new", clubs.PostCreateForm)
 
 	restricted.GET("/", index)
 	restricted.GET("/members", members.GetMemberList)

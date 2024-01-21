@@ -1,10 +1,11 @@
 package client
 
 type ClubCreate struct {
-	Name    string `json:"name" form:"name"`
-	Website string `json:"website" form:"website"`
-	Email   string `json:"email" form:"email"`
-	Phone   string `json:"phone" form:"phone"`
+	Name        string `json:"name" form:"name"`
+	Description string `json:"description" form:"description"`
+	Website     string `json:"website" form:"website"`
+	Email       string `json:"email" form:"email"`
+	Phone       string `json:"phone" form:"phone"`
 }
 
 type Club struct {
