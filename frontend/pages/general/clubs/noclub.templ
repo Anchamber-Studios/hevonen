@@ -2,6 +2,8 @@ package clubs
 
 import "github.com/anchamber-studios/hevonen/frontend/layouts"
 import "github.com/anchamber-studios/hevonen/frontend/types"
+import "fmt"
+import "github.com/anchamber-studios/hevonen/frontend/theme"
 
 templ NoClubs() {
 	@page()
@@ -16,14 +18,23 @@ templ NoClubsWL(session types.Session) {
 }
 
 templ page() {
-	<div class="flex items-center justify-center h-screen">
-		<div>
+	<div class="flex items-center justify-center h-screen flex-col">
 			<p>
 				You are not a member of any clubs.
 			</p>
+			<a
+				href="/c/new"
+				class={ fmt.Sprintf("my-2 px-8 p-1 w-64 text-center %s", theme.PrimaryActionBGColor) }>
+				Create new club
+			</a>
 			<p>
-				You can create a new club or join an existing one.
+				or
 			</p>
-		</div>
+			<a
+				href="/c"
+				class={ fmt.Sprintf("my-2 px-8 p-1 w-64 text-center %s", theme.PrimaryActionBGColor) }>
+				Serch for clubs
+			</a>
+		
 	</div>
 }

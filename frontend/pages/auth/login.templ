@@ -3,6 +3,7 @@ package auth
 import "fmt"
 import "github.com/anchamber-studios/hevonen/frontend/theme"
 import "github.com/anchamber-studios/hevonen/frontend/components"
+import "github.com/nicksnyder/go-i18n/v2/i18n"
 
 type LoginPageProps struct {
 	RedirectUrl   string
@@ -11,14 +12,14 @@ type LoginPageProps struct {
 	Error         string
 }
 
-templ LoginPage(csrftoken string, props LoginPageProps) {
+templ LoginPage(csrftoken string, props LoginPageProps, tr *i18n.Localizer) {
 	<html>
 		<head>
 			<meta charset="UTF-8"/>
 			<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
 			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 			<link rel="icon" href="/public/favicon.svg"/>
-			<title>Login</title>
+			<title>{tr.MustLocalize(&i18n.LocalizeConfig{MessageID: "auth.login"})}</title>
 			<script src="https://cdn.tailwindcss.com/3.3.0"></script>
 			<style>
              body {
@@ -28,18 +29,18 @@ templ LoginPage(csrftoken string, props LoginPageProps) {
 		</head>
 		<body class={ fmt.Sprintf("h-full w-full flex justify-center items-center m-0 overflow-hidden %s %s", theme.BackgroundGradient, theme.DefaultTextColor) }>
 			<div class="w-96">
-				<h2 class="uppercase font-bold pb-2">Login</h2>
-				@LoginForm(csrftoken, props)
+				<h2 class="uppercase font-bold pb-2">{tr.MustLocalize(&i18n.LocalizeConfig{MessageID: "auth.login"})}</h2>
+				@LoginForm(csrftoken, props, tr)
 			</div>
 			<script src="/public/js/htmx.min.js"></script>
 		</body>
 	</html>
 }
 
-templ LoginForm(csrftoken string, props LoginPageProps) {
+templ LoginForm(csrftoken string, props LoginPageProps, tr *i18n.Localizer) {
 	<form class="w-full" hx-post="/auth/login">
 		<div class="pb-2">
-			<label for="email">Email</label>
+			<label for="email">{tr.MustLocalize(&i18n.LocalizeConfig{MessageID: "auth.form.email"})}</label>
 			<input
  				id="email"
  				type="email"
@@ -53,7 +54,7 @@ templ LoginForm(csrftoken string, props LoginPageProps) {
 			}
 		</div>
 		<div class="pb-2">
-			<label for="password">Password</label>
+			<label for="password">{ tr.MustLocalize(&i18n.LocalizeConfig{MessageID: "auth.form.password"}) }</label>
 			<input
  				id="password"
  				type="password"
@@ -65,15 +66,15 @@ templ LoginForm(csrftoken string, props LoginPageProps) {
 			if (props.PasswordError != "") {
 				<p class="text-xs text-red-500">{ props.PasswordError }</p>
 			}
-			// <p class="text-xs">Forgot your password? 
-			// <a href="/auth/reset" class={ fmt.Sprintf("underline %s", theme.AccentTextCoolor)}>Reset</a></p>
+			// <p class="text-xs">{tr.MustLocalize(&i18n.LocalizeConfig{MessageID: "auth.forgot_password.question"})}
+			// <a href="/auth/reset" class={ fmt.Sprintf("underline %s", theme.AccentTextCoolor)}>{tr.MustLocalize(&i18n.LocalizeConfig{MessageID: "auth.forgot_password.link"})}</a></p>
 		</div>
 		<input type="hidden" name="csrf" value={ csrftoken }/>
 		<input type="hidden" name="redirect" value={ props.RedirectUrl }/>
 		if (props.Error != "") {
-			<p class="text-xs text-red-500">{ props.Error }</p>
+			<p class="text-xs text-red-500">{ tr.MustLocalize(&i18n.LocalizeConfig{MessageID: "auth.error.login"}) }</p>
 		}
-		@components.PrimaryButton(components.ButtonProps{ Label: "Login" })
+		@components.PrimaryButton(components.ButtonProps{ Label: tr.MustLocalize(&i18n.LocalizeConfig{MessageID: "auth.form.login"}) })
 		// <div>
 		// 	<p class="text-xs">Don't have an account? 
 		// 	<a href="/auth/register" class={fmt.Sprintf("underline %s", theme.AccentTextCoolor)}>Register</a></p>

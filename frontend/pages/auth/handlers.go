@@ -3,11 +3,14 @@ package auth
 import (
 	"net/http"
 
+	"github.com/anchamber-studios/hevonen/frontend/translation"
 	"github.com/anchamber-studios/hevonen/frontend/types"
 	"github.com/anchamber-studios/hevonen/services/admin/users/client"
 	"github.com/gorilla/sessions"
 	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
+	"github.com/nicksnyder/go-i18n/v2/i18n"
+	"golang.org/x/text/language"
 
 	ory "github.com/ory/client-go"
 )
@@ -18,7 +21,8 @@ func GetLogin(c echo.Context) error {
 	// hxRequest := cc.Request().Header.Get(HX_REQUEST_HEADER)
 	redirect := c.QueryParam("redirect")
 	cc.Response().Header().Set("HX-Target", "html")
-	return LoginPage(csrf, LoginPageProps{RedirectUrl: redirect}).Render(c.Request().Context(), c.Response().Writer)
+	localizer := i18n.NewLocalizer(translation.GetBundle(), language.English.String())
+	return LoginPage(csrf, LoginPageProps{RedirectUrl: redirect}, localizer).Render(c.Request().Context(), c.Response().Writer)
 }
 
 func PostLogin(c echo.Context) error {
@@ -53,11 +57,12 @@ func PostLogin(c echo.Context) error {
 	if err != nil {
 		cc.Logger().Errorf("Unable to login: %v\n", err)
 		csrf := cc.Get("csrf").(string)
+		localizer := i18n.NewLocalizer(translation.GetBundle(), language.English.String())
 		return LoginForm(csrf, LoginPageProps{
 			EmailError:    "",
 			PasswordError: "",
 			Error:         "email or password is incorrect",
-		}).Render(cc.Request().Context(), cc.Response().Writer)
+		}, localizer).Render(cc.Request().Context(), cc.Response().Writer)
 	}
 
 	cc.Logger().Infof("user '%s' logged in\n", flowResponse.GetSession().Identity.Id)

@@ -1,0 +1,23 @@
+[auth]
+[auth.login]
+other = "Login"
+[auth.logout]
+other = "Logout"
+[auth.forgot_password.question]
+other = "Forgot your password?"
+[auth.forgot_password.link]
+other = "Reset"
+[auth.form.password]
+other = "Password"
+[auth.form.email]
+other = "Email"
+[auth.form.login]
+other = "Login"
+[auth.error.login]
+other = "Invalid email or password"
+
+[club]
+[club.field.name]
+descritpion = "Name of a club"
+one = "Clubname"
+other = "Clubnames"
