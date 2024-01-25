@@ -42,7 +42,7 @@ other = "Create"
 [club.form.error.general]
 other = "An error occured"
 [club.form.error.name.too_short]
-other = "Name is too short"
+other = "Name has to be at least 3 characters long"
 
 [club.field.name]
 descritpion = "Name of a club"
