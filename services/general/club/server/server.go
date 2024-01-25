@@ -37,6 +37,7 @@ func Middleware(e *echo.Echo, conf config.Config) {
 func Routes(e *echo.Echo) {
 	clubHandler := &ClubHandler{}
 	e.GET("/i/:identityID/c", clubHandler.ListForIdentity).Name = "ListForIdentity"
+	e.POST("/i/:identityID/c", clubHandler.ListForIdentity).Name = "ListForIdentity"
 
 	memberHandler := &MemberHandler{}
 	e.GET("/members", memberHandler.list)

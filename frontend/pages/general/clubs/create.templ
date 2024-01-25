@@ -4,14 +4,12 @@ import "github.com/nicksnyder/go-i18n/v2/i18n"
 import "github.com/anchamber-studios/hevonen/frontend/layouts"
 import "github.com/anchamber-studios/hevonen/frontend/types"
 import "github.com/anchamber-studios/hevonen/frontend/components/form"
+import "github.com/anchamber-studios/hevonen/lib"
+import "github.com/anchamber-studios/hevonen/services/club/client"
 
 type CreateClubFormProps struct {
-	Errors      map[string]string
-	Name        string
-	Description string
-	Website     string
-	Email       string
-	Phone       string
+	Errors map[string]*lib.ValidationError
+	Values client.ClubCreate
 }
 
 templ CreateForm(tr *i18n.Localizer, props CreateClubFormProps) {
@@ -39,33 +37,46 @@ templ createClubForm(tr *i18n.Localizer, props CreateClubFormProps) {
 		@form.FormFieldText(tr, form.FormFieldProps{ 
 			Label: "club.form.name",
 			Key: "name",
-			Value: "",
-			Errors: []string{"test"},
+			Value: props.Values.Name,
 			Placeholder: "",
+			Required: true,
+			Errors: getError("name", props.Errors),
 			})
 		@form.FormFieldText(tr, form.FormFieldProps{ 
 			Label: "club.form.description",
 			Key: "description",
-			Value: "", 
+			Value: props.Values.Description, 
 			Placeholder: "",
 			})
 		@form.FormFieldUrl(tr, form.FormFieldProps{ 
 			Label: "club.form.website",
 			Key: "website",
-			Value: "", 
+			Value: props.Values.Website, 
 			Placeholder: "",
 			})
 		@form.FormFieldEmail(tr, form.FormFieldProps{ 
 			Label: "club.form.email",
 			Key: "email",
-			Value: "", 
+			Value: props.Values.Email, 
 			Placeholder: "",
+			Required: true,
 			})
 		@form.FormFieldPhone(tr, form.FormFieldProps{ 
 			Label: "club.form.phone",
 			Key: "phone",
-			Value: "", 
+			Value: props.Values.Phone, 
 			Placeholder: "",
+			Required: true,
 			})
 	}
+}
+
+func getError(name string, errors map[string]*lib.ValidationError) []*lib.ValidationError {
+	if errors == nil {
+		return []*lib.ValidationError{}
+	}
+	if v, ok := errors[name]; ok {
+		return []*lib.ValidationError{v}
+	}
+	return []*lib.ValidationError{}
 }

@@ -29,6 +29,29 @@ func (h *ClubHandler) ListForIdentity(c echo.Context) error {
 	return c.JSON(http.StatusOK, &clubs)
 }
 
+func (h *ClubHandler) Create(c echo.Context) error {
+	cc := c.(*CustomContext)
+	identityId := c.Param(PathIdentityId)
+	var club client.ClubCreate
+	if err := c.Bind(&club); err != nil {
+		cc.Logger().Errorf("Unable to bind club: %v\n", err)
+		return echo.NewHTTPError(http.StatusBadRequest, "Unable to bind club")
+	}
+
+	valErr := client.ValidateClubCreate(club)
+	if len(valErr.Children) > 0 {
+		return echo.NewHTTPError(http.StatusBadRequest, valErr)
+	}
+
+	cId, err := cc.Repos.Clubs.Create(c.Request().Context(), club)
+	if err != nil {
+		cc.Logger().Errorf("Unable to create club for identity %s: %v\n", identityId, err)
+		return echo.NewHTTPError(http.StatusInternalServerError, "internal server error")
+	}
+	cc.Response().Header().Set("Location", fmt.Sprintf("/i/%s/c/%s", identityId, cId))
+	return cc.NoContent(http.StatusCreated)
+}
+
 type MemberHandler struct{}
 
 func (h *MemberHandler) list(c echo.Context) error {

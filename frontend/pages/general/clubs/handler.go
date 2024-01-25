@@ -37,6 +37,17 @@ func PostCreateForm(c echo.Context) error {
 	if err := cc.Bind(&club); err != nil {
 		return echo.NewHTTPError(echo.ErrBadRequest.Code, err.Error())
 	}
+
+	valErr := client.ValidateClubCreate(club)
+	if len(valErr.Children) > 0 {
+		cc.Response().Status = http.StatusBadRequest
+		return CreateForm(cc.Tr, CreateClubFormProps{
+			Errors: valErr.Children,
+			Values: club,
+		}).
+			Render(cc.Request().Context(), cc.Response().Writer)
+	}
+
 	cc.Response().Header().Set("HX-Redirect", "/")
 	return c.NoContent(http.StatusTemporaryRedirect)
 }

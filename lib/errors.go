@@ -62,18 +62,28 @@ func (e *ApiError) WithErrorCode(errorCode string) *ApiError {
 }
 
 type ValidationError struct {
-	ErrorCode string
-	Message   string
-	Field     string
-	Children  []ValidationError
+	ErrorCode      string
+	Message        string
+	TranslationKey string
+	Field          string
+	Children       FieldErrors
 }
+
+type FieldErrors map[string]*ValidationError
 
 func NewValidationError() *ValidationError {
 	return &ValidationError{
 		ErrorCode: "validation_error",
 		Message:   "validation error",
 		Field:     "",
-		Children:  []ValidationError{},
+		Children:  map[string]*ValidationError{},
+	}
+}
+func NewValidationErrorForFields(errors FieldErrors) *ValidationError {
+	return &ValidationError{
+		ErrorCode: "validation_error",
+		Message:   "validation error",
+		Children:  errors,
 	}
 }
 

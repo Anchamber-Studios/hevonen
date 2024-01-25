@@ -10,6 +10,7 @@ import (
 
 type ClubClient interface {
 	ListClubsForIdentity(ctx lib.ClientContext, identityID string) ([]ClubMember, error)
+	CreateClub(ctx lib.ClientContext, club ClubCreate) (string, error)
 }
 
 type ClubClientHttp struct {
@@ -27,6 +28,25 @@ func (c *ClubClientHttp) ListClubsForIdentity(ctx lib.ClientContext, identityID 
 		return nil, err
 	}
 	return clubs, nil
+}
+
+func (c *ClubClientHttp) CreateClub(ctx lib.ClientContext, club ClubCreate) (string, error) {
+	valErr := ValidateClubCreate(club)
+	if len(valErr.Children) > 0 {
+		return "", valErr
+	}
+
+	clubJson, err := json.Marshal(club)
+	if err != nil {
+		return "", err
+	}
+
+	res, err := http.Post(c.Url+"/c", "application/json", bytes.NewReader(clubJson))
+	if err != nil {
+		return "", err
+	}
+	location := res.Header.Get("Location")
+	return location, nil
 }
 
 type MemberClient interface {

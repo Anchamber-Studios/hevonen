@@ -41,6 +41,8 @@ other = "Phone"
 other = "Create"
 [club.form.error.general]
 other = "An error occured"
+[club.form.error.name.too_short]
+other = "Name is too short"
 
 [club.field.name]
 descritpion = "Name of a club"

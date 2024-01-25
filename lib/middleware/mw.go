@@ -68,17 +68,17 @@ func Logging(log *zap.Logger) echo.MiddlewareFunc {
 			}
 			fields = append(fields, zap.String("request_id", id))
 
-			n := res.Status
-			switch {
-			case n >= 500:
-				log.With(zap.Error(err)).Error("Server error", fields...)
-			case n >= 400:
-				log.With(zap.Error(err)).Warn("Client error", fields...)
-			case n >= 300:
-				log.Info("Redirection", fields...)
-			default:
-				log.Info("Success", fields...)
-			}
+			// n := res.Status
+			// switch {
+			// case n >= 500:
+			// 	log.With(zap.Error(err)).Error("Server error", fields...)
+			// case n >= 400:
+			// 	log.With(zap.Error(err)).Warn("Client error", fields...)
+			// case n >= 300:
+			// 	log.Info("Redirection", fields...)
+			// default:
+			// 	log.Info("Success", fields...)
+			// }
 
 			return nil
 		}
