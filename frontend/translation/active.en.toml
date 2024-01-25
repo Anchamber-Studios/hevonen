@@ -25,6 +25,8 @@ other = "Create a club"
 other = "Search for a club"
 
 [club.form]
+[club.form.create.title]
+other = "Create a club"
 [club.form.name]
 other = "Name"
 [club.form.description]
@@ -47,3 +49,9 @@ other = "Clubnames"
 
 [or]
 other = "or"
+
+[submit]
+other = "Submit"
+
+[save]
+other = "Save"

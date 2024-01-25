@@ -19,7 +19,7 @@ templ LoginPage(csrftoken string, props LoginPageProps, tr *i18n.Localizer) {
 			<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
 			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 			<link rel="icon" href="/public/favicon.svg"/>
-			<title>{tr.MustLocalize(&i18n.LocalizeConfig{MessageID: "auth.login"})}</title>
+			<title>{ tr.MustLocalize(&i18n.LocalizeConfig{MessageID: "auth.login"}) }</title>
 			<script src="https://cdn.tailwindcss.com/3.3.0"></script>
 			<style>
              body {
@@ -29,7 +29,7 @@ templ LoginPage(csrftoken string, props LoginPageProps, tr *i18n.Localizer) {
 		</head>
 		<body class={ fmt.Sprintf("h-full w-full flex justify-center items-center m-0 overflow-hidden %s %s", theme.BackgroundGradient, theme.DefaultTextColor) }>
 			<div class="w-96">
-				<h2 class="uppercase font-bold pb-2">{tr.MustLocalize(&i18n.LocalizeConfig{MessageID: "auth.login"})}</h2>
+				<h2 class="uppercase font-bold pb-2">{ tr.MustLocalize(&i18n.LocalizeConfig{MessageID: "auth.login"}) }</h2>
 				@LoginForm(csrftoken, props, tr)
 			</div>
 			<script src="/public/js/htmx.min.js"></script>
@@ -40,7 +40,7 @@ templ LoginPage(csrftoken string, props LoginPageProps, tr *i18n.Localizer) {
 templ LoginForm(csrftoken string, props LoginPageProps, tr *i18n.Localizer) {
 	<form class="w-full" hx-post="/auth/login">
 		<div class="pb-2">
-			<label for="email">{tr.MustLocalize(&i18n.LocalizeConfig{MessageID: "auth.form.email"})}</label>
+			<label for="email">{ tr.MustLocalize(&i18n.LocalizeConfig{MessageID: "auth.form.email"}) }</label>
 			<input
  				id="email"
  				type="email"

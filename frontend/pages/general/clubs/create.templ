@@ -3,8 +3,7 @@ package clubs
 import "github.com/nicksnyder/go-i18n/v2/i18n"
 import "github.com/anchamber-studios/hevonen/frontend/layouts"
 import "github.com/anchamber-studios/hevonen/frontend/types"
-import "github.com/anchamber-studios/hevonen/frontend/theme"
-import "fmt"
+import "github.com/anchamber-studios/hevonen/frontend/components/form"
 
 type CreateClubFormProps struct {
 	Errors      map[string]string
@@ -23,7 +22,7 @@ templ CreateFormWL(session types.Session, tr *i18n.Localizer, props CreateClubFo
 	@layouts.NoSidebarLayout(session, layouts.LayoutProps{
 		Title: tr.MustLocalize(&i18n.LocalizeConfig{
 			DefaultMessage: &i18n.Message{
-				ID:    "createClub",
+				ID:    "club.form.create.title",
 				Other: "Create a club",
 			},
 		}),
@@ -32,63 +31,41 @@ templ CreateFormWL(session types.Session, tr *i18n.Localizer, props CreateClubFo
 }
 
 templ createClubForm(tr *i18n.Localizer, props CreateClubFormProps) {
-	<form hx-post="/nc/new" class="p-2" hx-swap="outerHTML">
-		<div class="pb-2 flex flex-col">
-			<label for="name">{ tr.MustLocalize(&i18n.LocalizeConfig{MessageID: "club.form.name"}) }</label>
-			<input
-				value={ props.Name }
- 				id="name"
- 				type="text"
- 				name="name"
- 				required
- 				class="w-96 p-1 dark:text-gray-900"
-			/>
-			if x, f := props.Errors["name"]; f {
-				<p class="text-xs text-red-500">{ x }</p>
-			}
-		</div>
-		<div class="pb-2 flex flex-col">
-			<label for="description">{ tr.MustLocalize(&i18n.LocalizeConfig{MessageID: "club.form.description"}) }</label>
-			<input
-				value={ props.Description }
- 				id="description"
- 				type="textarea"
- 				name="description"
- 				class="w-96 p-1 dark:text-gray-900"
-			/>
-		</div>
-		<div class="pb-2 flex flex-col">
-			<label for="website">{ tr.MustLocalize(&i18n.LocalizeConfig{MessageID: "club.form.website"}) }</label>
-			<input
-				value={ props.Website }
- 				id="website"
- 				type="url"
- 				name="website"
- 				class="w-96 p-1 dark:text-gray-900"
-			/>
-		</div>
-		<div class="pb-2 flex flex-col">
-			<label for="email">{ tr.MustLocalize(&i18n.LocalizeConfig{MessageID: "club.form.email"}) }</label>
-			<input
-				value={ props.Email }
- 				id="email"
- 				type="email"
- 				name="email"
- 				class="w-96 p-1 dark:text-gray-900"
-			/>
-		</div>
-		<div class="pb-2 flex flex-col">
-			<label for="phone">{ tr.MustLocalize(&i18n.LocalizeConfig{MessageID: "club.form.phone"}) }</label>
-			<input
-				value={ props.Phone }
- 				id="phone"
- 				type="phone"
- 				name="phone"
- 				class="w-96 p-1 dark:text-gray-900"
-			/>
-		</div>
-		<button type="submit" class={ fmt.Sprintf("my-2 px-8 py-1 %s", theme.PrimaryActionBGColor) }>
-			{ tr.MustLocalize(&i18n.LocalizeConfig{MessageID: "club.form.submit"}) }
-		</button>
-	</form>
+	@form.Form(tr, form.FormProps{
+		Title: "club.form.create.title",
+		Action: "/nc/new",
+		SaveLabel: "save",
+	}) {
+		@form.FormFieldText(tr, form.FormFieldProps{ 
+			Label: "club.form.name",
+			Key: "name",
+			Value: "",
+			Errors: []string{"test"},
+			Placeholder: "",
+			})
+		@form.FormFieldText(tr, form.FormFieldProps{ 
+			Label: "club.form.description",
+			Key: "description",
+			Value: "", 
+			Placeholder: "",
+			})
+		@form.FormFieldUrl(tr, form.FormFieldProps{ 
+			Label: "club.form.website",
+			Key: "website",
+			Value: "", 
+			Placeholder: "",
+			})
+		@form.FormFieldEmail(tr, form.FormFieldProps{ 
+			Label: "club.form.email",
+			Key: "email",
+			Value: "", 
+			Placeholder: "",
+			})
+		@form.FormFieldPhone(tr, form.FormFieldProps{ 
+			Label: "club.form.phone",
+			Key: "phone",
+			Value: "", 
+			Placeholder: "",
+			})
+	}
 }
