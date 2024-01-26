@@ -482,9 +482,9 @@ func FormFieldUrl(tr *i18n.Localizer, props FormFieldProps) templ.Component {
 
 func inputClass(props FormFieldProps) string {
 	if len(props.Errors) > 0 {
-		return fmt.Sprintf("w-full p-1 border-2 %s %s", theme.DefaultTextInput, theme.DefaultBorderColorError)
+		return fmt.Sprintf("opacity-90 w-full p-1 border-2 %s %s", theme.DefaultTextInput, theme.DefaultBorderColorError)
 	} else {
-		return fmt.Sprintf("w-full p-1 %s", theme.DefaultTextInput)
+		return fmt.Sprintf("opacity-90 w-full p-1 %s", theme.DefaultTextInput)
 	}
 }
 

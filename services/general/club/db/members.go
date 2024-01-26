@@ -12,6 +12,7 @@ import (
 
 type MemberRepo interface {
 	List(ctx context.Context) ([]client.Member, error)
+	ListForClub(ctx context.Context, clubIdEncoded string) ([]client.Member, error)
 	Create(ctx context.Context, member client.MemberCreate) (string, error)
 	Get(ctx context.Context, memberIdEncoded string) (client.Member, error)
 }
@@ -26,7 +27,38 @@ const (
 )
 
 func (r *MemberRepoPostgre) List(ctx context.Context) ([]client.Member, error) {
-	rows, err := r.DB.Query(ctx, "SELECT id, first_name, middle_name, last_name, email, phone, height, weight FROM members.members;")
+	rows, err := r.DB.Query(ctx, `
+	SELECT id, first_name, middle_name, last_name, email, phone, height, weight FROM clubs.members;
+	`)
+	if err != nil {
+		return nil, err
+	}
+
+	members := make([]client.Member, 0)
+	for rows.Next() {
+		member := client.Member{}
+		var id uint64
+		err := rows.Scan(&id, &member.FirstName, &member.MiddleName, &member.LastName, &member.Email, &member.Phone, &member.Height, &member.Weight)
+		if err != nil {
+			return nil, err
+		}
+		cId, err := r.IdConversion.Encode([]uint64{id, IdOffset})
+		if err != nil {
+			return nil, err
+		}
+		member.ID = cId
+		members = append(members, member)
+	}
+	return members, nil
+}
+
+func (r *MemberRepoPostgre) ListForClub(ctx context.Context, clubIdEncoded string) ([]client.Member, error) {
+	clubId := r.IdConversion.Decode(clubIdEncoded)[0]
+	rows, err := r.DB.Query(ctx, `
+		SELECT id, first_name, middle_name, last_name, email, phone, height, weight 
+		FROM clubs.members 
+		WHERE club_id = $1;
+		`, clubId)
 	if err != nil {
 		return nil, err
 	}
@@ -51,7 +83,11 @@ func (r *MemberRepoPostgre) List(ctx context.Context) ([]client.Member, error) {
 
 func (r *MemberRepoPostgre) Create(ctx context.Context, member client.MemberCreate) (string, error) {
 	var id uint64
-	err := r.DB.QueryRow(ctx, "INSERT INTO members.members (first_name, last_name, email, phone) VALUES ($1, $2, $3, $4) RETURNING id;", member.FirstName, member.LastName, member.Email, member.Phone).Scan(&id)
+	err := r.DB.QueryRow(ctx, `
+	INSERT INTO clubs.members (first_name, last_name, email, phone) 
+	VALUES ($1, $2, $3, $4) 
+	RETURNING id;
+	`, member.FirstName, member.LastName, member.Email, member.Phone).Scan(&id)
 	if err != nil {
 		return "", err
 	}
@@ -66,7 +102,7 @@ func (r *MemberRepoPostgre) Get(ctx context.Context, memberIdEncoded string) (cl
 	memberId := r.IdConversion.Decode(memberIdEncoded)[0]
 	var id uint64
 	var member client.Member
-	r.DB.QueryRow(ctx, "SELECT id, first_name, last_name, email, phone FROM members.members WHERE id = $1;", memberId).Scan(&id, &member.FirstName, &member.LastName, &member.Email, &member.Phone)
+	r.DB.QueryRow(ctx, "SELECT id, first_name, last_name, email, phone FROM clubs.members WHERE id = $1;", memberId).Scan(&id, &member.FirstName, &member.LastName, &member.Email, &member.Phone)
 	if id == 0 {
 		return member, lib.ErrNotFound
 	}
@@ -79,6 +115,10 @@ type MemberRepoMock struct {
 }
 
 func (r *MemberRepoMock) List(ctx context.Context) ([]client.Member, error) {
+	return r.Members, nil
+}
+
+func (r *MemberRepoMock) ListForClub(ctx context.Context, clubIdEncoded string) ([]client.Member, error) {
 	return r.Members, nil
 }
 

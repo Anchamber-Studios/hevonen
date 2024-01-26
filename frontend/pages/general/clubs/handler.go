@@ -48,6 +48,12 @@ func PostCreateForm(c echo.Context) error {
 			Render(cc.Request().Context(), cc.Response().Writer)
 	}
 
-	cc.Response().Header().Set("HX-Redirect", "/")
+	cId, err := cc.Config.Clients.Clubs.CreateClub(cc.ClientContext(), club)
+	if err != nil {
+		cc.Logger().Errorf("Unable to create club: %v\n", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	cc.Response().Header().Set("HX-Redirect", "/c/"+cId)
 	return c.NoContent(http.StatusTemporaryRedirect)
 }

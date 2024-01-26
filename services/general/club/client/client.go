@@ -3,13 +3,14 @@ package client
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/anchamber-studios/hevonen/lib"
 )
 
 type ClubClient interface {
-	ListClubsForIdentity(ctx lib.ClientContext, identityID string) ([]ClubMember, error)
+	ListClubsForIdentity(ctx lib.ClientContext) ([]ClubMember, error)
 	CreateClub(ctx lib.ClientContext, club ClubCreate) (string, error)
 }
 
@@ -17,10 +18,14 @@ type ClubClientHttp struct {
 	Url string
 }
 
-func (c *ClubClientHttp) ListClubsForIdentity(ctx lib.ClientContext, identityID string) ([]ClubMember, error) {
-	resp, err := http.Get(c.Url + "/i/" + identityID + "/c")
+func (c *ClubClientHttp) ListClubsForIdentity(ctx lib.ClientContext) ([]ClubMember, error) {
+	resp, err := http.Get(c.Url + "/i/" + ctx.IdentityID + "/c")
 	if err != nil {
 		return nil, err
+	}
+	statusOK := resp.StatusCode >= 200 && resp.StatusCode < 300
+	if !statusOK {
+		return nil, fmt.Errorf("unable to get clubs for identity (%d): %v", resp.StatusCode, resp.Body)
 	}
 	var clubs []ClubMember
 	err = json.NewDecoder(resp.Body).Decode(&clubs)
@@ -41,11 +46,15 @@ func (c *ClubClientHttp) CreateClub(ctx lib.ClientContext, club ClubCreate) (str
 		return "", err
 	}
 
-	res, err := http.Post(c.Url+"/c", "application/json", bytes.NewReader(clubJson))
+	resp, err := http.Post(c.Url+"/i/"+ctx.IdentityID+"/c", "application/json", bytes.NewReader(clubJson))
 	if err != nil {
 		return "", err
 	}
-	location := res.Header.Get("Location")
+	statusOK := resp.StatusCode >= 200 && resp.StatusCode < 300
+	if !statusOK {
+		return "", fmt.Errorf("unable to get clubs for identity (%d): %v", resp.StatusCode, resp.Body)
+	}
+	location := resp.Header.Get("Location")
 	return location, nil
 }
 

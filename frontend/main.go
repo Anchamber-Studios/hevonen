@@ -70,7 +70,7 @@ func main() {
 			}
 
 			if cc.Session.Clubs == nil {
-				clubs, err := cc.Config.Clients.Clubs.ListClubsForIdentity(cc.ClientContext(), cc.Session.ID)
+				clubs, err := cc.Config.Clients.Clubs.ListClubsForIdentity(cc.ClientContext())
 				if err != nil {
 					cc.Logger().Errorf("Unable to get clubs: %v\n", err)
 					return c.Redirect(302, "/nc")
@@ -146,7 +146,6 @@ func customContext(config types.Config) echo.MiddlewareFunc {
 			if err != nil || cookie == nil {
 				return next(cc)
 			}
-			// todo how to tokenize session token
 			// https://www.ory.sh/docs/identities/session-to-jwt-cors
 			session, _, err := cc.Auth.FrontendAPI.ToSession(ctx.Request().Context()).
 				XSessionToken(cookie.Value).

@@ -23,7 +23,7 @@ type ClubMember struct {
 
 type Member struct {
 	ID         string `json:"id" form:"id"`
-	ClubID     uint64 `json:"clubId" form:"clubId"`
+	ClubID     string `json:"clubId" form:"clubId"`
 	FirstName  string `json:"firstName" form:"firstName"`
 	MiddleName string `json:"middleName" form:"middleName"`
 	LastName   string `json:"lastName" form:"lastName"`
@@ -34,7 +34,8 @@ type Member struct {
 }
 
 type MemberCreate struct {
-	ClubID     uint64 `json:"clubId" form:"clubId"`
+	ClubID     string `json:"clubId" form:"clubId"`
+	IdentityID string `json:"identityId" form:"identityId"`
 	FirstName  string `json:"firstName" form:"firstName"`
 	MiddleName string `json:"middleName" form:"middleName"`
 	LastName   string `json:"lastName" form:"lastName"`

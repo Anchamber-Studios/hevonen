@@ -30,7 +30,7 @@ type CustomContext struct {
 }
 
 func (cc *CustomContext) ClientContext() lib.ClientContext {
-	return lib.NewClientContext(cc.Context, cc.Session.Token)
+	return lib.NewClientContext(cc.Context, cc.Session.Token, cc.Session.ID, cc.Session.Email)
 }
 
 type Config struct {

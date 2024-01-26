@@ -39,14 +39,14 @@ func seed(ctx context.Context, conn *pgx.Conn) {
 		{Name: "Whinny Warriors", Website: "https://www.whinnywarriors.club"},
 		{Name: "Buckle Up", Website: "https://www.buckleup.club"},
 	}
-	var ids = make([]uint64, len(clubs))
+	var ids = make([]string, len(clubs))
 	for i, club := range clubs {
 		var id uint64
 		err := conn.QueryRow(ctx, "INSERT INTO club.clubs (name, website) VALUES ($1, $2) RETURNING id;", club.Name, club.Website).Scan(&id)
 		if err != nil {
 			fmt.Printf("error inserting club %d: %v\n", i, err)
 		}
-		ids[i] = id
+		ids[i] = fmt.Sprintf("%d", id)
 	}
 
 	members := []client.MemberCreate{

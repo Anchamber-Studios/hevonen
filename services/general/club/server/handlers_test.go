@@ -81,7 +81,7 @@ func ctx(t *testing.T, c echo.Context, repos Repos) *CustomContext {
 	if err != nil {
 		t.Errorf("Unable to setup id conversion: %v\n", err)
 	}
-	return &CustomContext{c, testConfig(), testDb(), idConv, repos}
+	return &CustomContext{c, testConfig(), testDb(), idConv, repos, Services{}}
 }
 
 func testMemberCreate() client.MemberCreate {

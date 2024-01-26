@@ -20,7 +20,7 @@ type ClubHandler struct{}
 func (h *ClubHandler) ListForIdentity(c echo.Context) error {
 	cc := c.(*CustomContext)
 	identityId := c.Param(PathIdentityId)
-	clubs, err := cc.Repos.Clubs.ListForIdentity(c.Request().Context(), identityId)
+	clubs, err := cc.Services.Clubs.ListForIdentity(c.Request().Context(), identityId)
 	if err != nil {
 		cc.Logger().Errorf("Unable to get clubs for identity %s: %v\n", identityId, err)
 		echo.NewHTTPError(http.StatusInternalServerError, "internal server error")
@@ -43,11 +43,25 @@ func (h *ClubHandler) Create(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, valErr)
 	}
 
-	cId, err := cc.Repos.Clubs.Create(c.Request().Context(), club)
+	cId, err := cc.Services.Clubs.Create(c.Request().Context(), club)
 	if err != nil {
-		cc.Logger().Errorf("Unable to create club for identity %s: %v\n", identityId, err)
+		cc.Logger().Errorf("Unable to create club %s: %v\n", identityId, err)
 		return echo.NewHTTPError(http.StatusInternalServerError, "internal server error")
 	}
+	cc.Logger().Infof("Created club %s\n", cId)
+	cc.Logger().Infof("Add identity %s as member to club \n", identityId, cId)
+
+	member := client.MemberCreate{
+		IdentityID: identityId,
+		ClubID:     cId,
+	}
+	_, err = cc.Services.Members.Create(c.Request().Context(), member)
+	if err != nil {
+		cc.Logger().Errorf("Unable to add identity %s as member to club %s: %v\n", identityId, cId, err)
+		return echo.NewHTTPError(http.StatusInternalServerError, "internal server error")
+	}
+	cc.Logger().Infof("Added identity %s as member to club %s\n", identityId, cId)
+
 	cc.Response().Header().Set("Location", fmt.Sprintf("/i/%s/c/%s", identityId, cId))
 	return cc.NoContent(http.StatusCreated)
 }

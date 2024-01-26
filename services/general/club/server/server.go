@@ -5,7 +5,10 @@ import (
 
 	"github.com/anchamber-studios/hevonen/lib/config"
 	ldb "github.com/anchamber-studios/hevonen/lib/db"
+	"github.com/anchamber-studios/hevonen/lib/logger"
+	m "github.com/anchamber-studios/hevonen/lib/middleware"
 	"github.com/anchamber-studios/hevonen/services/club/db"
+	"github.com/anchamber-studios/hevonen/services/club/services"
 	"github.com/jackc/pgx/v5"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -18,6 +21,7 @@ type CustomContext struct {
 	DB           *pgx.Conn
 	IdConversion *sqids.Sqids
 	Repos        Repos
+	Services     Services
 }
 
 type Repos struct {
@@ -25,19 +29,24 @@ type Repos struct {
 	Members db.MemberRepo
 }
 
+type Services struct {
+	Clubs   *services.ClubService
+	Members *services.MemberService
+}
+
 func Middleware(e *echo.Echo, conf config.Config) {
 
 	// middleware
 	e.Use(middleware.CORS())
 	e.Use(middleware.RequestID())
-	e.Use(middleware.Logger())
+	e.Use(m.Logging(logger.Get()))
 	e.Use(customContext(conf))
 }
 
 func Routes(e *echo.Echo) {
 	clubHandler := &ClubHandler{}
 	e.GET("/i/:identityID/c", clubHandler.ListForIdentity).Name = "ListForIdentity"
-	e.POST("/i/:identityID/c", clubHandler.ListForIdentity).Name = "ListForIdentity"
+	e.POST("/i/:identityID/c", clubHandler.Create).Name = "CreateClub"
 
 	memberHandler := &MemberHandler{}
 	e.GET("/members", memberHandler.list)
@@ -58,10 +67,16 @@ func customContext(conf config.Config) echo.MiddlewareFunc {
 				c.Logger().Errorf("Unable setup id conversion: %v\n", err)
 				c.Error(fmt.Errorf("internal server error"))
 			}
-			cc := &CustomContext{c, conf, conn, idc, Repos{
-				Members: &db.MemberRepoPostgre{DB: conn, IdConversion: idc},
-				Clubs:   &db.ClubRepoPostgre{DB: conn, IdConversion: idc},
-			}}
+			cc := &CustomContext{c, conf, conn, idc,
+				Repos{
+					Members: &db.MemberRepoPostgre{DB: conn, IdConversion: idc},
+					Clubs:   &db.ClubRepoPostgre{DB: conn, IdConversion: idc},
+				},
+				Services{
+					Clubs:   services.NewClubService(&db.ClubRepoPostgre{DB: conn, IdConversion: idc}),
+					Members: services.NewMemberService(&db.MemberRepoPostgre{DB: conn, IdConversion: idc}),
+				},
+			}
 
 			return next(cc)
 		}
