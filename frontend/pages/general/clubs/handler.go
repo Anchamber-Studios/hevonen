@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/anchamber-studios/hevonen/frontend/types"
-	"github.com/anchamber-studios/hevonen/services/club/client"
+	ctypes "github.com/anchamber-studios/hevonen/services/club/shared/types"
 	"github.com/labstack/echo/v4"
 )
 
@@ -33,12 +33,12 @@ func GetCreateForm(c echo.Context) error {
 func PostCreateForm(c echo.Context) error {
 	cc := c.(*types.CustomContext)
 
-	var club client.ClubCreate
+	var club ctypes.ClubCreate
 	if err := cc.Bind(&club); err != nil {
 		return echo.NewHTTPError(echo.ErrBadRequest.Code, err.Error())
 	}
 
-	valErr := client.ValidateClubCreate(club)
+	valErr := ctypes.ValidateClubCreate(club)
 	if len(valErr.Children) > 0 {
 		cc.Response().Status = http.StatusBadRequest
 		return CreateForm(cc.Tr, CreateClubFormProps{

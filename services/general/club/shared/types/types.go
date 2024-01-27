@@ -1,4 +1,4 @@
-package client
+package types
 
 type ClubCreate struct {
 	Name        string `json:"name" form:"name"`

@@ -1,4 +1,4 @@
-package client
+package types
 
 import "github.com/anchamber-studios/hevonen/lib"
 

@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"github.com/anchamber-studios/hevonen/lib"
-	"github.com/anchamber-studios/hevonen/services/club/client"
+	"github.com/anchamber-studios/hevonen/services/club/shared/types"
 	"github.com/labstack/echo/v4"
 )
 
@@ -32,13 +32,13 @@ func (h *ClubHandler) ListForIdentity(c echo.Context) error {
 func (h *ClubHandler) Create(c echo.Context) error {
 	cc := c.(*CustomContext)
 	identityId := c.Param(PathIdentityId)
-	var club client.ClubCreate
+	var club types.ClubCreate
 	if err := c.Bind(&club); err != nil {
 		cc.Logger().Errorf("Unable to bind club: %v\n", err)
 		return echo.NewHTTPError(http.StatusBadRequest, "Unable to bind club")
 	}
 
-	valErr := client.ValidateClubCreate(club)
+	valErr := types.ValidateClubCreate(club)
 	if len(valErr.Children) > 0 {
 		return echo.NewHTTPError(http.StatusBadRequest, valErr)
 	}
@@ -51,7 +51,7 @@ func (h *ClubHandler) Create(c echo.Context) error {
 	cc.Logger().Infof("Created club %s\n", cId)
 	cc.Logger().Infof("Add identity %s as member to club \n", identityId, cId)
 
-	member := client.MemberCreate{
+	member := types.MemberCreate{
 		IdentityID: identityId,
 		ClubID:     cId,
 	}
@@ -79,7 +79,7 @@ func (h *MemberHandler) list(c echo.Context) error {
 
 func (h *MemberHandler) new(c echo.Context) error {
 	cc := c.(*CustomContext)
-	var member client.MemberCreate
+	var member types.MemberCreate
 	if err := c.Bind(&member); err != nil {
 		c.Logger().Errorf("Unable to bind member: %v\n", err)
 		return echo.NewHTTPError(http.StatusBadRequest, "Unable to bind member")

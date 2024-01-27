@@ -3,13 +3,13 @@ package members
 import (
 	l "github.com/anchamber-studios/hevonen/frontend/layouts"
 	c "github.com/anchamber-studios/hevonen/frontend/components"
-	"github.com/anchamber-studios/hevonen/services/club/client"
+	ctypes "github.com/anchamber-studios/hevonen/services/club/shared/types"
 	"fmt"
 	"github.com/anchamber-studios/hevonen/frontend/types"
 )
 
 type MemberListProps struct {
-	Members []client.Member
+	Members []ctypes.Member
 	Search  string
 }
 
@@ -35,7 +35,7 @@ templ MemberListWL(session types.Session, props MemberListProps) {
 }
 
 templ memberTable(props MemberListProps) {
-    <section class="py-1">
+	<section class="py-1">
 		<div class="w-full xl:w-8/12 mb-12 xl:mb-0 px-4 mx-auto">
 			<div class="relative flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded ">
 				<div class="mb-0 py-3 border-0">
@@ -44,13 +44,15 @@ templ memberTable(props MemberListProps) {
 							<h3 class="font-semibold text-base">Members</h3>
 						</div>
 						<div class="relative w-full max-w-full flex-grow flex-1 text-right">
-							<button 
-                                hx-get="/members/new"
-                                hx-target="#main"
-                                hx-push-url="true"
-                                class="bg-orange-500 text-white active:bg-orange-600 text-xs font-bold uppercase px-3 py-1 rounded outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150" type="button">
-									Add member
-								</button>
+							<button
+ 								hx-get="/members/new"
+ 								hx-target="#main"
+ 								hx-push-url="true"
+ 								class="bg-orange-500 text-white active:bg-orange-600 text-xs font-bold uppercase px-3 py-1 rounded outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
+ 								type="button"
+							>
+								Add member
+							</button>
 						</div>
 					</div>
 				</div>
@@ -58,69 +60,97 @@ templ memberTable(props MemberListProps) {
 					<table id="member-table" class="items-center bg-transparent w-full border-collapse">
 						<thead>
 							<tr>
-								<th data-key="firstName"
-                                    class="px-6 align-middle border border-solid border-gray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
+								<th
+ 									data-key="firstName"
+ 									class="px-6 align-middle border border-solid border-gray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left"
+								>
 									First Name
 								</th>
-								<th data-key="middleName"
-                                    class="px-6 align-middle border border-solid border-gray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
+								<th
+ 									data-key="middleName"
+ 									class="px-6 align-middle border border-solid border-gray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left"
+								>
 									Middle Name
 								</th>
-								<th data-key="lastName"
-                                    class="px-6 align-middle border border-solid border-gray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
+								<th
+ 									data-key="lastName"
+ 									class="px-6 align-middle border border-solid border-gray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left"
+								>
 									Last Name
 								</th>
-								<th data-key="email"
-                                    class="px-6 align-middle border border-solid border-gray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
+								<th
+ 									data-key="email"
+ 									class="px-6 align-middle border border-solid border-gray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left"
+								>
 									Email
 								</th>
-								<th data-key="phone"
-                                    class="px-6 align-middle border border-solid border-gray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
+								<th
+ 									data-key="phone"
+ 									class="px-6 align-middle border border-solid border-gray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left"
+								>
 									Phone
 								</th>
-								<th data-key="weight"
-                                    class="px-6 align-middle border border-solid border-gray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
+								<th
+ 									data-key="weight"
+ 									class="px-6 align-middle border border-solid border-gray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left"
+								>
 									Weight
 								</th>
-								<th data-key="height"
-                                    class="px-6 align-middle border border-solid border-gray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
+								<th
+ 									data-key="height"
+ 									class="px-6 align-middle border border-solid border-gray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left"
+								>
 									Height
 								</th>
 							</tr>
 						</thead>
 						<tbody>
-                        for _, member := range props.Members {
-							<tr data-id={ member.ID }>
-								<th data-value={ member.FirstName}
-                                    class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-left text-blueGray-700 ">
-									{ member.FirstName}
-								</th>
-								<td data-value={ member.MiddleName }
-                                    class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 ">
-									{ member.MiddleName }
-								</td>
-								<td data-value={ member.LastName }
-                                    class="border-t-0 px-6 align-center border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
-									{ member.LastName }
-								</td>
-								<td data-value={ member.Email }
-                                    class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
-									{ member.Email }
-								</td>
-								<td data-value={ member.Phone }
-                                    class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
-									{ member.Phone }
-								</td>
-								<td data-value={ fmt.Sprintf("%d", member.Weight) }
-                                    class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
-									{ fmt.Sprintf("%d kg", member.Weight) }
-								</td>
-								<td data-value={ fmt.Sprintf("%d", member.Height) }
-                                    class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
-									{ fmt.Sprintf("%d cm", member.Height) }
-								</td>
-							</tr>
-                        }
+							for _, member := range props.Members {
+								<tr data-id={ member.ID }>
+									<th
+ 										data-value={ member.FirstName }
+ 										class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-left text-blueGray-700 "
+									>
+										{ member.FirstName }
+									</th>
+									<td
+ 										data-value={ member.MiddleName }
+ 										class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 "
+									>
+										{ member.MiddleName }
+									</td>
+									<td
+ 										data-value={ member.LastName }
+ 										class="border-t-0 px-6 align-center border-l-0 border-r-0 text-xs whitespace-nowrap p-4"
+									>
+										{ member.LastName }
+									</td>
+									<td
+ 										data-value={ member.Email }
+ 										class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4"
+									>
+										{ member.Email }
+									</td>
+									<td
+ 										data-value={ member.Phone }
+ 										class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4"
+									>
+										{ member.Phone }
+									</td>
+									<td
+ 										data-value={ fmt.Sprintf("%d", member.Weight) }
+ 										class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4"
+									>
+										{ fmt.Sprintf("%d kg", member.Weight) }
+									</td>
+									<td
+ 										data-value={ fmt.Sprintf("%d", member.Height) }
+ 										class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4"
+									>
+										{ fmt.Sprintf("%d cm", member.Height) }
+									</td>
+								</tr>
+							}
 						</tbody>
 					</table>
 				</div>

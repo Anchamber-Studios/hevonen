@@ -5,11 +5,11 @@ import "github.com/anchamber-studios/hevonen/frontend/layouts"
 import "github.com/anchamber-studios/hevonen/frontend/types"
 import "github.com/anchamber-studios/hevonen/frontend/components/form"
 import "github.com/anchamber-studios/hevonen/lib"
-import "github.com/anchamber-studios/hevonen/services/club/client"
+import ctypes "github.com/anchamber-studios/hevonen/services/club/shared/types"
 
 type CreateClubFormProps struct {
 	Errors map[string]*lib.ValidationError
-	Values client.ClubCreate
+	Values ctypes.ClubCreate
 }
 
 templ CreateForm(tr *i18n.Localizer, props CreateClubFormProps) {

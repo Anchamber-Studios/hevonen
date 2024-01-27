@@ -6,7 +6,7 @@ import (
 	"log"
 
 	"github.com/anchamber-studios/hevonen/lib/config"
-	"github.com/anchamber-studios/hevonen/services/club/client"
+	"github.com/anchamber-studios/hevonen/services/club/shared/types"
 	"github.com/jackc/pgx/v5"
 	"github.com/joho/godotenv"
 )
@@ -34,7 +34,7 @@ func main() {
 }
 
 func seed(ctx context.Context, conn *pgx.Conn) {
-	clubs := []client.ClubCreate{
+	clubs := []types.ClubCreate{
 		{Name: "Speedy Stallions", Website: "https://www.speedystallions.net"},
 		{Name: "Whinny Warriors", Website: "https://www.whinnywarriors.club"},
 		{Name: "Buckle Up", Website: "https://www.buckleup.club"},
@@ -49,7 +49,7 @@ func seed(ctx context.Context, conn *pgx.Conn) {
 		ids[i] = fmt.Sprintf("%d", id)
 	}
 
-	members := []client.MemberCreate{
+	members := []types.MemberCreate{
 		{FirstName: "John", MiddleName: "J.", LastName: "Wick", Email: "john.wick@movies.com", Phone: "(468) 7514434", Height: 186, Weight: 80, ClubID: ids[0]},
 		{FirstName: "The", MiddleName: "", LastName: "Doctor", Email: "thedoctor@gailfray.gf", Phone: "(763) 3543091", Height: 185, Weight: 73, ClubID: ids[0]},
 		{FirstName: "Clara", MiddleName: "Oswin", LastName: "Oswald", Email: "coo@impossile.gl", Phone: "(850) 8504498", Height: 157, Weight: 50, ClubID: ids[0]},

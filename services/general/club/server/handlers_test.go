@@ -8,8 +8,8 @@ import (
 	"testing"
 
 	"github.com/anchamber-studios/hevonen/lib/config"
-	"github.com/anchamber-studios/hevonen/services/club/client"
 	repo "github.com/anchamber-studios/hevonen/services/club/db"
+	"github.com/anchamber-studios/hevonen/services/club/shared/types"
 	"github.com/jackc/pgx/v5"
 	"github.com/labstack/echo/v4"
 )
@@ -42,7 +42,7 @@ func TestCreateUser(t *testing.T) {
 	if err := hander.list(ctx(t, c, Repos{Members: memberRepo})); err != nil {
 		t.Errorf("Unable to list members: %v\n", err)
 	}
-	var members []client.Member
+	var members []types.Member
 	json.NewDecoder(rec.Body).Decode(&members)
 	if len(members) != 1 {
 		t.Errorf("Expected 1 member, got %d\n", len(members))
@@ -84,8 +84,8 @@ func ctx(t *testing.T, c echo.Context, repos Repos) *CustomContext {
 	return &CustomContext{c, testConfig(), testDb(), idConv, repos, Services{}}
 }
 
-func testMemberCreate() client.MemberCreate {
-	return client.MemberCreate{
+func testMemberCreate() types.MemberCreate {
+	return types.MemberCreate{
 		FirstName: "John",
 		LastName:  "Doe",
 		Email:     "jd@hevonen.io",

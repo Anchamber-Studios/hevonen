@@ -25,6 +25,23 @@ To be able to switch out the IDP, the services itself only check a token. The to
 
 Hevonen is build using a service oriented architecture. Each service is responsible for a specific part of the applicaiton. Communications between service can be asyncronus via a pub/sub mechanism (using Redpanda) or it can call the service directly using a client from the services client module.
 
+
+### Frontend to Service Communication
+
+The frontend communicates with the services via the provided clients. For the authentication the forntend generates a jwt, which should contain the following information:
+- email
+- identity ID (IDP identity id, e.g. ory)
+- profile ID
+The services need to verify the jwt for each request. A JWT is used to be able to verify the token without addition requests to the IDP.
+
+### Service to Service Communication
+
+For the service to service communication are two ways possible
+- client
+- async events
+For the communication via clients. the service can use the provided client from the other service.
+
+
 ### Structure of a service
 The service modules should follow the same folder strucutre.
 
@@ -33,7 +50,9 @@ The service modules should follow the same folder strucutre.
 - `services/` - service implementaions used by the handlers
 - `db/` - database repositries used by services
 - `db/migrations/` - sql migration scripts for the database
-- `client/` - client implementation to be used by other moduels to communicate with this service.
+- `shared` - other modules can include this package.
+- `shared/client` - client implementation to be used by other moduels to communicate with this service.
+- `shared/types` - types which can be used by other packages. These are the return types for the service package and can also include validation. Those validation have to be self contained (e.g. no access to DB)
 
 
 ## Tech Stack

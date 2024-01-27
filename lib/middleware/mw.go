@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/labstack/echo/v4"
+	ory "github.com/ory/client-go"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -22,18 +23,29 @@ func AuthPaseto(tokenKey string) echo.MiddlewareFunc {
 	}
 }
 
-func AuthOry() echo.MiddlewareFunc {
+func AuthJWTOry() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
-			cookie, err := c.Cookie("session")
-			if err != nil || cookie == nil {
-				c.Logger().Infof("missing session cookie")
-				return echo.NewHTTPError(echo.ErrUnauthorized.Code, "missing session cookie")
+			tokenHeader := c.Request().Header.Get("Authorization")
+			if tokenHeader == "" {
+				return echo.NewHTTPError(echo.ErrUnauthorized.Code, "missing authorization header")
 			}
 
-			// validate the session cookie with ory
+			config := ory.NewConfiguration()
+			config.Servers = ory.ServerConfigurations{{URL: fmt.Sprintf("http://localhost:%s/.ory", "4000")}}
 
-			// Continue with the next middleware or handler
+			client := ory.NewAPIClient(config)
+			req := client.OAuth2API.IntrospectOAuth2Token(c.Request().Context()).
+				Token(tokenHeader[len("Bearer "):])
+			token, _, err := client.OAuth2API.IntrospectOAuth2TokenExecute(req)
+			if err != nil {
+				c.Logger().Infof("error introspecting token: %s", err)
+				return echo.NewHTTPError(echo.ErrUnauthorized.Code, "invalid token")
+			}
+			if !token.Active {
+				c.Logger().Warnf("token is not active")
+				return echo.NewHTTPError(echo.ErrUnauthorized.Code, "invalid token")
+			}
 			return next(c)
 		}
 	}

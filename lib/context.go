@@ -1,6 +1,7 @@
 package lib
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 
@@ -8,6 +9,7 @@ import (
 )
 
 type ClientContext struct {
+	Context    context.Context
 	Token      string
 	RequestID  string
 	IdentityID string

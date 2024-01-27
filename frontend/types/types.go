@@ -5,7 +5,8 @@ import (
 
 	"github.com/anchamber-studios/hevonen/lib"
 	uclient "github.com/anchamber-studios/hevonen/services/admin/users/client"
-	cclient "github.com/anchamber-studios/hevonen/services/club/client"
+	cclient "github.com/anchamber-studios/hevonen/services/club/shared/client"
+	ctypes "github.com/anchamber-studios/hevonen/services/club/shared/types"
 	pclient "github.com/anchamber-studios/hevonen/services/general/profile/client"
 	"github.com/labstack/echo/v4"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
@@ -17,7 +18,7 @@ type Session struct {
 	ID       string
 	Email    string
 	Token    string
-	Clubs    *[]cclient.ClubMember
+	Clubs    *[]ctypes.ClubMember
 }
 
 type CustomContext struct {

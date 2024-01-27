@@ -41,6 +41,7 @@ func Middleware(e *echo.Echo, conf config.Config) {
 	e.Use(middleware.RequestID())
 	e.Use(m.Logging(logger.Get()))
 	e.Use(customContext(conf))
+	e.Use(m.AuthJWTOry())
 }
 
 func Routes(e *echo.Echo) {

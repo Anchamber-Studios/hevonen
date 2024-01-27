@@ -17,7 +17,7 @@ import (
 	"github.com/anchamber-studios/hevonen/lib/logger"
 	m "github.com/anchamber-studios/hevonen/lib/middleware"
 	uclient "github.com/anchamber-studios/hevonen/services/admin/users/client"
-	cclient "github.com/anchamber-studios/hevonen/services/club/client"
+	cclient "github.com/anchamber-studios/hevonen/services/club/shared/client"
 	pclient "github.com/anchamber-studios/hevonen/services/general/profile/client"
 	"github.com/gorilla/sessions"
 	"github.com/joho/godotenv"
@@ -49,7 +49,7 @@ func main() {
 	e.Use(middleware.Secure())
 	e.Use(middleware.RequestID())
 	e.Use(m.Logging(logger.Get()))
-	e.Use(session.Middleware((sessions.NewCookieStore([]byte(config.SessionSecret)))))
+	e.Use(session.Middleware(sessions.NewCookieStore([]byte(config.SessionSecret))))
 	e.Use(customContext(config))
 
 	unrestricted := e.Group("/auth")
@@ -70,16 +70,16 @@ func main() {
 			}
 
 			if cc.Session.Clubs == nil {
-				clubs, err := cc.Config.Clients.Clubs.ListClubsForIdentity(cc.ClientContext())
+				userClubs, err := cc.Config.Clients.Clubs.ListClubsForIdentity(cc.ClientContext())
 				if err != nil {
 					cc.Logger().Errorf("Unable to get clubs: %v\n", err)
 					return c.Redirect(302, "/nc")
 				}
-				if len(clubs) == 0 {
+				if len(userClubs) == 0 {
 					cc.Logger().Warnf("User %s is not member of any clubs\n", cc.Session.ID)
 					return c.Redirect(302, "/nc")
 				}
-				cc.Session.Clubs = &clubs
+				cc.Session.Clubs = &userClubs
 			}
 			return next(c)
 		}
@@ -140,14 +140,14 @@ func customContext(config types.Config) echo.MiddlewareFunc {
 				HXRequest: ctx.Request().Header.Get(HX_REQUEST_HEADER) == "true",
 				Tr:        i18n.NewLocalizer(translation.GetBundle(), accept, language.English.String()),
 			}
-
+			ctx.Request().Header.Get("Authorization")
 			// Get the session cookie from the request
 			cookie, err := ctx.Cookie("session")
 			if err != nil || cookie == nil {
 				return next(cc)
 			}
 			// https://www.ory.sh/docs/identities/session-to-jwt-cors
-			session, _, err := cc.Auth.FrontendAPI.ToSession(ctx.Request().Context()).
+			s, _, err := cc.Auth.FrontendAPI.ToSession(ctx.Request().Context()).
 				XSessionToken(cookie.Value).
 				TokenizeAs("jwt_example_template").
 				Execute()
@@ -155,13 +155,13 @@ func customContext(config types.Config) echo.MiddlewareFunc {
 				cc.Logger().Errorf("Unable to get session: %v\n", err)
 				return next(cc)
 			}
-			cc.Logger().Infof("session: %v\n", session)
-			if session != nil {
-				cc.Session.Token = *session.Tokenized
-				if traits, ok := session.Identity.Traits.(map[string]interface{}); ok {
+			cc.Logger().Infof("session: %v\n", s)
+			if s != nil {
+				cc.Session.Token = *s.Tokenized
+				if traits, ok := s.Identity.Traits.(map[string]interface{}); ok {
 					cc.Session.Email = traits["email"].(string)
 				}
-				cc.Session.ID = session.Identity.Id
+				cc.Session.ID = s.Identity.Id
 				cc.Session.LoggedIn = true
 			}
 

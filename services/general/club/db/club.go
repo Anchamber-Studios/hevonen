@@ -3,16 +3,16 @@ package db
 import (
 	"context"
 
-	"github.com/anchamber-studios/hevonen/services/club/client"
+	"github.com/anchamber-studios/hevonen/services/club/shared/types"
 	"github.com/jackc/pgx/v5"
 	"github.com/sqids/sqids-go"
 )
 
 type ClubRepo interface {
-	List(ctx context.Context) ([]client.Club, error)
-	ListForIdentity(ctx context.Context, identity string) ([]client.ClubMember, error)
-	Create(ctx context.Context, club client.ClubCreate) (string, error)
-	Get(ctx context.Context, clubIdEncoded string) (client.Club, error)
+	List(ctx context.Context) ([]types.Club, error)
+	ListForIdentity(ctx context.Context, identity string) ([]types.ClubMember, error)
+	Create(ctx context.Context, club types.ClubCreate) (string, error)
+	Get(ctx context.Context, clubIdEncoded string) (types.Club, error)
 }
 
 type ClubRepoPostgre struct {
@@ -24,15 +24,15 @@ const (
 	idOffsetClub uint64 = 1234567890
 )
 
-func (r *ClubRepoPostgre) List(ctx context.Context) ([]client.Club, error) {
+func (r *ClubRepoPostgre) List(ctx context.Context) ([]types.Club, error) {
 	rows, err := r.DB.Query(ctx, "SELECT id, name, website, email, phone FROM clubs.clubs;")
 	if err != nil {
 		return nil, err
 	}
-	var clubs []client.Club
+	var clubs []types.Club
 	for rows.Next() {
 		var id uint64
-		var club client.Club
+		var club types.Club
 		err := rows.Scan(&id, &club.Name, &club.Website, &club.Email, &club.Phone)
 		if err != nil {
 			return nil, err
@@ -46,7 +46,7 @@ func (r *ClubRepoPostgre) List(ctx context.Context) ([]client.Club, error) {
 	return clubs, nil
 }
 
-func (r *ClubRepoPostgre) ListForIdentity(ctx context.Context, identity string) ([]client.ClubMember, error) {
+func (r *ClubRepoPostgre) ListForIdentity(ctx context.Context, identity string) ([]types.ClubMember, error) {
 	rows, err := r.DB.Query(ctx, `
 	SELECT c.id, c.name 
 	FROM clubs.clubs c 
@@ -57,9 +57,9 @@ func (r *ClubRepoPostgre) ListForIdentity(ctx context.Context, identity string) 
 	if err != nil {
 		return nil, err
 	}
-	var clubs []client.ClubMember
+	var clubs []types.ClubMember
 	for rows.Next() {
-		var club client.ClubMember
+		var club types.ClubMember
 		err := rows.Scan(&club.ID, &club.Name)
 		if err != nil {
 			return nil, err
@@ -69,7 +69,7 @@ func (r *ClubRepoPostgre) ListForIdentity(ctx context.Context, identity string) 
 	return clubs, nil
 }
 
-func (r *ClubRepoPostgre) Create(ctx context.Context, club client.ClubCreate) (string, error) {
+func (r *ClubRepoPostgre) Create(ctx context.Context, club types.ClubCreate) (string, error) {
 	var id string
 	err := r.DB.QueryRow(ctx, `
 		INSERT INTO clubs.clubs (name, website, email, phone)
@@ -83,9 +83,9 @@ func (r *ClubRepoPostgre) Create(ctx context.Context, club client.ClubCreate) (s
 	return id, nil
 }
 
-func (r *ClubRepoPostgre) Get(ctx context.Context, clubIdEncoded string) (client.Club, error) {
+func (r *ClubRepoPostgre) Get(ctx context.Context, clubIdEncoded string) (types.Club, error) {
 	cId := r.IdConversion.Decode(clubIdEncoded)
-	var club client.Club
+	var club types.Club
 	err := r.DB.QueryRow(ctx, `
 		SELECT id, name, website, email, phone
 		FROM clubs.clubs
