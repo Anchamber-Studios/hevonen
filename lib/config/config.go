@@ -4,6 +4,8 @@ import (
 	"log"
 	"os"
 	"strconv"
+
+	"github.com/lestrrat-go/jwx/v2/jwk"
 )
 
 type TlsConfig struct {
@@ -28,10 +30,11 @@ type Broker struct {
 type Config struct {
 	Port        string
 	Host        string
+	TokenSecret string
+	JWK         jwk.Set
 	Tls         TlsConfig
 	Auth        Auth
 	DB          DB
-	TokenSecret string
 	Broker      Broker
 }
 
@@ -40,6 +43,7 @@ func LoadConfig() Config {
 		Port:        getOrDefault("PORT", "8443"),
 		Host:        getOrDefault("HOST", "[::1]"),
 		TokenSecret: getOrDefault("TOKEN_SECRET", "1234567890123456789012345678901212345678901234567890123456789012"),
+		JWK:         NewJWKSet(os.Getenv("JWK_FILE")),
 		Tls: TlsConfig{
 			Enabled: false,
 			Key:     getOrDefault("TLS_KEY", "certs/key.pem"),
@@ -74,4 +78,21 @@ func getOrDefault(key string, def string) string {
 		return def
 	}
 	return v
+}
+
+func NewJWKSet(path string) jwk.Set {
+	f, err := os.Open(path)
+	if err != nil {
+		panic("failed to open jwk file")
+	}
+	defer f.Close()
+	jwkSet, err := jwk.ParseReader(f)
+	if err != nil {
+		panic("failed to parse jwk file")
+	}
+	public, err := jwk.PublicSetOf(jwkSet)
+	if err != nil {
+		panic("failed to parse public keys of jwk file")
+	}
+	return public
 }

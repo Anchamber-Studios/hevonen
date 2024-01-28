@@ -5,7 +5,8 @@ import (
 	"time"
 
 	"github.com/labstack/echo/v4"
-	ory "github.com/ory/client-go"
+	"github.com/lestrrat-go/jwx/v2/jwk"
+	"github.com/lestrrat-go/jwx/v2/jwt"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -23,29 +24,21 @@ func AuthPaseto(tokenKey string) echo.MiddlewareFunc {
 	}
 }
 
-func AuthJWTOry() echo.MiddlewareFunc {
+func AuthJWTOry(jwkKeySet jwk.Set) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
+
 		return func(c echo.Context) error {
 			tokenHeader := c.Request().Header.Get("Authorization")
 			if tokenHeader == "" {
 				return echo.NewHTTPError(echo.ErrUnauthorized.Code, "missing authorization header")
 			}
 
-			config := ory.NewConfiguration()
-			config.Servers = ory.ServerConfigurations{{URL: fmt.Sprintf("http://localhost:%s/.ory", "4000")}}
-
-			client := ory.NewAPIClient(config)
-			req := client.OAuth2API.IntrospectOAuth2Token(c.Request().Context()).
-				Token(tokenHeader[len("Bearer "):])
-			token, _, err := client.OAuth2API.IntrospectOAuth2TokenExecute(req)
+			token, err := jwt.ParseString(tokenHeader[len("Bearer "):], jwt.WithKeySet(jwkKeySet))
 			if err != nil {
-				c.Logger().Infof("error introspecting token: %s", err)
 				return echo.NewHTTPError(echo.ErrUnauthorized.Code, "invalid token")
 			}
-			if !token.Active {
-				c.Logger().Warnf("token is not active")
-				return echo.NewHTTPError(echo.ErrUnauthorized.Code, "invalid token")
-			}
+			c.Logger().Infof("token: %s\n", token)
+
 			return next(c)
 		}
 	}
