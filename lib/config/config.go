@@ -41,7 +41,7 @@ type Config struct {
 func LoadConfig() Config {
 	config := Config{
 		Port:        getOrDefault("PORT", "8443"),
-		Host:        getOrDefault("HOST", "[::1]"),
+		Host:        getOrDefault("HOST", "localhost"),
 		TokenSecret: getOrDefault("TOKEN_SECRET", "1234567890123456789012345678901212345678901234567890123456789012"),
 		JWK:         NewJWKSet(os.Getenv("JWK_FILE")),
 		Tls: TlsConfig{
@@ -71,11 +71,69 @@ func LoadConfig() Config {
 	return config
 }
 
+func LoadConfigWithVars(vars map[string]string) Config {
+	config := Config{
+		Port:        getOrDefaultWithVars(vars, "PORT", "8443"),
+		Host:        getOrDefaultWithVars(vars, "HOST", "localhost"),
+		TokenSecret: getOrDefaultWithVars(vars, "TOKEN_SECRET", "1234567890123456789012345678901212345678901234567890123456789012"),
+		JWK:         NewJWKSet(getOsOrVars(vars, "JWK_FILE")),
+		Tls: TlsConfig{
+			Enabled: false,
+			Key:     getOrDefaultWithVars(vars, "TLS_KEY", "certs/key.pem"),
+			Cert:    getOrDefaultWithVars(vars, "TLS_CERT", "certs/cert.pem"),
+		},
+		Auth: Auth{
+			ClientId:     getOsOrVars(vars, "CLIENT_ID"),
+			ClientSecret: getOsOrVars(vars, "CLIENT_SECRET"),
+		},
+		DB: DB{
+			Url:      getOsOrVars(vars, "DB_URL"),
+			Port:     getOsOrVars(vars, "DB_PORT"),
+			Database: getOsOrVars(vars, "DB_DATABASE"),
+			User:     getOsOrVars(vars, "DB_USER"),
+			Password: getOsOrVars(vars, "DB_PASSWORD"),
+		},
+		Broker: Broker{
+			Url: getOrDefaultWithVars(vars, "BROKER_URL", "localhost:19092"),
+		},
+	}
+
+	if enabled, err := strconv.ParseBool(getOrDefault("TLS_ENABLED", "false")); err == nil && enabled {
+		config.Tls.Enabled = true
+	}
+	return config
+}
+
 func getOrDefault(key string, def string) string {
 	v := os.Getenv(key)
 	if v == "" {
 		log.Printf("Environment variable %s not set, using default value %s\n", key, def)
 		return def
+	}
+	return v
+}
+
+func getOrDefaultWithVars(vars map[string]string, key string, def string) string {
+	v := os.Getenv(key)
+	if v == "" {
+		if val, ok := vars[key]; ok {
+			return val
+		}
+
+		log.Printf("Environment variable %s not set, using default value %s\n", key, def)
+		return def
+	}
+	return v
+}
+
+func getOsOrVars(vars map[string]string, key string) string {
+	v := os.Getenv(key)
+	if v == "" {
+		if val, ok := vars[key]; ok {
+			return val
+		}
+
+		log.Panicf("Variable %s is not set. Cannot start server.\n", key)
 	}
 	return v
 }
