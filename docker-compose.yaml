@@ -1,5 +1,51 @@
 version: '3.8'
 services:
+  auth:
+    build:
+      context: ./services/admin/auth
+      dockerfile: Dockerfile.dev
+    container_name: auth
+    ports:
+      - 7001:7001
+    develop:
+      watch:
+        - action: rebuild
+          files:
+            - ./services/admin/auth/**/*.go
+            - ./services/admin/auth/go.mod
+            - ./services/admin/auth/go.sum
+            - ./lib/**/*.go
+  profile:
+    build:
+      context: ./services/general/profile
+      dockerfile: Dockerfile.dev
+    container_name: profile
+    ports:
+      - 7002:7002
+    develop:
+      watch:
+        - action: rebuild
+          files:
+            - ./services/general/profile/**/*.go
+            - ./services/general/profile/go.mod
+            - ./services/general/profile/go.sum
+            - ./lib/**/*.go
+  club:
+    build:
+      context: ./services/general/club
+      dockerfile: Dockerfile.dev
+    container_name: club
+    ports:
+      - 7003:7003
+    develop:
+      watch:
+        - action: rebuild
+          files:
+            - ./services/general/club/**/*.go
+            - ./services/general/club/go.mod
+            - ./services/general/club/go.sum
+            - ./lib/**/*.go
+
   redpanda-0:
     command:
       - redpanda

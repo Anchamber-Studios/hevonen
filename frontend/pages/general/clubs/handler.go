@@ -51,7 +51,10 @@ func PostCreateForm(c echo.Context) error {
 	cId, err := cc.Config.Clients.Clubs.CreateClub(cc.ClientContext(), club)
 	if err != nil {
 		cc.Logger().Errorf("Unable to create club: %v\n", err)
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+		header := types.HxTriggerHeader{ErrorMessage: "Unable to create club"}
+		cc.Response().Header().Add(header.Key(), header.ToJSON())
+		return cc.NoContent(http.StatusNoContent)
+		// return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
 	cc.Response().Header().Set("HX-Redirect", "/c/"+cId)

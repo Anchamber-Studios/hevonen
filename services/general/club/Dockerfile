@@ -23,7 +23,7 @@ RUN rm -rf .git
 RUN rm -rf tmp
 
 # Build the Go application
-RUN CGO_ENABLED=0 GOOS=linux go build -o members .
+RUN CGO_ENABLED=0 GOOS=linux go build -o app .
 
 # Set the entry point for the container
 
@@ -39,5 +39,5 @@ USER nobody
 ENV PORT=${PORT}
 ENV HOST=${HOST}
 ENV TLS_ENABLED=${TLS_ENABLED}
-COPY --from=build /app/members /members
-ENTRYPOINT ["./members"]
+COPY --from=build /app/app /app
+ENTRYPOINT ["./app"]

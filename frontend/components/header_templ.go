@@ -285,6 +285,15 @@ func userArea(session types.Session) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</a> <a href=\"https://vast-caribou-90.accounts.dev/sign-in\" class=\"text-sm text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-500\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Var19 := `Login Clerk`
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var19)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</a>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err

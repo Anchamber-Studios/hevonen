@@ -1,0 +1,22 @@
+
+ARG PORT=8443
+ARG HOST=localhost
+ARG TLS_ENABLED=false
+ARG TLS_KEY=tls/key.pem
+ARG TLS_CERT=tls/cert.pem
+ARG ORY_URL=http://localhost:4000/.ory
+
+FROM docker.io/library/golang:1.21-alpine as build
+
+WORKDIR /app
+
+COPY --chown=app:app . .
+RUN go mod download
+
+RUN CGO_ENABLED=0 GOOS=linux go build -o app .
+
+ENV PORT=${PORT}
+ENV HOST=${HOST}
+ENV TLS_ENABLED=${TLS_ENABLED}
+
+ENTRYPOINT ["./app"]

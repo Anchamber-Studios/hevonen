@@ -1,6 +1,7 @@
 package types
 
 import (
+	"encoding/json"
 	"time"
 
 	"github.com/anchamber-studios/hevonen/lib"
@@ -64,4 +65,20 @@ func (ct *FormDate) UnmarshalParam(param string) error {
 	}
 	*ct = FormDate(t)
 	return nil
+}
+
+type HxTriggerHeader struct {
+	ErrorMessage string `json:"errorMessage"`
+}
+
+func (h HxTriggerHeader) ToJSON() string {
+	v, err := json.Marshal(h)
+	if err != nil {
+		return "{}"
+	}
+	return string(v)
+}
+
+func (h HxTriggerHeader) Key() string {
+	return "HX-Trigger"
 }
