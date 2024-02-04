@@ -43,27 +43,17 @@ func (h *ClubHandler) Create(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, valErr)
 	}
 
-	cId, err := cc.Services.Clubs.Create(c.Request().Context(), club)
+	email := cc.Get("email").(string)
+	member := types.MemberCreate{
+		IdentityID: identityID,
+		Email:      email,
+	}
+	cId, err := cc.Services.Clubs.CreateWithAdminMember(c.Request().Context(), club, member)
 	if err != nil {
 		cc.Logger().Errorf("Unable to create club %s: %v\n", identityID, err)
 		return echo.NewHTTPError(http.StatusInternalServerError, "internal server error")
 	}
 	cc.Logger().Infof("Created club %s\n", cId)
-	cc.Logger().Infof("Add identity %s as member to club \n", identityID, cId)
-
-	email := cc.Get("email").(string)
-	member := types.MemberCreate{
-		IdentityID: identityID,
-		Email:      email,
-		ClubID:     cId,
-	}
-	_, err = cc.Services.Members.Create(c.Request().Context(), member)
-	if err != nil {
-		cc.Logger().Errorf("Unable to add identity %s as member to club %s: %v\n", identityID, cId, err)
-		return echo.NewHTTPError(http.StatusInternalServerError, "internal server error")
-	}
-	cc.Logger().Infof("Added identity %s as member to club %s\n", identityID, cId)
-
 	cc.Response().Header().Set("Location", fmt.Sprintf("/i/%s/c/%s", identityID, cId))
 	return cc.NoContent(http.StatusCreated)
 }

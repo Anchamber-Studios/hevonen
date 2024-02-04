@@ -26,3 +26,7 @@ func (s *ClubService) ListForIdentity(ctx context.Context, identity string) ([]t
 func (s *ClubService) Create(ctx context.Context, club types.ClubCreate) (string, error) {
 	return s.repo.Create(ctx, club)
 }
+
+func (s *ClubService) CreateWithAdminMember(ctx context.Context, club types.ClubCreate, admin types.MemberCreate) (string, error) {
+	return s.repo.CreateWithAdminMember(ctx, club, admin)
+}

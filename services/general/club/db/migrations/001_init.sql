@@ -43,8 +43,7 @@ create table if not exists clubs.members (
 );
 
 create table if not exists clubs.roles (
-	id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-	name text not null unique,
+	name text not null unique PRIMARY KEY,
 	description text,
 	system_role boolean not null default false, -- system roles are managed by the application itself and cannot be removed or altered
 
@@ -55,13 +54,13 @@ create table if not exists clubs.roles (
 create table if not exists clubs.member_roles (
 	id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
 	member_id bigint not null,
-	role_id bigint not null,
+	role_name text not null,
 
 	created_at timestamp not null default now(),
 	updated_at timestamp not null default now(),
 
 	constraint fk_member_role_member foreign key (member_id) references clubs.members(id),
-	constraint fk_member_role_role foreign key (role_id) references clubs.roles(id)
+	constraint fk_member_role_role foreign key (role_name) references clubs.roles(name)
 );
 
 insert into clubs.roles (name, description, system_role) values ('admin', 'Club administrator', true);
