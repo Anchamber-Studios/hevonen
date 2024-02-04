@@ -13,11 +13,17 @@ import (
 )
 
 func main() {
+	log.Printf("Load .env file\n")
 	err := godotenv.Load(".env")
 	if err != nil {
 		log.Println("Error loading .env file")
 	}
-	conf := config.LoadConfig()
+	vars, err := godotenv.Read(".env")
+	if err != nil {
+		log.Println("Error reading .env file")
+	}
+	log.Printf("%v\n", vars)
+	conf := config.LoadConfigWithVars(vars)
 
 	e := echo.New()
 	db.SetupDB(conf, e.Logger).Close(context.Background())

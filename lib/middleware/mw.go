@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/anchamber-studios/hevonen/lib/token"
 	"github.com/labstack/echo/v4"
 	"github.com/lestrrat-go/jwx/v2/jwk"
 	"github.com/lestrrat-go/jwx/v2/jwt"
@@ -33,11 +34,12 @@ func AuthJWTOry(jwkKeySet jwk.Set) echo.MiddlewareFunc {
 				return echo.NewHTTPError(echo.ErrUnauthorized.Code, "missing authorization header")
 			}
 
-			token, err := jwt.ParseString(tokenHeader[len("Bearer "):], jwt.WithKeySet(jwkKeySet))
+			t, err := jwt.ParseString(tokenHeader[len("Bearer "):], jwt.WithKeySet(jwkKeySet))
 			if err != nil {
 				return echo.NewHTTPError(echo.ErrUnauthorized.Code, "invalid token")
 			}
-			c.Logger().Infof("token: %s\n", token)
+			c.Set("email", token.GetEmail(t))
+			c.Set("identityID", token.GetIdentityID(t))
 
 			return next(c)
 		}

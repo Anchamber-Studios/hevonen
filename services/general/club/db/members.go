@@ -84,10 +84,10 @@ func (r *MemberRepoPostgre) ListForClub(ctx context.Context, clubIdEncoded strin
 func (r *MemberRepoPostgre) Create(ctx context.Context, member types.MemberCreate) (string, error) {
 	var id uint64
 	err := r.DB.QueryRow(ctx, `
-	INSERT INTO clubs.members (first_name, last_name, email, phone) 
-	VALUES ($1, $2, $3, $4) 
+	INSERT INTO clubs.members (identity_id, club_id, email) 
+	VALUES ($1, $2, $3) 
 	RETURNING id;
-	`, member.FirstName, member.LastName, member.Email, member.Phone).Scan(&id)
+	`, member.IdentityID, member.ClubID, member.Email).Scan(&id)
 	if err != nil {
 		return "", err
 	}
@@ -130,13 +130,9 @@ func (r *MemberRepoMock) Create(ctx context.Context, member types.MemberCreate) 
 	}
 	id := fmt.Sprintf("%d", len(r.Members)+1)
 	r.Members = append(r.Members, types.Member{
-		ID:        id,
-		FirstName: member.FirstName,
-		LastName:  member.LastName,
-		Email:     member.Email,
-		Phone:     member.Phone,
-		Height:    170,
-		Weight:    75,
+		ID:     id,
+		ClubID: member.ClubID,
+		Email:  member.Email,
 	})
 	return id, nil
 }

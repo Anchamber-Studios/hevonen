@@ -4,7 +4,7 @@ services:
     build:
       context: ./services/admin/auth
       dockerfile: Dockerfile.dev
-    container_name: auth
+    # container_name: auth
     ports:
       - 7001:7001
     develop:

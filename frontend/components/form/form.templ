@@ -77,6 +77,22 @@ templ FormFieldText(tr *i18n.Localizer, props FormFieldProps) {
 	</div>
 }
 
+templ FormFieldTextarea(tr *i18n.Localizer, props FormFieldProps) {
+	<div class="pb-2">
+		@label(tr, props)
+		<textarea
+ 			type="text"
+ 			value={ props.Value }
+ 			id={ props.Key }
+ 			name={ props.Key }
+ 			readonly?={ props.Readonly }
+ 			required?={ props.Required }
+ 			class={ inputClass(props) }
+		></textarea>
+		@formHints(tr, props)
+	</div>
+}
+
 templ FormFieldPhone(tr *i18n.Localizer, props FormFieldProps) {
 	<div class="pb-2">
 		@label(tr, props)

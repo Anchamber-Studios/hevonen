@@ -26,24 +26,55 @@ create table if not exists clubs.clubs (
 
 create table if not exists clubs.members (
     id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-	profile_id bigint unique not null,
+	club_id bigint not null,
 	identity_id uuid unique,
     email text not null,
-    first_name text not null,
-    middle_name text not null,
-    last_name text not null,
-    height integer not null,
-    weight integer not null,
-    phone text,
-    club_id bigint not null,
+	first_name text,
+	middle_name text,
+	last_name text,
+	birth_date date,
+	phone text,
+	weight int,
+	height int,
     created_at timestamp not null default now(),
     updated_at timestamp not null default now(),
 
 	constraint fk_member_club foreign key (club_id) references clubs.clubs(id)
 );
+
+create table if not exists clubs.roles (
+	id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+	name text not null unique,
+	description text,
+	system_role boolean not null default false, -- system roles are managed by the application itself and cannot be removed or altered
+
+	created_at timestamp not null default now(),
+	updated_at timestamp not null default now()
+);
+
+create table if not exists clubs.member_roles (
+	id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+	member_id bigint not null,
+	role_id bigint not null,
+
+	created_at timestamp not null default now(),
+	updated_at timestamp not null default now(),
+
+	constraint fk_member_role_member foreign key (member_id) references clubs.members(id),
+	constraint fk_member_role_role foreign key (role_id) references clubs.roles(id)
+);
+
+insert into clubs.roles (name, description, system_role) values ('admin', 'Club administrator', true);
+insert into clubs.roles (name, description, system_role) values ('manager', 'Club manager', true);
+insert into clubs.roles (name, description, system_role) values ('trainer', 'Club trainer', true);
+insert into clubs.roles (name, description, system_role) values ('member', 'Club member', true);
+insert into clubs.roles (name, description, system_role) values ('guest', 'Club guest', true);
+
 ---- create above / drop below ----
 
+drop table if exists clubs.member_roles;
 drop table if exists clubs.members;
 drop table if exists clubs.clubs;
 drop table if exists clubs.addresses;
+drop table if exists clubs.roles;
 drop schema if exists clubs;

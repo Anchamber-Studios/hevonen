@@ -83,8 +83,8 @@ func LoadConfigWithVars(vars map[string]string) Config {
 			Cert:    getOrDefaultWithVars(vars, "TLS_CERT", "certs/cert.pem"),
 		},
 		Auth: Auth{
-			ClientId:     getOsOrVars(vars, "CLIENT_ID"),
-			ClientSecret: getOsOrVars(vars, "CLIENT_SECRET"),
+			// ClientId:     getOsOrVars(vars, "CLIENT_ID"),
+			// ClientSecret: getOsOrVars(vars, "CLIENT_SECRET"),
 		},
 		DB: DB{
 			Url:      getOsOrVars(vars, "DB_URL"),

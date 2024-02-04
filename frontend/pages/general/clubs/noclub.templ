@@ -11,7 +11,7 @@ templ NoClubs(tr *i18n.Localizer) {
 }
 
 templ NoClubsWL(session types.Session, tr *i18n.Localizer) {
-	@layouts.NoSidebarLayout(session, layouts.LayoutProps{
+	@layouts.BasicLayout(session, layouts.LayoutProps{
         Title: "Hevonen - Members",
         BrandName: "Hevonen",
         Content: page(tr),
@@ -20,20 +20,21 @@ templ NoClubsWL(session types.Session, tr *i18n.Localizer) {
 
 templ page(tr *i18n.Localizer) {
 	<div class="flex items-center justify-center h-screen flex-col">
-			<p>{tr.MustLocalize(&i18n.LocalizeConfig{MessageID: "club.none_joined"})}</p>
-			<a
-				href="/nc/new"
-				class={ fmt.Sprintf("my-2 px-8 p-1 w-64 text-center %s", theme.PrimaryActionBGColor) }>
-				{tr.MustLocalize(&i18n.LocalizeConfig{MessageID: "club.create"})}
-			</a>
-			<p>
-				{tr.MustLocalize(&i18n.LocalizeConfig{MessageID: "or"})}
-			</p>
-			<a
-				href="/c"
-				class={ fmt.Sprintf("my-2 px-8 p-1 w-64 text-center %s", theme.PrimaryActionBGColor) }>
-				{tr.MustLocalize(&i18n.LocalizeConfig{MessageID: "club.search"})}
-			</a>
-		
+		<p>{ tr.MustLocalize(&i18n.LocalizeConfig{MessageID: "club.none_joined"}) }</p>
+		<a
+ 			href="/nc/new"
+ 			class={ fmt.Sprintf("my-2 px-8 p-1 w-64 text-center %s", theme.PrimaryActionBGColor) }
+		>
+			{ tr.MustLocalize(&i18n.LocalizeConfig{MessageID: "club.create"}) }
+		</a>
+		<p>
+			{ tr.MustLocalize(&i18n.LocalizeConfig{MessageID: "or"}) }
+		</p>
+		<a
+ 			href="/c"
+ 			class={ fmt.Sprintf("my-2 px-8 p-1 w-64 text-center %s", theme.PrimaryActionBGColor) }
+		>
+			{ tr.MustLocalize(&i18n.LocalizeConfig{MessageID: "club.search"}) }
+		</a>
 	</div>
 }

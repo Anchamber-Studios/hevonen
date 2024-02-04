@@ -36,11 +36,5 @@ type Member struct {
 type MemberCreate struct {
 	ClubID     string `json:"clubId" form:"clubId"`
 	IdentityID string `json:"identityId" form:"identityId"`
-	FirstName  string `json:"firstName" form:"firstName"`
-	MiddleName string `json:"middleName" form:"middleName"`
-	LastName   string `json:"lastName" form:"lastName"`
 	Email      string `json:"email" form:"email"`
-	Phone      string `json:"phone" form:"phone"`
-	Weight     int    `json:"weight" form:"weight"`
-	Height     int    `json:"height" form:"height"`
 }

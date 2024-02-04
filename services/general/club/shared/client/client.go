@@ -29,7 +29,7 @@ func (c *ClubClientHttp) WithHeader(key, value string) {
 }
 
 func (c *ClubClientHttp) ListClubsForIdentity(ctx lib.ClientContext) ([]types.ClubMember, error) {
-	req, err := http.NewRequest(http.MethodGet, c.Url+"/i/"+ctx.IdentityID+"/c", nil)
+	req, err := http.NewRequest(http.MethodGet, c.Url+"/c", nil)
 	if err != nil {
 		return nil, err
 	}
@@ -63,7 +63,8 @@ func (c *ClubClientHttp) CreateClub(ctx lib.ClientContext, club types.ClubCreate
 	if err != nil {
 		return "", err
 	}
-	req, err := http.NewRequest(http.MethodPost, c.Url+"/i/"+ctx.IdentityID+"/c", bytes.NewReader(clubJson))
+	req, err := http.NewRequest(http.MethodPost, c.Url+"/c", bytes.NewReader(clubJson))
+	req.Header.Add("Content-Type", "application/json")
 	if err != nil {
 		return "", err
 	}

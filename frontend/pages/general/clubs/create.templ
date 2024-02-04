@@ -17,7 +17,7 @@ templ CreateForm(tr *i18n.Localizer, props CreateClubFormProps) {
 }
 
 templ CreateFormWL(session types.Session, tr *i18n.Localizer, props CreateClubFormProps) {
-	@layouts.NoSidebarLayout(session, layouts.LayoutProps{
+	@layouts.BasicLayout(session, layouts.LayoutProps{
 		Title: tr.MustLocalize(&i18n.LocalizeConfig{
 			DefaultMessage: &i18n.Message{
 				ID:    "club.form.create.title",
@@ -42,7 +42,7 @@ templ createClubForm(tr *i18n.Localizer, props CreateClubFormProps) {
 			Required: true,
 			Errors: getError("name", props.Errors),
 			})
-		@form.FormFieldText(tr, form.FormFieldProps{ 
+		@form.FormFieldTextarea(tr, form.FormFieldProps{ 
 			Label: "club.form.description",
 			Key: "description",
 			Value: props.Values.Description, 
