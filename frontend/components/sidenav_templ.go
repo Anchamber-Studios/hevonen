@@ -10,7 +10,9 @@ import "context"
 import "io"
 import "bytes"
 
-func SideNav(brandName string) templ.Component {
+import "github.com/anchamber-studios/hevonen/frontend/types"
+
+func SideNav(session types.Session, brandName string) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -50,30 +52,6 @@ func SideNav(brandName string) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		templ_7745c5c3_Err = SideNavGroup(SideNavGroupProps{
-			Header: "Club",
-			Links: []SideNavNavigationLinkProps{
-				{
-					Href: "/plan",
-					Name: "Riding Plan",
-				},
-				{
-					Href: "/members",
-					Name: "Members",
-				},
-				{
-					Href: "/guests",
-					Name: "Guests",
-				},
-				{
-					Href: "/wl",
-					Name: "Waiting List",
-				},
-			},
-		}).Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = SideNavGroup(SideNavGroupProps{
 			Header: "Admin",
 			Links: []SideNavNavigationLinkProps{
 				{
@@ -82,6 +60,10 @@ func SideNav(brandName string) templ.Component {
 				},
 			},
 		}).Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = ClubNavigationEntries(session).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -96,12 +78,7 @@ func SideNav(brandName string) templ.Component {
 	})
 }
 
-type SideNavGroupProps struct {
-	Header string
-	Links  []SideNavNavigationLinkProps
-}
-
-func SideNavGroup(props SideNavGroupProps) templ.Component {
+func ClubNavigationEntries(session types.Session) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -114,6 +91,68 @@ func SideNavGroup(props SideNavGroupProps) templ.Component {
 			templ_7745c5c3_Var3 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
+		for _, club := range *session.Clubs {
+			templ_7745c5c3_Err = SideNavGroup(SideNavGroupProps{
+				Header:    club.Name,
+				UserRoles: club.Roles,
+				Links: []SideNavNavigationLinkProps{
+					{
+						Href:          "/club/" + club.ID + "/plan",
+						Name:          "Riding Plan",
+						RequiredRoles: []string{"manager", "trainer"},
+					},
+					{
+						Href:          "/club/" + club.ID + "/members",
+						Name:          "Members",
+						RequiredRoles: []string{"manager", "trainer"},
+					},
+					{
+						Href:          "/club/" + club.ID + "/guests",
+						Name:          "Guests",
+						RequiredRoles: []string{"manager", "trainer"},
+					},
+					{
+						Href:          "/club/" + club.ID + "/wl",
+						Name:          "Waiting List",
+						RequiredRoles: []string{"manager", "trainer"},
+					},
+					{
+						Href:          "/club/" + club.ID + "/calendar",
+						Name:          "Waiting List",
+						RequiredRoles: []string{"manager", "trainer", "member", "admin"},
+					},
+				},
+			}).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		if !templ_7745c5c3_IsBuffer {
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteTo(templ_7745c5c3_W)
+		}
+		return templ_7745c5c3_Err
+	})
+}
+
+type SideNavGroupProps struct {
+	Header    string
+	UserRoles []string
+	Links     []SideNavNavigationLinkProps
+}
+
+func SideNavGroup(props SideNavGroupProps) templ.Component {
+	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
+		if !templ_7745c5c3_IsBuffer {
+			templ_7745c5c3_Buffer = templ.GetBuffer()
+			defer templ.ReleaseBuffer(templ_7745c5c3_Buffer)
+		}
+		ctx = templ.InitializeContext(ctx)
+		templ_7745c5c3_Var4 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var4 == nil {
+			templ_7745c5c3_Var4 = templ.NopComponent
+		}
+		ctx = templ.ClearChildren(ctx)
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<li class=\"relative pt-2\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -123,8 +162,8 @@ func SideNavGroup(props SideNavGroupProps) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var4 string = props.Header
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
+			var templ_7745c5c3_Var5 string = props.Header
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -134,9 +173,11 @@ func SideNavGroup(props SideNavGroupProps) templ.Component {
 			}
 		}
 		for _, link := range props.Links {
-			templ_7745c5c3_Err = SideNavNavigationLink(link).Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
+			if hasAuthorization(props.UserRoles, link.RequiredRoles) {
+				templ_7745c5c3_Err = SideNavNavigationLink(link).Render(ctx, templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
 			}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</li>")
@@ -151,9 +192,10 @@ func SideNavGroup(props SideNavGroupProps) templ.Component {
 }
 
 type SideNavNavigationLinkProps struct {
-	Name string
-	Href string
-	Icon templ.Component
+	Name          string
+	Href          string
+	RequiredRoles []string
+	Icon          templ.Component
 }
 
 func SideNavNavigationLink(props SideNavNavigationLinkProps) templ.Component {
@@ -164,9 +206,9 @@ func SideNavNavigationLink(props SideNavNavigationLinkProps) templ.Component {
 			defer templ.ReleaseBuffer(templ_7745c5c3_Buffer)
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var5 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var5 == nil {
-			templ_7745c5c3_Var5 = templ.NopComponent
+		templ_7745c5c3_Var6 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var6 == nil {
+			templ_7745c5c3_Var6 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<a hx-get=\"")
@@ -199,8 +241,8 @@ func SideNavNavigationLink(props SideNavNavigationLinkProps) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var6 string = props.Name
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
+		var templ_7745c5c3_Var7 string = props.Name
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -213,4 +255,15 @@ func SideNavNavigationLink(props SideNavNavigationLinkProps) templ.Component {
 		}
 		return templ_7745c5c3_Err
 	})
+}
+
+func hasAuthorization(userRoles []string, requiredRoles []string) bool {
+	for _, requiredRole := range requiredRoles {
+		for _, userRole := range userRoles {
+			if userRole == requiredRole {
+				return true
+			}
+		}
+	}
+	return false
 }

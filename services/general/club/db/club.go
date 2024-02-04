@@ -2,6 +2,7 @@ package db
 
 import (
 	"context"
+	"strings"
 
 	"github.com/anchamber-studios/hevonen/lib/logger"
 	"github.com/anchamber-studios/hevonen/services/club/shared/types"
@@ -50,11 +51,14 @@ func (r *ClubRepoPostgre) List(ctx context.Context) ([]types.Club, error) {
 
 func (r *ClubRepoPostgre) ListForIdentity(ctx context.Context, identity string) ([]types.ClubMember, error) {
 	rows, err := r.DB.Query(ctx, `
-	SELECT c.id, c.name 
+	SELECT c.id, c.name, string_agg(mr.role_name, ',')
 	FROM clubs.clubs c 
 	INNER JOIN clubs.members m 
 		ON c.id = m.club_id 
-	WHERE m.identity_id = $1;
+	INNER JOIN clubs.member_roles mr
+		ON m.id = mr.member_id
+	WHERE m.identity_id = $1
+	GROUP BY c.id, c.name;
 	`, identity)
 	if err != nil {
 		return nil, err
@@ -62,10 +66,12 @@ func (r *ClubRepoPostgre) ListForIdentity(ctx context.Context, identity string) 
 	var clubs []types.ClubMember
 	for rows.Next() {
 		var club types.ClubMember
-		err := rows.Scan(&club.ID, &club.Name)
+		var roles string
+		err := rows.Scan(&club.ID, &club.Name, &roles)
 		if err != nil {
 			return nil, err
 		}
+		club.Roles = strings.Split(roles, ",")
 		clubs = append(clubs, club)
 	}
 	return clubs, nil

@@ -1,13 +1,16 @@
 package components
 
-templ SideNav(brandName string) {
+import "github.com/anchamber-studios/hevonen/frontend/types"
+
+templ SideNav(session types.Session, brandName string) {
 	<div id="brand" class="h-12 pl-2 flex items-center border-b-[1px] border-gray-600">
 		<h1 class="uppercase font-extrabold">Hevonen</h1>
 	</div>
-
 	<div class="flex-grow-1 overflow-y-auto">
-		<ul hx-target="#main"
- 			class="relative m-0 list-none px-[0.2rem] pb-12">
+		<ul
+ 			hx-target="#main"
+ 			class="relative m-0 list-none px-[0.2rem] pb-12"
+		>
 			@SideNavGroup(SideNavGroupProps{
                 Header: "",
 				Links: []SideNavNavigationLinkProps{
@@ -15,27 +18,6 @@ templ SideNav(brandName string) {
 						Icon: Home(),
 						Href: "/",
 						Name: "Overview",
-					},
-				},
-			})
-			@SideNavGroup(SideNavGroupProps{
-                Header: "Club",
-				Links: []SideNavNavigationLinkProps{
-					{
-						Href: "/plan",
-						Name: "Riding Plan",
-					},
-					{
-						Href: "/members",
-						Name: "Members",
-					},
-					{
-						Href: "/guests",
-						Name: "Guests",
-					},
-					{
-						Href: "/wl",
-						Name: "Waiting List",
 					},
 				},
 			})
@@ -48,16 +30,53 @@ templ SideNav(brandName string) {
 					},
 				},
 			})
+			@ClubNavigationEntries(session)
 		</ul>
 	</div>
 }
 
-
+templ ClubNavigationEntries(session types.Session) {
+	for _, club := range *session.Clubs {
+		@SideNavGroup(SideNavGroupProps{
+				Header: club.Name,
+				UserRoles: club.Roles,
+				Links: []SideNavNavigationLinkProps{
+					{
+						Href: "/club/" + club.ID + "/plan",
+						Name: "Riding Plan",
+						RequiredRoles: []string{"manager", "trainer"},
+					},
+					{
+						Href: "/club/" + club.ID + "/members",
+						Name: "Members",
+						RequiredRoles: []string{"manager", "trainer"},
+					},
+					{
+						Href: "/club/" + club.ID + "/guests",
+						Name: "Guests",
+						RequiredRoles: []string{"manager", "trainer"},
+					},
+					{
+						Href: "/club/" + club.ID + "/wl",
+						Name: "Waiting List",
+						RequiredRoles: []string{"manager", "trainer"},
+					},
+					{
+						Href: "/club/" + club.ID + "/calendar",
+						Name: "Waiting List",
+						RequiredRoles: []string{"manager", "trainer", "member", "admin"},
+					},
+				},
+			})
+	}
+}
 
 type SideNavGroupProps struct {
-	Header   string
-	Links 	[]SideNavNavigationLinkProps
+	Header    string
+	UserRoles []string
+	Links     []SideNavNavigationLinkProps
 }
+
 templ SideNavGroup(props SideNavGroupProps) {
 	<li class="relative pt-2">
 		if props.Header != "" {
@@ -66,29 +85,43 @@ templ SideNavGroup(props SideNavGroupProps) {
 			</span>
 		}
 		for _, link := range props.Links {
-			@SideNavNavigationLink(link)
+			if hasAuthorization(props.UserRoles, link.RequiredRoles) {
+				@SideNavNavigationLink(link)
+			}
 		}
 	</li>
 }
 
 type SideNavNavigationLinkProps struct {
-	Name   string
-	Href   string
-	Icon   templ.Component
+	Name          string
+	Href          string
+	RequiredRoles []string
+	Icon          templ.Component
 }
-templ SideNavNavigationLink(props SideNavNavigationLinkProps) {
 
-		<a
- 			hx-get={ props.Href }
- 			hx-push-url="true"
- 			class="flex cursor-pointer items-center truncate rounded-[5px] px-2 py-[0.45rem] text-[0.85rem] text-gray-600 outline-none transition duration-300 ease-linear hover:bg-slate-50 hover:text-inherit hover:outline-none focus:bg-slate-50 focus:text-inherit focus:outline-none active:bg-slate-50 active:text-inherit active:outline-none data-[te-sidenav-state-active]:text-inherit data-[te-sidenav-state-focus]:outline-none motion-reduce:transition-none dark:text-gray-300 dark:hover:bg-white/10 dark:focus:bg-white/10 dark:active:bg-white/10"
- 			data-te-sidenav-link-ref
-		>
-			if props.Icon != nil {
-				<span class="pr-2 [&>svg]:h-3.5 [&>svg]:w-3.5 [&>svg]:text-gray-400 dark:[&>svg]:text-gray-300">
-					@props.Icon
-				</span>
+templ SideNavNavigationLink(props SideNavNavigationLinkProps) {
+	<a
+ 		hx-get={ props.Href }
+ 		hx-push-url="true"
+ 		class="flex cursor-pointer items-center truncate rounded-[5px] px-2 py-[0.45rem] text-[0.85rem] text-gray-600 outline-none transition duration-300 ease-linear hover:bg-slate-50 hover:text-inherit hover:outline-none focus:bg-slate-50 focus:text-inherit focus:outline-none active:bg-slate-50 active:text-inherit active:outline-none data-[te-sidenav-state-active]:text-inherit data-[te-sidenav-state-focus]:outline-none motion-reduce:transition-none dark:text-gray-300 dark:hover:bg-white/10 dark:focus:bg-white/10 dark:active:bg-white/10"
+ 		data-te-sidenav-link-ref
+	>
+		if props.Icon != nil {
+			<span class="pr-2 [&>svg]:h-3.5 [&>svg]:w-3.5 [&>svg]:text-gray-400 dark:[&>svg]:text-gray-300">
+				@props.Icon
+			</span>
+		}
+		<span>{ props.Name }</span>
+	</a>
+}
+
+func hasAuthorization(userRoles []string, requiredRoles []string) bool {
+	for _, requiredRole := range requiredRoles {
+		for _, userRole := range userRoles {
+			if userRole == requiredRole {
+				return true
 			}
-			<span>{ props.Name }</span>
-		</a>
+		}
+	}
+	return false
 }

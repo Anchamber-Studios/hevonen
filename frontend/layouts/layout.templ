@@ -34,7 +34,7 @@ templ BasicLayout(session types.Session, props LayoutProps) {
 		<body class={ fmt.Sprintf("h-full w-full flex m-0 overflow-hidden %s %s", theme.BackgroundGradient, theme.DefaultTextColor) }>
 			@components.Toast()
 			<div id="left-sidebar" class="h-100 flex flex-col w-44">
-				@components.SideNav("Hevonen")
+				@components.SideNav(session, "Hevonen")
 			</div>
 			<div class="h-100 flex flex-col flex-auto">
 				@components.Header(session, components.HeaderProps{

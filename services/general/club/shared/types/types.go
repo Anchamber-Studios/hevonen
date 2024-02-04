@@ -17,8 +17,9 @@ type Club struct {
 }
 
 type ClubMember struct {
-	ID   string `json:"id" form:"id"`
-	Name string `json:"name" form:"name"`
+	ID    string   `json:"id" form:"id"`
+	Name  string   `json:"name" form:"name"`
+	Roles []string `json:"roles" form:"roles"`
 }
 
 type Member struct {
