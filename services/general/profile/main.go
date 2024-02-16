@@ -22,7 +22,6 @@ func main() {
 	if err != nil {
 		log.Println("Error reading .env file")
 	}
-	log.Printf("%v\n", vars)
 	conf := config.LoadConfigWithVars(vars)
 
 	e := echo.New()

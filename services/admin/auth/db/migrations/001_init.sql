@@ -1,3 +1,5 @@
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
 create schema if not exists hauth;
 
 create table if not exists hauth.authorizations (
@@ -53,7 +55,7 @@ create table if not exists hauth.authorizations_groups (
 
 create table if not exists hauth.groups_users (
 	group_id bigint not null references hauth.groups(id),
-	user_id bigint not null references users.users(id),
+	user_id bigint not null references hauth.users(id),
 	updated_at timestamp with time zone not null default now(),
 	created_at timestamp with time zone not null default now(),
 	primary key (group_id, user_id)

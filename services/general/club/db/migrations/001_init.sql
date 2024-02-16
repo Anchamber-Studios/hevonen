@@ -1,3 +1,5 @@
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
 create schema if not exists clubs;
 
 create table if not exists clubs.addresses (

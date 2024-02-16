@@ -36,38 +36,42 @@ templ SideNav(session types.Session, brandName string) {
 }
 
 templ ClubNavigationEntries(session types.Session) {
-	for _, club := range *session.Clubs {
-		@SideNavGroup(SideNavGroupProps{
-				Header: club.Name,
-				UserRoles: club.Roles,
-				Links: []SideNavNavigationLinkProps{
-					{
-						Href: "/club/" + club.ID + "/plan",
-						Name: "Riding Plan",
-						RequiredRoles: []string{"manager", "trainer"},
+	if session.Clubs != nil && len(*session.Clubs) > 0 {
+		for _, club := range *session.Clubs {
+			if club != nil {
+				@SideNavGroup(SideNavGroupProps{
+					Header: club.Name,
+					UserRoles: club.Roles,
+					Links: []SideNavNavigationLinkProps{
+						{
+							Href: "/club/" + club.ID + "/plan",
+							Name: "Riding Plan",
+							RequiredRoles: []string{"manager", "trainer"},
+						},
+						{
+							Href: "/club/" + club.ID + "/members",
+							Name: "Members",
+							RequiredRoles: []string{"manager", "trainer"},
+						},
+						{
+							Href: "/club/" + club.ID + "/guests",
+							Name: "Guests",
+							RequiredRoles: []string{"manager", "trainer"},
+						},
+						{
+							Href: "/club/" + club.ID + "/wl",
+							Name: "Waiting List",
+							RequiredRoles: []string{"manager", "trainer"},
+						},
+						{
+							Href: "/club/" + club.ID + "/calendar",
+							Name: "Waiting List",
+							RequiredRoles: []string{"manager", "trainer", "member", "admin"},
+						},
 					},
-					{
-						Href: "/club/" + club.ID + "/members",
-						Name: "Members",
-						RequiredRoles: []string{"manager", "trainer"},
-					},
-					{
-						Href: "/club/" + club.ID + "/guests",
-						Name: "Guests",
-						RequiredRoles: []string{"manager", "trainer"},
-					},
-					{
-						Href: "/club/" + club.ID + "/wl",
-						Name: "Waiting List",
-						RequiredRoles: []string{"manager", "trainer"},
-					},
-					{
-						Href: "/club/" + club.ID + "/calendar",
-						Name: "Waiting List",
-						RequiredRoles: []string{"manager", "trainer", "member", "admin"},
-					},
-				},
-			})
+				})
+			}
+		}
 	}
 }
 

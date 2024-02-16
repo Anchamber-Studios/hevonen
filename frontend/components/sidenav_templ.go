@@ -91,40 +91,44 @@ func ClubNavigationEntries(session types.Session) templ.Component {
 			templ_7745c5c3_Var3 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		for _, club := range *session.Clubs {
-			templ_7745c5c3_Err = SideNavGroup(SideNavGroupProps{
-				Header:    club.Name,
-				UserRoles: club.Roles,
-				Links: []SideNavNavigationLinkProps{
-					{
-						Href:          "/club/" + club.ID + "/plan",
-						Name:          "Riding Plan",
-						RequiredRoles: []string{"manager", "trainer"},
-					},
-					{
-						Href:          "/club/" + club.ID + "/members",
-						Name:          "Members",
-						RequiredRoles: []string{"manager", "trainer"},
-					},
-					{
-						Href:          "/club/" + club.ID + "/guests",
-						Name:          "Guests",
-						RequiredRoles: []string{"manager", "trainer"},
-					},
-					{
-						Href:          "/club/" + club.ID + "/wl",
-						Name:          "Waiting List",
-						RequiredRoles: []string{"manager", "trainer"},
-					},
-					{
-						Href:          "/club/" + club.ID + "/calendar",
-						Name:          "Waiting List",
-						RequiredRoles: []string{"manager", "trainer", "member", "admin"},
-					},
-				},
-			}).Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
+		if session.Clubs != nil && len(*session.Clubs) > 0 {
+			for _, club := range *session.Clubs {
+				if club != nil {
+					templ_7745c5c3_Err = SideNavGroup(SideNavGroupProps{
+						Header:    club.Name,
+						UserRoles: club.Roles,
+						Links: []SideNavNavigationLinkProps{
+							{
+								Href:          "/club/" + club.ID + "/plan",
+								Name:          "Riding Plan",
+								RequiredRoles: []string{"manager", "trainer"},
+							},
+							{
+								Href:          "/club/" + club.ID + "/members",
+								Name:          "Members",
+								RequiredRoles: []string{"manager", "trainer"},
+							},
+							{
+								Href:          "/club/" + club.ID + "/guests",
+								Name:          "Guests",
+								RequiredRoles: []string{"manager", "trainer"},
+							},
+							{
+								Href:          "/club/" + club.ID + "/wl",
+								Name:          "Waiting List",
+								RequiredRoles: []string{"manager", "trainer"},
+							},
+							{
+								Href:          "/club/" + club.ID + "/calendar",
+								Name:          "Waiting List",
+								RequiredRoles: []string{"manager", "trainer", "member", "admin"},
+							},
+						},
+					}).Render(ctx, templ_7745c5c3_Buffer)
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+				}
 			}
 		}
 		if !templ_7745c5c3_IsBuffer {
