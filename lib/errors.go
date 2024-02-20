@@ -2,6 +2,7 @@ package lib
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 )
 
@@ -43,6 +44,22 @@ func NewUnauthendicatedError() *ApiError {
 		StatusCode: http.StatusForbidden,
 		ErrorCode:  "unauthenticated",
 		Message:    "user is not authenticated",
+	}
+}
+
+func NewAlreadyExistsError(entity string, field string, value string) *ApiError {
+	return &ApiError{
+		StatusCode: http.StatusConflict,
+		ErrorCode:  "already_exists",
+		Message:    fmt.Sprintf("%s with %s '%s' already exists", entity, field, value),
+	}
+}
+
+func NewInternalServerError() *ApiError {
+	return &ApiError{
+		StatusCode: http.StatusInternalServerError,
+		ErrorCode:  "internal_server_error",
+		Message:    "internal server error",
 	}
 }
 

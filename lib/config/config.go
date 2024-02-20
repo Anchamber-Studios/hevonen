@@ -38,6 +38,28 @@ type Config struct {
 	Broker      Broker
 }
 
+func DefaultConfig() Config {
+	return Config{
+		Port:        "8443",
+		Host:        "localhost",
+		TokenSecret: "1234567890123456789012345678901212345678901234567890123456789012",
+		JWK:         nil,
+		Tls: TlsConfig{
+			Enabled: false,
+		},
+		DB: DB{
+			Url:      "localhost",
+			Port:     "5432",
+			Database: "postgres",
+			User:     "postgres",
+			Password: "postgres",
+		},
+		Broker: Broker{
+			Url: "localhost:19092",
+		},
+	}
+}
+
 func LoadConfig() Config {
 	config := Config{
 		Port:        getOrDefault("PORT", "8443"),

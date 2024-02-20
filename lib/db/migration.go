@@ -9,10 +9,9 @@ import (
 	"github.com/anchamber-studios/hevonen/lib/config"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/tern/v2/migrate"
-	"github.com/labstack/echo/v4"
 )
 
-func Migrate(ctx context.Context, logger echo.Logger, service string, conn *pgx.Conn, migrationFiles embed.FS) error {
+func Migrate(ctx context.Context, service string, conn *pgx.Conn, migrationFiles embed.FS) error {
 	fmt.Printf("Check database for migrations\n")
 	m, err := migrate.NewMigrator(ctx, conn, fmt.Sprintf("public.%s_db_version", service))
 	if err != nil {
@@ -36,44 +35,48 @@ func Migrate(ctx context.Context, logger echo.Logger, service string, conn *pgx.
 	}
 
 	if cur < last {
-		logger.Infof("migration needed:  %d -> %d\n", cur, last)
 		fmt.Printf("migration needed:  %d -> %d\n", cur, last)
 		println(cur)
 		err := m.Migrate(ctx)
 		if err != nil {
 			return err
 		}
-	} else {
-		logger.Infof("no migration needed:  %d -> %d\n", cur, last)
-		fmt.Printf("no migration needed:  %d -> %d\n", cur, last)
 	}
 	return nil
 }
 
-func SetupDB(service string, conf config.Config, logger echo.Logger, migrationFiles embed.FS) *pgx.Conn {
-	logger.Infof("Setup database\n")
-	conn, err := OpenConnection(conf, logger)
+func ResetDB(ctx context.Context, service string, conf config.Config) error {
+	conn, err := OpenConnection(conf)
+	m, err := migrate.NewMigrator(ctx, conn, fmt.Sprintf("public.%s_db_version", service))
 	if err != nil {
-		logger.Fatalf("Unable to connect to database: %v\n", err)
+		return err
 	}
-	migrationCtx := context.Background()
-	err = Migrate(migrationCtx, logger, service, conn, migrationFiles)
-	if err != nil {
-		logger.Fatalf("Migration failed: %v\n", err)
-	}
-	return conn
+	m.MigrateTo(ctx, 0)
+	return nil
 }
 
-func OpenConnection(conf config.Config, logger echo.Logger) (*pgx.Conn, error) {
+func SetupDB(service string, conf config.Config, migrationFiles embed.FS) error {
+	conn, err := OpenConnection(conf)
+	if err != nil {
+		return err
+	}
+	defer conn.Close(context.Background())
+	migrationCtx := context.Background()
+	err = Migrate(migrationCtx, service, conn, migrationFiles)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func OpenConnection(conf config.Config) (*pgx.Conn, error) {
 	dsn := fmt.Sprintf("postgres://%s:%s@%s:%s/%s", conf.DB.User, conf.DB.Password, conf.DB.Url, conf.DB.Port, conf.DB.Database)
 
 	conn, err := pgx.Connect(context.Background(), dsn)
 	if err != nil {
-		logger.Errorf("Unable to connect to database: %v\n", err)
 		return nil, err
 	}
 	if err := conn.Ping(context.Background()); err != nil {
-		logger.Errorf("Unable to ping database: %v\n", err)
 		return nil, err
 	}
 	return conn, nil

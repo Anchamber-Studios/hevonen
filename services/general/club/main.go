@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"log"
 
@@ -20,7 +19,9 @@ func main() {
 	conf := config.LoadConfig()
 
 	e := echo.New()
-	db.SetupDB(conf, e.Logger).Close(context.Background())
+	if err = db.SetupDB(conf); err != nil {
+		log.Fatalf("Unable to setup database: %v\n", err)
+	}
 	server.Middleware(e, conf)
 	server.Routes(e)
 

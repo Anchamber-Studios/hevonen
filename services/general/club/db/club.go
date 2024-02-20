@@ -4,6 +4,7 @@ import (
 	"context"
 	"strings"
 
+	"github.com/anchamber-studios/hevonen/lib"
 	"github.com/anchamber-studios/hevonen/lib/logger"
 	"github.com/anchamber-studios/hevonen/services/club/shared/types"
 	"github.com/jackc/pgx/v5"
@@ -16,6 +17,7 @@ type ClubRepo interface {
 	CreateWithAdminMember(ctx context.Context, club types.ClubCreate, admin types.MemberCreate) (string, error)
 	Create(ctx context.Context, club types.ClubCreate) (string, error)
 	Get(ctx context.Context, clubIdEncoded string) (types.Club, error)
+	Delete(ctx context.Context, identity string, id string) error
 }
 
 type ClubRepoPostgre struct {
@@ -53,10 +55,10 @@ func (r *ClubRepoPostgre) ListForIdentity(ctx context.Context, identity string) 
 	rows, err := r.DB.Query(ctx, `
 	SELECT c.id, c.name, string_agg(mr.role_name, ',')
 	FROM clubs.clubs c 
-	INNER JOIN clubs.members m 
+	INNER JOIN clubs.contacts m 
 		ON c.id = m.club_id 
-	INNER JOIN clubs.member_roles mr
-		ON m.id = mr.member_id
+	INNER JOIN clubs.contact_roles mr
+		ON m.id = mr.contact_id
 	WHERE m.identity_id = $1
 	GROUP BY c.id, c.name;
 	`, identity)
@@ -97,7 +99,7 @@ func (r *ClubRepoPostgre) CreateWithAdminMember(ctx context.Context, club types.
 	if err != nil {
 		return "", err
 	}
-	var clubID string
+	var clubID uint64
 	err = tx.QueryRow(ctx, `
 		INSERT INTO clubs.clubs (name, website, email, phone)
 		VALUES ($1, $2, $3, $4)
@@ -108,24 +110,23 @@ func (r *ClubRepoPostgre) CreateWithAdminMember(ctx context.Context, club types.
 		tx.Rollback(ctx)
 		return "", err
 	}
-	admin.ClubID = clubID
-	var memberID string
+	var contactID string
 	err = tx.QueryRow(ctx, `
-	INSERT INTO clubs.members (identity_id, club_id, email) 
+	INSERT INTO clubs.contacts (identity_id, club_id, email) 
 	VALUES ($1, $2, $3)
 	RETURNING id;
-	`, admin.IdentityID, clubID, admin.Email).Scan(&memberID)
+	`, admin.IdentityID, clubID, admin.Email).Scan(&contactID)
 	if err != nil {
-		log.Sugar().Errorf("Failed to create admin member: %v", err)
+		log.Sugar().Errorf("Failed to create admin contact: %v", err)
 		tx.Rollback(ctx)
 		return "", err
 	}
 	_, err = tx.Exec(ctx, `
-	INSERT INTO clubs.member_roles (member_id, role_name)
+	INSERT INTO clubs.contact_roles (contact_id, role_name)
 	VALUES ($1, 'admin');
-	`, memberID)
+	`, contactID)
 	if err != nil {
-		log.Sugar().Errorf("Failed to assign admin role to member: %v", err)
+		log.Sugar().Errorf("Failed to assign admin role to contact: %v", err)
 		tx.Rollback(ctx)
 		return "", err
 	}
@@ -135,7 +136,12 @@ func (r *ClubRepoPostgre) CreateWithAdminMember(ctx context.Context, club types.
 		tx.Rollback(ctx)
 		return "", err
 	}
-	return clubID, nil
+	idEncoded, err := r.IdConversion.Encode([]uint64{clubID, idOffsetClub})
+	if err != nil {
+		return "", err
+
+	}
+	return idEncoded, nil
 }
 
 func (r *ClubRepoPostgre) Get(ctx context.Context, clubIdEncoded string) (types.Club, error) {
@@ -151,4 +157,33 @@ func (r *ClubRepoPostgre) Get(ctx context.Context, clubIdEncoded string) (types.
 		return club, err
 	}
 	return club, nil
+}
+
+func (r *ClubRepoPostgre) Delete(ctx context.Context, identity string, id string) error {
+	// check if identity is admin of club
+	log := logger.FromContext(ctx)
+	clubID := r.IdConversion.Decode(id)[0]
+	var isAdmin bool
+	err := r.DB.QueryRow(ctx, `
+		SELECT EXISTS(SELECT 1 FROM clubs.contacts
+		JOIN clubs.contact_roles ON contacts.id = contact_roles.contact_id
+		WHERE contacts.identity_id = $1 AND contacts.club_id = $2 AND contact_roles.role_name = 'admin');
+	`, identity, r.IdConversion.Decode(id)[0]).Scan(&isAdmin)
+	if err != nil {
+		log.Sugar().Errorf("Failed to check if identity is admin of club %s: %v", id, err)
+		return err
+	}
+	if !isAdmin {
+		log.Sugar().Errorf("unautorized delete: identity %s is not admin of club %s", identity, id)
+		return lib.NewUnauthorizedError()
+	}
+	_, err = r.DB.Exec(ctx, `
+		DELETE FROM clubs.clubs
+		WHERE id = $1;
+	`, clubID)
+	if err != nil {
+		log.Sugar().Errorf("Failed to delete club %s: %v", id, err)
+		return err
+	}
+	return nil
 }

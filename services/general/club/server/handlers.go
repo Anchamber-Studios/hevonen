@@ -1,12 +1,12 @@
 package server
 
 import (
-	"errors"
 	"fmt"
 	"net/http"
 
 	"github.com/anchamber-studios/hevonen/lib"
 	"github.com/anchamber-studios/hevonen/services/club/shared/types"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/labstack/echo/v4"
 )
 
@@ -17,18 +17,19 @@ const (
 
 type ClubHandler struct{}
 
+// Lists all clubs the current user is a contact of
 func (h *ClubHandler) ListForIdentity(c echo.Context) error {
 	cc := c.(*CustomContext)
 	identityID := cc.Get("identityID").(string)
 	clubs, err := cc.Services.Clubs.ListForIdentity(c.Request().Context(), identityID)
 	if err != nil {
-		cc.Logger().Errorf("Unable to get clubs for identity %s: %v\n", identityID, err)
-		echo.NewHTTPError(http.StatusInternalServerError, "internal server error")
+		return handleServiceError(cc, err)
 	}
 	cc.Logger().Infof("Found %d clubs for identity %s\n", len(clubs), identityID)
 	return c.JSON(http.StatusOK, &clubs)
 }
 
+// Create a new club. The current user will be added as admin contact of the club
 func (h *ClubHandler) Create(c echo.Context) error {
 	cc := c.(*CustomContext)
 	identityID := cc.Get("identityID").(string)
@@ -50,51 +51,30 @@ func (h *ClubHandler) Create(c echo.Context) error {
 	}
 	cId, err := cc.Services.Clubs.CreateWithAdminMember(c.Request().Context(), club, member)
 	if err != nil {
-		cc.Logger().Errorf("Unable to create club %s: %v\n", identityID, err)
-		return echo.NewHTTPError(http.StatusInternalServerError, "internal server error")
+		return handleServiceError(cc, err)
 	}
 	cc.Logger().Infof("Created club %s\n", cId)
-	cc.Response().Header().Set("Location", fmt.Sprintf("/i/%s/c/%s", identityID, cId))
+	cc.Response().Header().Set("Location", fmt.Sprintf("/c/%s", cId))
 	return cc.NoContent(http.StatusCreated)
 }
 
-type MemberHandler struct{}
-
-func (h *MemberHandler) list(c echo.Context) error {
+func (j *ClubHandler) DeleteClub(c echo.Context) error {
 	cc := c.(*CustomContext)
-	members, err := cc.Repos.Members.List(c.Request().Context())
+	identityID := cc.Get("identityID").(string)
+	clubID := c.Param("clubID")
+	err := cc.Services.Clubs.Delete(c.Request().Context(), identityID, clubID)
 	if err != nil {
-		echo.NewHTTPError(http.StatusInternalServerError, "internal server error")
+		return handleServiceError(cc, err)
 	}
-	return c.JSON(http.StatusOK, &members)
+	cc.Logger().Infof("Deleted club %s\n", clubID)
+	return cc.NoContent(http.StatusNoContent)
 }
 
-func (h *MemberHandler) new(c echo.Context) error {
-	cc := c.(*CustomContext)
-	var member types.MemberCreate
-	if err := c.Bind(&member); err != nil {
-		c.Logger().Errorf("Unable to bind member: %v\n", err)
-		return echo.NewHTTPError(http.StatusBadRequest, "Unable to bind member")
-	}
-	cId, err := cc.Repos.Members.Create(c.Request().Context(), member)
-	if err != nil {
-		c.Logger().Errorf("Unable to create member: %v\n", err)
-		return echo.NewHTTPError(http.StatusInternalServerError, "internal server error")
-	}
-	cc.Response().Header().Set("Location", fmt.Sprintf("/members/%s", cId))
-	return cc.NoContent(http.StatusCreated)
-}
-
-func (h *MemberHandler) details(c echo.Context) error {
-	cc := c.(*CustomContext)
-	memberIdEncoded := cc.Param(PathParamMemberId)
-	member, err := cc.Repos.Members.Get(c.Request().Context(), memberIdEncoded)
-	if err != nil {
-		cc.Logger().Errorf("Unable to get member: %v\n", err)
-		if errors.Is(err, lib.ErrNotFound) {
-			return echo.NewHTTPError(http.StatusNotFound, "member not found")
+func handleServiceError(cc *CustomContext, err error) error {
+	if e, ok := err.(*pgconn.PgError); ok {
+		if e.Code == "23505" {
+			return echo.NewHTTPError(http.StatusConflict, lib.NewAlreadyExistsError("club", "name", "Test Club"))
 		}
-		return echo.NewHTTPError(http.StatusInternalServerError, "internal server error")
 	}
-	return c.JSON(http.StatusOK, &member)
+	return echo.NewHTTPError(http.StatusInternalServerError, lib.NewInternalServerError())
 }
