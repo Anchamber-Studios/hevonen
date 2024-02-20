@@ -20,36 +20,8 @@ import (
 
 const (
 	TestIdentityID = "b4df50de-7eca-41bd-85b1-08acfe61403d"
-	TestEmail      = "test@hevonen.io"
+	TestEmail      = "1@1.io"
 )
-
-func createContext(t *testing.T, r *http.Request, w http.ResponseWriter, config config.Config) server.CustomContext {
-	e := echo.New()
-	err := db.SetupDB(config)
-	if err != nil {
-		t.Fatalf("Unable to setup database: %v\n", err)
-	}
-	conn, err := ldb.OpenConnection(config)
-	if err != nil {
-		t.Fatalf("Unable to connect to database: %v\n", err)
-	}
-	idc, err := server.SetupIdConversion()
-	if err != nil {
-		t.Fatalf("Unable setup id conversion: %v\n", err)
-	}
-
-	ctx := server.CustomContext{
-		e.NewContext(r, w),
-		config,
-		server.Services{
-			Clubs: services.NewClubService(&db.ClubRepoPostgre{DB: conn, IdConversion: idc}),
-		},
-	}
-	ctx.Set("identityID", TestIdentityID)
-	ctx.Set("email", TestEmail)
-
-	return ctx
-}
 
 func creaetConfig() config.Config {
 	config := config.DefaultConfig()
@@ -107,7 +79,82 @@ func TestClubHandlerCreateClubWithAlreadyUsedName(t *testing.T) {
 	if apiErr.StatusCode != http.StatusConflict {
 		t.Errorf("Expected status 409, got %d", apiErr.StatusCode)
 	}
+}
+func TestClubHandlerListClubsForIdentityWithoutClub(t *testing.T) {
+	conf := creaetConfig()
 
+	defer ldb.ResetDB(context.Background(), "clubs", conf)
+	handler := &server.ClubHandler{}
+	rec, err := listClubs(t, handler, conf)
+	if err != nil {
+		t.Fatalf("Error listing clubs: %v", err)
+	}
+	if rec.Code != http.StatusOK {
+		t.Errorf("Expected status 200, got %d", rec.Code)
+	}
+	var clubs []types.Club
+	if err := json.NewDecoder(rec.Body).Decode(&clubs); err != nil {
+		t.Fatalf("Error decoding response: %v", err)
+	}
+	if len(clubs) != 0 {
+		t.Errorf("Expected 0 clubs, got %d", len(clubs))
+	}
+}
+
+func TestClubHandlerListClubsForIdentityWithOneClub(t *testing.T) {
+	conf := creaetConfig()
+
+	defer ldb.ResetDB(context.Background(), "clubs", conf)
+	handler := &server.ClubHandler{}
+	rec, err := createClub(t, handler)
+	if err != nil {
+		t.Fatalf("Error creating club: %v", err)
+	}
+	id := rec.Header().Get("Location")[3:]
+	defer deleteClub(t, handler, conf, id)
+
+	rec, err = listClubs(t, handler, conf)
+	if err != nil {
+		t.Fatalf("Error listing clubs: %v", err)
+	}
+	if rec.Code != http.StatusOK {
+		t.Errorf("Expected status 200, got %d", rec.Code)
+	}
+	var clubs []types.Club
+	if err := json.NewDecoder(rec.Body).Decode(&clubs); err != nil {
+		t.Fatalf("Error decoding response: %v", err)
+	}
+	if len(clubs) != 1 {
+		t.Errorf("Expected 1 club, got %d", len(clubs))
+	}
+}
+
+func createContext(t *testing.T, r *http.Request, w http.ResponseWriter, config config.Config) server.CustomContext {
+	e := echo.New()
+	err := db.SetupDB(config)
+	if err != nil {
+		t.Fatalf("Unable to setup database: %v\n", err)
+	}
+	conn, err := ldb.OpenConnection(config)
+	if err != nil {
+		t.Fatalf("Unable to connect to database: %v\n", err)
+	}
+	idc, err := server.SetupIdConversion()
+	if err != nil {
+		t.Fatalf("Unable setup id conversion: %v\n", err)
+	}
+
+	ctx := server.CustomContext{
+		e.NewContext(r, w),
+		config,
+		server.Services{
+			Clubs: services.NewClubService(&db.ClubRepoPostgre{DB: conn, IdConversion: idc}),
+		},
+	}
+	ctx.Set("identityID", TestIdentityID)
+	ctx.Set("email", TestEmail)
+
+	return ctx
 }
 
 func deleteClub(t *testing.T, handler *server.ClubHandler, conf config.Config, id string) (*httptest.ResponseRecorder, error) {
@@ -136,6 +183,17 @@ func createClub(t *testing.T, handler *server.ClubHandler) (*httptest.ResponseRe
 	conf := creaetConfig()
 	c := createContext(t, req, rec, conf)
 	if err := handler.Create(&c); err != nil {
+		return rec, err
+	}
+	return rec, nil
+}
+
+func listClubs(t *testing.T, handler *server.ClubHandler, conf config.Config) (*httptest.ResponseRecorder, error) {
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	req.Header.Add("Content-Type", "application/json")
+	rec := httptest.NewRecorder()
+	c := createContext(t, req, rec, conf)
+	if err := handler.ListForIdentity(&c); err != nil {
 		return rec, err
 	}
 	return rec, nil
