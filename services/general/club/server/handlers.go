@@ -58,7 +58,7 @@ func (h *ClubHandler) Create(c echo.Context) error {
 	return cc.NoContent(http.StatusCreated)
 }
 
-func (j *ClubHandler) DeleteClub(c echo.Context) error {
+func (h *ClubHandler) DeleteClub(c echo.Context) error {
 	cc := c.(*CustomContext)
 	identityID := cc.Get("identityID").(string)
 	clubID := c.Param("clubID")

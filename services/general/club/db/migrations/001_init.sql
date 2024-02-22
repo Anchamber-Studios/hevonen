@@ -65,15 +65,66 @@ create table if not exists clubs.contact_roles (
 	constraint fk_contact_role_role foreign key (role_name) references clubs.roles(name) on delete cascade
 );
 
-insert into clubs.roles (name, description, system_role) values ('admin', 'Club administrator', true);
-insert into clubs.roles (name, description, system_role) values ('manager', 'Club manager', true);
-insert into clubs.roles (name, description, system_role) values ('trainer', 'Club trainer', true);
-insert into clubs.roles (name, description, system_role) values ('member', 'Club member', true);
-insert into clubs.roles (name, description, system_role) values ('guest', 'Club guest', true);
+create table if not exists clubs.grants (
+	entity text not null,
+	action text not null,
+	
+	PRIMARY KEY (entity, action)
+);
 
+create table if not exists clubs.role_grants(
+	role_name text not null,
+	grant_entity text not null,
+	grant_action text not null,
+	
+	PRIMARY KEY (role_name, grant_entity, grant_action),
+	constraint fk_role_grants_role foreign key (role_name) references clubs.roles(name) on delete cascade,
+	constraint fk_role_grants_grant foreign key (grant_entity, grant_action) references clubs.grants(entity, action) on delete cascade
+);
+
+insert into clubs.grants (entity, action) values ('club', 'view') on conflict (entity, action) do nothing;
+insert into clubs.grants (entity, action) values ('club', 'edit') on conflict (entity, action) do nothing;
+insert into clubs.grants (entity, action) values ('club', 'delete') on conflict (entity, action) do nothing;
+
+insert into clubs.grants (entity, action) values ('club:member', 'view') on conflict (entity, action) do nothing;
+insert into clubs.grants (entity, action) values ('club:member', 'edit') on conflict (entity, action) do nothing;
+insert into clubs.grants (entity, action) values ('club:member', 'delete') on conflict (entity, action) do nothing;
+insert into clubs.grants (entity, action) values ('club:member', 'invite') on conflict (entity, action) do nothing;
+insert into clubs.grants (entity, action) values ('club:member', 'list') on conflict (entity, action) do nothing;
+
+insert into clubs.roles (name, description, system_role) values ('admin', 'Club admin', true) on conflict (name) do nothing;
+insert into clubs.role_grants (role_name, grant_entity, grant_action) values ('admin', 'club', 'view') on conflict (role_name, grant_entity, grant_action) do nothing;
+insert into clubs.role_grants (role_name, grant_entity, grant_action) values ('admin', 'club', 'edit') on conflict (role_name, grant_entity, grant_action) do nothing;
+insert into clubs.role_grants (role_name, grant_entity, grant_action) values ('admin', 'club', 'delete') on conflict (role_name, grant_entity, grant_action) do nothing;
+
+insert into clubs.roles (name, description, system_role) values ('manager', 'Club manager', true) on conflict (name) do nothing;
+insert into clubs.role_grants (role_name, grant_entity, grant_action) values ('manager', 'club', 'view') on conflict (role_name, grant_entity, grant_action) do nothing;
+insert into clubs.role_grants (role_name, grant_entity, grant_action) values ('manager', 'club', 'edit') on conflict (role_name, grant_entity, grant_action) do nothing;
+insert into clubs.role_grants (role_name, grant_entity, grant_action) values ('manager', 'club:member', 'view') on conflict (role_name, grant_entity, grant_action) do nothing;
+insert into clubs.role_grants (role_name, grant_entity, grant_action) values ('manager', 'club:member', 'edit') on conflict (role_name, grant_entity, grant_action) do nothing;
+insert into clubs.role_grants (role_name, grant_entity, grant_action) values ('manager', 'club:member', 'delete') on conflict (role_name, grant_entity, grant_action) do nothing;
+insert into clubs.role_grants (role_name, grant_entity, grant_action) values ('manager', 'club:member', 'invite') on conflict (role_name, grant_entity, grant_action) do nothing;
+insert into clubs.role_grants (role_name, grant_entity, grant_action) values ('manager', 'club:member', 'list') on conflict (role_name, grant_entity, grant_action) do nothing;
+
+insert into clubs.roles (name, description, system_role) values ('trainer', 'Club trainer', true) on conflict (name) do nothing;
+insert into clubs.role_grants (role_name, grant_entity, grant_action) values ('trainer', 'club', 'view') on conflict (role_name, grant_entity, grant_action) do nothing;
+insert into clubs.role_grants (role_name, grant_entity, grant_action) values ('trainer', 'club:member', 'view') on conflict (role_name, grant_entity, grant_action) do nothing;
+insert into clubs.role_grants (role_name, grant_entity, grant_action) values ('trainer', 'club:member', 'edit') on conflict (role_name, grant_entity, grant_action) do nothing;
+insert into clubs.role_grants (role_name, grant_entity, grant_action) values ('trainer', 'club:member', 'delete') on conflict (role_name, grant_entity, grant_action) do nothing;
+insert into clubs.role_grants (role_name, grant_entity, grant_action) values ('trainer', 'club:member', 'invite') on conflict (role_name, grant_entity, grant_action) do nothing;
+insert into clubs.role_grants (role_name, grant_entity, grant_action) values ('trainer', 'club:member', 'list') on conflict (role_name, grant_entity, grant_action) do nothing;
+
+insert into clubs.roles (name, description, system_role) values ('member', 'Club member', true) on conflict (name) do nothing;
+insert into clubs.role_grants (role_name, grant_entity, grant_action) values ('member', 'club', 'view') on conflict (role_name, grant_entity, grant_action) do nothing;
+insert into clubs.role_grants (role_name, grant_entity, grant_action) values ('member', 'club:member', 'view') on conflict (role_name, grant_entity, grant_action) do nothing;
+
+insert into clubs.roles (name, description, system_role) values ('guest', 'Club guest', true) on conflict (name) do nothing;
+insert into clubs.role_grants (role_name, grant_entity, grant_action) values ('guest', 'club', 'view') on conflict (role_name, grant_entity, grant_action) do nothing;
 ---- create above / drop below ----
 
 drop table if exists clubs.contact_roles;
+drop table if exists clubs.role_grants;
+drop table if exists clubs.grants;
 drop table if exists clubs.contacts;
 drop table if exists clubs.clubs;
 drop table if exists clubs.addresses;
