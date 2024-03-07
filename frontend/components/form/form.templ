@@ -13,22 +13,22 @@ type FormProps struct {
 
 templ Form(tr *i18n.Localizer, props FormProps) {
 	<form
- 		class="p-2 w-full max-w-2xl"
- 		hx-post={ props.Action }
- 		hx-push-url="true"
- 		hx-swap="outerHTML"
+		class="p-2 w-full max-w-2xl"
+		hx-post={ props.Action }
+		hx-push-url="true"
+		hx-swap="outerHTML"
 	>
 		<h1 class="text-2xl font-bold mb-4">
 			{ tr.MustLocalize(&i18n.LocalizeConfig{MessageID: props.Title}) }
 		</h1>
 		{ children... }
 		<button type="submit" class={ fmt.Sprintf("my-2 px-8 py-1 %s", theme.PrimaryActionBGColor) }>
-			{ tr.MustLocalize(&i18n.LocalizeConfig{
-				DefaultMessage: &i18n.Message{
-					ID: "save",
-					Other: "Save",
-				}}) 
-			 }
+			// { tr.MustLocalize(&i18n.LocalizeConfig{
+			// 	DefaultMessage: &i18n.Message{
+			// 		ID: "save",
+			// 		Other: "Save",
+			// 	}}) 
+			//  }
 		</button>
 	</form>
 }
@@ -48,14 +48,14 @@ templ FormFieldEmail(tr *i18n.Localizer, props FormFieldProps) {
 	<div class="pb-2">
 		@label(tr, props)
 		<input
- 			type="email"
- 			autocomplete="email"
- 			value={ props.Value }
- 			id={ props.Key }
- 			name={ props.Key }
- 			readonly?={ props.Readonly }
- 			required?={ props.Required }
- 			class={ inputClass(props) }
+			type="email"
+			autocomplete="email"
+			value={ props.Value }
+			id={ props.Key }
+			name={ props.Key }
+			readonly?={ props.Readonly }
+			required?={ props.Required }
+			class={ inputClass(props) }
 		/>
 		@formHints(tr, props)
 	</div>
@@ -65,13 +65,13 @@ templ FormFieldText(tr *i18n.Localizer, props FormFieldProps) {
 	<div class="pb-2">
 		@label(tr, props)
 		<input
- 			type="text"
- 			value={ props.Value }
- 			id={ props.Key }
- 			name={ props.Key }
- 			readonly?={ props.Readonly }
- 			required?={ props.Required }
- 			class={ inputClass(props) }
+			type="text"
+			value={ props.Value }
+			id={ props.Key }
+			name={ props.Key }
+			readonly?={ props.Readonly }
+			required?={ props.Required }
+			class={ inputClass(props) }
 		/>
 		@formHints(tr, props)
 	</div>
@@ -81,13 +81,13 @@ templ FormFieldTextarea(tr *i18n.Localizer, props FormFieldProps) {
 	<div class="pb-2">
 		@label(tr, props)
 		<textarea
- 			type="text"
- 			value={ props.Value }
- 			id={ props.Key }
- 			name={ props.Key }
- 			readonly?={ props.Readonly }
- 			required?={ props.Required }
- 			class={ inputClass(props) }
+			type="text"
+			value={ props.Value }
+			id={ props.Key }
+			name={ props.Key }
+			readonly?={ props.Readonly }
+			required?={ props.Required }
+			class={ inputClass(props) }
 		></textarea>
 		@formHints(tr, props)
 	</div>
@@ -97,13 +97,13 @@ templ FormFieldPhone(tr *i18n.Localizer, props FormFieldProps) {
 	<div class="pb-2">
 		@label(tr, props)
 		<input
- 			type="phone"
- 			value={ props.Value }
- 			id={ props.Key }
- 			name={ props.Key }
- 			readonly?={ props.Readonly }
- 			required?={ props.Required }
- 			class={ inputClass(props) }
+			type="phone"
+			value={ props.Value }
+			id={ props.Key }
+			name={ props.Key }
+			readonly?={ props.Readonly }
+			required?={ props.Required }
+			class={ inputClass(props) }
 		/>
 		@formHints(tr, props)
 	</div>
@@ -113,13 +113,13 @@ templ FormFieldUrl(tr *i18n.Localizer, props FormFieldProps) {
 	<div class="pb-2">
 		@label(tr, props)
 		<input
- 			type="url"
- 			value={ props.Value }
- 			id={ props.Key }
- 			name={ props.Key }
- 			readonly?={ props.Readonly }
- 			required?={ props.Required }
- 			class={ inputClass(props) }
+			type="url"
+			value={ props.Value }
+			id={ props.Key }
+			name={ props.Key }
+			readonly?={ props.Readonly }
+			required?={ props.Required }
+			class={ inputClass(props) }
 		/>
 		@formHints(tr, props)
 	</div>
@@ -158,8 +158,8 @@ templ formHints(tr *i18n.Localizer, props FormFieldProps) {
 
 templ label(tr *i18n.Localizer, props FormFieldProps) {
 	<label
- 		for={ props.Key }
- 		if len(props.Errors) > 0 {
+		for={ props.Key }
+		if len(props.Errors) > 0 {
 			class={ fmt.Sprintf("%s", theme.DefaultTextColorError) }
 		} else {
 			class={ fmt.Sprintf("%s", theme.DefaultTextColor) }

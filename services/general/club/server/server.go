@@ -41,6 +41,22 @@ func Routes(e *echo.Echo) {
 	e.POST("/c", clubHandler.Create).Name = "CreateClub"
 }
 
+func MiddlewareGroup(e *echo.Group, conf config.Config) {
+
+	// middleware
+	e.Use(middleware.CORS())
+	e.Use(middleware.RequestID())
+	e.Use(m.Logging(logger.Get()))
+	e.Use(customContext(conf))
+	e.Use(m.AuthJWTOry(conf.JWK))
+}
+
+func RoutesGroup(e *echo.Group) {
+	clubHandler := &ClubHandler{}
+	e.GET("/c", clubHandler.ListForIdentity).Name = "ListForIdentity"
+	e.POST("/c", clubHandler.Create).Name = "CreateClub"
+}
+
 func customContext(conf config.Config) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {

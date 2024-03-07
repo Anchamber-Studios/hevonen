@@ -173,16 +173,16 @@ func customContext(config types.Config) echo.MiddlewareFunc {
 func createClients() types.Clients {
 	return types.Clients{
 		Members: &cclient.MemberClientHttp{
-			Url: getOrDefault("MEMBERS_URL", "http://localhost:7003"),
+			Url: getOrDefault("MEMBERS_URL", "http://localhost:7003/api/club"),
 		},
 		Clubs: &cclient.ClubClientHttp{
-			Url: getOrDefault("CLUBS_URL", "http://localhost:7003"),
+			Url: getOrDefault("CLUBS_URL", "http://localhost:7003/api/club"),
 		},
 		User: &uclient.UserClientHttp{
-			Url: getOrDefault("USERS_URL", "http://localhost:7000/users"),
+			Url: getOrDefault("USERS_URL", "http://localhost:7003/api/users"),
 		},
 		Profile: &pclient.ProfileClientHttp{
-			Url: getOrDefault("PROFILE_URL", "http://localhost:7002/profiles"),
+			Url: getOrDefault("PROFILE_URL", "http://localhost:7002/api/profiles"),
 		},
 	}
 }

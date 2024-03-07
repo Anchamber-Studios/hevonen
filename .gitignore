@@ -8,4 +8,5 @@ go.work.sum
 **/.*
 !.gitignore
 
-frontend/pages/**/*_templ.go
+frontend/**/*_templ.go
+frontend/**/*_templ.txt

@@ -1,6 +1,6 @@
 module github.com/anchamber-studios/hevonen/services/general/profile
 
-go 1.21.5
+go 1.22.0
 
 require (
 	github.com/anchamber-studios/hevonen/lib v0.0.0-20240128123000-efc17835d43f

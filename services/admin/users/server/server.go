@@ -48,6 +48,26 @@ func Routes(e *echo.Echo, conf config.Config) {
 	restricted.POST("/users/:userId/logout", logout)
 }
 
+func MiddlewareGroup(e *echo.Group, conf config.Config) {
+	// middleware
+	e.Use(middleware.CORS())
+	e.Use(middleware.RequestID())
+	e.Use(m.Logging(logger.Get()))
+	e.Use(customContext(conf))
+}
+
+func RoutesGroup(e *echo.Group, conf config.Config) {
+	unrestricted := e.Group("/users")
+	unrestricted.POST("/login", login)
+	unrestricted.POST("/register", new)
+
+	restricted := e.Group("")
+	restricted.Use(m.AuthPaseto(conf.TokenSecret))
+	restricted.GET("/users", list)
+	restricted.GET("/users/:userId", details)
+	restricted.POST("/users/:userId/logout", logout)
+}
+
 func customContext(conf config.Config) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {

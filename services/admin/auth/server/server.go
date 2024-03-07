@@ -36,6 +36,25 @@ func Routes(e *echo.Echo, conf config.Config) {
 	restricted.GET("/services/:serviceId/auth", GetAuthorizationsForService)
 }
 
+func MiddlewareGroup(e *echo.Group, conf config.Config) {
+	// middleware
+	e.Use(middleware.CORS())
+	e.Use(middleware.RequestID())
+	e.Use(m.Logging(logger.Get()))
+	e.Use(customContext(conf))
+}
+
+func RoutesGroup(e *echo.Group, conf config.Config) {
+	restricted := e.Group("")
+	restricted.Use(m.AuthPaseto(conf.TokenSecret))
+	restricted.GET("/groups", GetGroups)
+
+	restricted.GET("/auth", GetAuthorizations)
+
+	restricted.GET("/services", GetServices)
+	restricted.GET("/services/:serviceId/auth", GetAuthorizationsForService)
+}
+
 func Events(e *echo.Echo, conf config.Config) {
 	topic := us.GetTopicName(us.ActionLogin)
 	loginEvents, err := events.NewEventConsumerRedpanda([]string{conf.Broker.Url}, topic)

@@ -1,6 +1,6 @@
 module github.com/anchamber-studios/hevonen/services/admin/users
 
-go 1.21.5
+go 1.22.0
 
 require (
 	github.com/jackc/pgx/v5 v5.5.1

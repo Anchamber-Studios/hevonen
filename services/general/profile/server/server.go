@@ -36,7 +36,22 @@ func Middleware(e *echo.Echo, conf config.Config) {
 	e.Use(customContext(conf))
 }
 
+func MiddlewareGroup(e *echo.Group, conf config.Config) {
+	// middleware
+	e.Use(middleware.CORS())
+	e.Use(middleware.RequestID())
+	e.Use(m.Logging(logger.Get()))
+	e.Use(customContext(conf))
+}
+
 func Routes(e *echo.Echo, conf config.Config) {
+	restricted := e.Group("/profiles")
+	restricted.POST("", new)
+	restricted.GET("/:profileIdnetityId", details)
+	restricted.PUT("/:profileIdnetityId", update)
+}
+
+func RoutesGroup(e *echo.Group) {
 	restricted := e.Group("/profiles")
 	restricted.POST("", new)
 	restricted.GET("/:profileIdnetityId", details)
