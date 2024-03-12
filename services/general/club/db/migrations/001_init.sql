@@ -17,6 +17,7 @@ create table if not exists clubs.addresses (
 create table if not exists clubs.clubs (
 	id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
 	name text not null unique,
+	description text,
 	website text,
 	email text,
 	phone text,

@@ -48,10 +48,10 @@ other = "Name has to be at least 3 characters long"
 descritpion = "Name of a club"
 one = "Clubname"
 other = "Clubnames"
-
 [club.field.description]
-descritpion = "Description of a club"
 other = "Description"
+[club.field.website]
+other = "Website"
 
 [or]
 other = "or"

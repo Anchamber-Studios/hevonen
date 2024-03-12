@@ -101,10 +101,10 @@ func (r *ClubRepoPostgre) CreateWithAdminMember(ctx context.Context, club types.
 	}
 	var clubID uint64
 	err = tx.QueryRow(ctx, `
-		INSERT INTO clubs.clubs (name, website, email, phone)
+		INSERT INTO clubs.clubs (name, description, website, email, phone)
 		VALUES ($1, $2, $3, $4)
 		RETURNING id;
-		`, club.Name, club.Website, club.Email, club.Phone).Scan(&clubID)
+		`, club.Name, club.Description, club.Website, club.Email, club.Phone).Scan(&clubID)
 	if err != nil {
 		log.Sugar().Errorf("Failed to create club: %v", err)
 		tx.Rollback(ctx)

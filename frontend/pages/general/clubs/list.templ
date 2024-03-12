@@ -25,11 +25,18 @@ templ List(tr *i18n.Localizer, props ListProps) {
 
 templ listPgae(tr *i18n.Localizer, props ListProps) {
 	<div>
+		<a
+			href="/c/new"
+			class={ fmt.Sprintf("my-2 px-8 p-1 w-64 text-center %s", theme.PrimaryActionBGColor) }
+		>
+			{ tr.MustLocalize(&i18n.LocalizeConfig{MessageID: "club.create"}) }
+		</a>
 		<table>
 			<thead>
 				<tr>
 					<th>{ tr.MustLocalize(&i18n.LocalizeConfig{MessageID: "club.field.name"}) }</th>
 					<th>{ tr.MustLocalize(&i18n.LocalizeConfig{MessageID: "club.field.description"}) }</th>
+					<th>{ tr.MustLocalize(&i18n.LocalizeConfig{MessageID: "club.field.website"}) }</th>
 				</tr>
 			</thead>
 			if len(props.Clubs) == 0 {
@@ -49,6 +56,7 @@ templ listPgae(tr *i18n.Localizer, props ListProps) {
 						<tr>
 							<td>{ club.Name }</td>
 							<td>{ club.Description }</td>
+							<td>{ club.Website }</td>
 						</tr>
 					}
 				</tbody>
