@@ -30,7 +30,7 @@ const (
 )
 
 func (r *ClubRepoPostgre) List(ctx context.Context) ([]types.Club, error) {
-	rows, err := r.DB.Query(ctx, "SELECT id, name, website, email, phone FROM clubs.clubs;")
+	rows, err := r.DB.Query(ctx, "SELECT id, name, description, website, email, phone FROM clubs.clubs;")
 	if err != nil {
 		return nil, err
 	}
@@ -38,7 +38,7 @@ func (r *ClubRepoPostgre) List(ctx context.Context) ([]types.Club, error) {
 	for rows.Next() {
 		var id uint64
 		var club types.Club
-		err := rows.Scan(&id, &club.Name, &club.Website, &club.Email, &club.Phone)
+		err := rows.Scan(&id, &club.Name, &club.Description, &club.Website, &club.Email, &club.Phone)
 		if err != nil {
 			return nil, err
 		}
@@ -102,7 +102,7 @@ func (r *ClubRepoPostgre) CreateWithAdminMember(ctx context.Context, club types.
 	var clubID uint64
 	err = tx.QueryRow(ctx, `
 		INSERT INTO clubs.clubs (name, description, website, email, phone)
-		VALUES ($1, $2, $3, $4)
+		VALUES ($1, $2, $3, $4, $5)
 		RETURNING id;
 		`, club.Name, club.Description, club.Website, club.Email, club.Phone).Scan(&clubID)
 	if err != nil {

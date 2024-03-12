@@ -30,7 +30,7 @@ create table if not exists clubs.clubs (
 create table if not exists clubs.contacts (
     id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
 	club_id bigint not null,
-	identity_id uuid unique,
+	identity_id uuid,
     email text not null,
 	first_name text,
 	middle_name text,
