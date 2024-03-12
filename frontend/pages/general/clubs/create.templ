@@ -30,44 +30,44 @@ templ CreateFormWL(session types.Session, tr *i18n.Localizer, props CreateClubFo
 
 templ createClubForm(tr *i18n.Localizer, props CreateClubFormProps) {
 	@form.Form(tr, form.FormProps{
-		Title: "club.form.create.title",
-		Action: "/nc/new",
+		Title:     "club.form.create.title",
+		Action:    "/c/new",
 		SaveLabel: "save",
 	}) {
-		@form.FormFieldText(tr, form.FormFieldProps{ 
-			Label: "club.form.name",
-			Key: "name",
-			Value: props.Values.Name,
+		@form.FormFieldText(tr, form.FormFieldProps{
+			Label:       "club.form.name",
+			Key:         "name",
+			Value:       props.Values.Name,
 			Placeholder: "",
-			Required: true,
-			Errors: getError("name", props.Errors),
-			})
-		@form.FormFieldTextarea(tr, form.FormFieldProps{ 
-			Label: "club.form.description",
-			Key: "description",
-			Value: props.Values.Description, 
+			Required:    true,
+			Errors:      getError("name", props.Errors),
+		})
+		@form.FormFieldTextarea(tr, form.FormFieldProps{
+			Label:       "club.form.description",
+			Key:         "description",
+			Value:       props.Values.Description,
 			Placeholder: "",
-			})
-		@form.FormFieldUrl(tr, form.FormFieldProps{ 
-			Label: "club.form.website",
-			Key: "website",
-			Value: props.Values.Website, 
+		})
+		@form.FormFieldUrl(tr, form.FormFieldProps{
+			Label:       "club.form.website",
+			Key:         "website",
+			Value:       props.Values.Website,
 			Placeholder: "",
-			})
-		@form.FormFieldEmail(tr, form.FormFieldProps{ 
-			Label: "club.form.email",
-			Key: "email",
-			Value: props.Values.Email, 
+		})
+		@form.FormFieldEmail(tr, form.FormFieldProps{
+			Label:       "club.form.email",
+			Key:         "email",
+			Value:       props.Values.Email,
 			Placeholder: "",
-			Required: true,
-			})
-		@form.FormFieldPhone(tr, form.FormFieldProps{ 
-			Label: "club.form.phone",
-			Key: "phone",
-			Value: props.Values.Phone, 
+			Required:    true,
+		})
+		@form.FormFieldPhone(tr, form.FormFieldProps{
+			Label:       "club.form.phone",
+			Key:         "phone",
+			Value:       props.Values.Phone,
 			Placeholder: "",
-			Required: true,
-			})
+			Required:    true,
+		})
 	}
 }
 

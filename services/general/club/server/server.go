@@ -32,7 +32,7 @@ func Middleware(e *echo.Echo, conf config.Config) {
 	e.Use(middleware.RequestID())
 	e.Use(m.Logging(logger.Get()))
 	e.Use(customContext(conf))
-	e.Use(m.AuthJWTOry(conf.JWK))
+	// e.Use(m.AuthJWTOry(conf.JWK))
 }
 
 func Routes(e *echo.Echo) {
@@ -53,7 +53,8 @@ func MiddlewareGroup(e *echo.Group, conf config.Config) {
 
 func RoutesGroup(e *echo.Group) {
 	clubHandler := &ClubHandler{}
-	e.GET("/c", clubHandler.ListForIdentity).Name = "ListForIdentity"
+	e.GET("/c", clubHandler.List).Name = "List"
+	e.GET("/c/i", clubHandler.ListForIdentity).Name = "ListForIdentity"
 	e.POST("/c", clubHandler.Create).Name = "CreateClub"
 }
 

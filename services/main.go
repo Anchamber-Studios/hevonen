@@ -42,21 +42,21 @@ func main() {
 func setupDomains(e *echo.Echo, conf config.Config) {
 	go setupDB(conf)
 	log.Printf("AuthService: Start setup\n")
-	usersPath := fmt.Sprintf("/%s", "/api/auth")
+	usersPath := "/api/auth"
 	usersGroup := e.Group(usersPath)
 	authserver.MiddlewareGroup(usersGroup, conf)
 	authserver.RoutesGroup(usersGroup, conf)
 	log.Printf("AuthService: Finished setup\n")
 
 	log.Printf("Start setup of club service\n")
-	clubPath := fmt.Sprintf("/%s", "/api/club")
+	clubPath := "/api/club"
 	clubGroup := e.Group(clubPath)
 	clubserver.MiddlewareGroup(clubGroup, conf)
 	clubserver.RoutesGroup(clubGroup)
 	log.Printf("Finished club of profile service\n")
 
 	log.Printf("Start setup of profile service\n")
-	profilePath := fmt.Sprintf("/%s", "/api/profile")
+	profilePath := "/api/profile"
 	profileGroup := e.Group(profilePath)
 	profileserver.MiddlewareGroup(profileGroup, conf)
 	profileserver.RoutesGroup(profileGroup)

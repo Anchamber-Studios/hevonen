@@ -6,6 +6,7 @@ go.work.sum
 **/__debug*
 **/node_modules
 **/.*
+!/.vscode
 !.gitignore
 
 frontend/**/*_templ.go

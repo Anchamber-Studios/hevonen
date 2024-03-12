@@ -60,3 +60,21 @@ func PostCreateForm(c echo.Context) error {
 	cc.Response().Header().Set("HX-Redirect", "/c/"+cId)
 	return c.NoContent(http.StatusTemporaryRedirect)
 }
+
+func GetListClubs(c echo.Context) error {
+	cc := c.(*types.CustomContext)
+	userClubs, err := cc.Config.Clients.Clubs.List(cc.ClientContext())
+	if err != nil {
+		cc.Logger().Errorf("Unable to get clubs: %v\n", err)
+		return cc.Redirect(302, "/c")
+	}
+	if cc.HXRequest {
+		return List(cc.Tr, ListProps{
+			Clubs: userClubs,
+		}).
+			Render(cc.Request().Context(), cc.Response().Writer)
+	}
+	return ListWL(cc.Session, cc.Tr, ListProps{
+		Clubs: userClubs,
+	}).Render(cc.Request().Context(), cc.Response().Writer)
+}

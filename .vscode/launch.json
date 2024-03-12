@@ -28,6 +28,13 @@
 			"trace": "verbose"
 		},
 		{
+			"name": "services",
+			"type": "go",
+			"request": "launch",
+			"mode": "auto",
+			"program": "${workspaceFolder}/services"
+		},
+		{
 			"name": "club",
 			"type": "go",
 			"request": "launch",

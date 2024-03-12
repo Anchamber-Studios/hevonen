@@ -13,6 +13,7 @@ import (
 
 type ClubClient interface {
 	ListClubsForIdentity(ctx lib.ClientContext) ([]types.ClubMember, error)
+	List(ctx lib.ClientContext) ([]types.Club, error)
 	CreateClub(ctx lib.ClientContext, club types.ClubCreate) (string, error)
 }
 
@@ -29,7 +30,7 @@ func (c *ClubClientHttp) WithHeader(key, value string) {
 }
 
 func (c *ClubClientHttp) ListClubsForIdentity(ctx lib.ClientContext) ([]types.ClubMember, error) {
-	req, err := http.NewRequest(http.MethodGet, c.Url+"/c", nil)
+	req, err := http.NewRequest(http.MethodGet, c.Url+"/c/i", nil)
 	if err != nil {
 		return nil, err
 	}
@@ -83,6 +84,32 @@ func (c *ClubClientHttp) CreateClub(ctx lib.ClientContext, club types.ClubCreate
 	}
 	location := resp.Header.Get("Location")
 	return location, nil
+}
+
+func (c *ClubClientHttp) List(ctx lib.ClientContext) ([]types.Club, error) {
+	req, err := http.NewRequest(http.MethodGet, c.Url+"/c", nil)
+	if err != nil {
+		return nil, err
+	}
+	for k, v := range c.Headers {
+		req.Header.Set(k, v)
+	}
+	ctx.SetHeader(req)
+	client := http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	statusOK := resp.StatusCode >= 200 && resp.StatusCode < 300
+	if !statusOK {
+		return nil, fmt.Errorf("unable to get clubs (%d): %v", resp.StatusCode, resp.Body)
+	}
+	var clubs []types.Club
+	err = json.NewDecoder(resp.Body).Decode(&clubs)
+	if err != nil {
+		return nil, err
+	}
+	return clubs, nil
 }
 
 type ClubClientLocal struct {

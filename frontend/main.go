@@ -65,7 +65,7 @@ func main() {
 				return c.Redirect(302, "/auth/login?redirect="+c.Request().URL.String())
 			}
 
-			if strings.HasPrefix(cc.Request().URL.Path, "/nc") {
+			if strings.HasPrefix(cc.Request().URL.Path, "/c") {
 				return next(c)
 			}
 
@@ -73,11 +73,11 @@ func main() {
 				userClubs, err := cc.Config.Clients.Clubs.ListClubsForIdentity(cc.ClientContext())
 				if err != nil {
 					cc.Logger().Errorf("Unable to get clubs: %v\n", err)
-					return c.Redirect(302, "/nc")
+					return c.Redirect(302, "/c")
 				}
 				if len(userClubs) == 0 {
 					cc.Logger().Warnf("User %s is not member of any clubs\n", cc.Session.ID)
-					return c.Redirect(302, "/nc")
+					return c.Redirect(302, "/c")
 				}
 				cc.Session.Clubs = &userClubs
 			}
@@ -86,9 +86,9 @@ func main() {
 	})
 	restricted.GET("/auth/logout", auth.GetLogout)
 
-	restricted.GET("/nc", clubs.GetNoClubs)
-	restricted.GET("/nc/new", clubs.GetCreateForm)
-	restricted.POST("/nc/new", clubs.PostCreateForm)
+	restricted.GET("/c", clubs.GetListClubs)
+	restricted.GET("/c/new", clubs.GetCreateForm)
+	restricted.POST("/c/new", clubs.PostCreateForm)
 
 	restricted.GET("/", index)
 	restricted.GET("/members", members.GetMemberList)

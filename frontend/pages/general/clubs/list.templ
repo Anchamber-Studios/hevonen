@@ -1,0 +1,58 @@
+package clubs
+
+import "github.com/anchamber-studios/hevonen/frontend/types"
+import ctypes "github.com/anchamber-studios/hevonen/services/club/shared/types"
+import "github.com/nicksnyder/go-i18n/v2/i18n"
+import "github.com/anchamber-studios/hevonen/frontend/layouts"
+import "fmt"
+import "github.com/anchamber-studios/hevonen/frontend/theme"
+
+type ListProps struct {
+	Clubs []ctypes.Club
+}
+
+templ ListWL(session types.Session, tr *i18n.Localizer, props ListProps) {
+	@layouts.BasicLayout(session, layouts.LayoutProps{
+		Title:     "Hevonen - Clubs",
+		BrandName: "Hevonen",
+		Content:   listPgae(tr, props),
+	})
+}
+
+templ List(tr *i18n.Localizer, props ListProps) {
+	@listPgae(tr, props)
+}
+
+templ listPgae(tr *i18n.Localizer, props ListProps) {
+	<div>
+		<table>
+			<thead>
+				<tr>
+					<th>{ tr.MustLocalize(&i18n.LocalizeConfig{MessageID: "club.field.name"}) }</th>
+					<th>{ tr.MustLocalize(&i18n.LocalizeConfig{MessageID: "club.field.description"}) }</th>
+				</tr>
+			</thead>
+			if len(props.Clubs) == 0 {
+				<tbody>
+					<tr>
+						<a
+							href="/c/new"
+							class={ fmt.Sprintf("my-2 px-8 p-1 w-64 text-center %s", theme.PrimaryActionBGColor) }
+						>
+							{ tr.MustLocalize(&i18n.LocalizeConfig{MessageID: "club.create"}) }
+						</a>
+					</tr>
+				</tbody>
+			} else {
+				<tbody>
+					for _, club := range props.Clubs {
+						<tr>
+							<td>{ club.Name }</td>
+							<td>{ club.Description }</td>
+						</tr>
+					}
+				</tbody>
+			}
+		</table>
+	</div>
+}

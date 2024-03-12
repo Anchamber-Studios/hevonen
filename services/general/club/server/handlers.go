@@ -18,6 +18,18 @@ const (
 type ClubHandler struct{}
 
 // Lists all clubs the current user is a contact of
+func (h *ClubHandler) List(c echo.Context) error {
+	cc := c.(*CustomContext)
+	identityID := cc.Get("identityID").(string)
+	clubs, err := cc.Services.Clubs.List(c.Request().Context())
+	if err != nil {
+		return handleServiceError(cc, err)
+	}
+	cc.Logger().Infof("Found %d clubs for identity %s\n", len(clubs), identityID)
+	return c.JSON(http.StatusOK, &clubs)
+}
+
+// Lists all clubs the current user is a contact of
 func (h *ClubHandler) ListForIdentity(c echo.Context) error {
 	cc := c.(*CustomContext)
 	identityID := cc.Get("identityID").(string)

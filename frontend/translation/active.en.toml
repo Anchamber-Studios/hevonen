@@ -49,6 +49,10 @@ descritpion = "Name of a club"
 one = "Clubname"
 other = "Clubnames"
 
+[club.field.description]
+descritpion = "Description of a club"
+other = "Description"
+
 [or]
 other = "or"
 
