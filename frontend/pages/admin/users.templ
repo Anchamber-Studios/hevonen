@@ -23,13 +23,12 @@ type UserListProps struct {
 
 templ UserListWL(session types.Session, props UserListProps) {
 	@l.BasicLayout(session, l.LayoutProps{
-        Title: "Hevonen - Members",
-        BrandName: "Hevonen",
-        Content: list(props),
-        BreadCrumbs: bcList,
-    })
+		Title:       "Hevonen - Contacts",
+		BrandName:   "Hevonen",
+		Content:     list(props),
+		BreadCrumbs: bcList,
+	})
 }
-
 
 templ UserList(props UserListProps) {
 	@components.BreadCrumbs(bcList)
@@ -47,11 +46,11 @@ templ list(props UserListProps) {
 						</div>
 						<div class="relative w-full max-w-full flex-grow flex-1 text-right">
 							<button
- 								hx-get="/members/new"
- 								hx-target="#main"
- 								hx-push-url="true"
- 								class="bg-orange-500 text-white active:bg-orange-600 text-xs font-bold uppercase px-3 py-1 rounded outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
- 								type="button"
+								hx-get="/contacts/new"
+								hx-target="#main"
+								hx-push-url="true"
+								class="bg-orange-500 text-white active:bg-orange-600 text-xs font-bold uppercase px-3 py-1 rounded outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
+								type="button"
 							>
 								Add member
 							</button>
@@ -59,36 +58,36 @@ templ list(props UserListProps) {
 					</div>
 				</div>
 				<div class="block w-full overflow-x-auto">
-					<table id="member-table" class="items-center bg-transparent w-full border-collapse">
+					<table id="contact-table" class="items-center bg-transparent w-full border-collapse">
 						<thead>
 							<tr>
 								<th
- 									data-key="firstName"
- 									class="px-6 align-middle border border-solid border-gray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left"
+									data-key="firstName"
+									class="px-6 align-middle border border-solid border-gray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left"
 								>
 									Email
 								</th>
 								<th
- 									data-key="middleName"
- 									class="px-6 align-middle border border-solid border-gray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left"
+									data-key="middleName"
+									class="px-6 align-middle border border-solid border-gray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left"
 								>
 									Email Confirmed?
 								</th>
 								<th
- 									data-key="middleName"
- 									class="px-6 align-middle border border-solid border-gray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left"
+									data-key="middleName"
+									class="px-6 align-middle border border-solid border-gray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left"
 								>
 									Active?
 								</th>
 								<th
- 									data-key="lastName"
- 									class="px-6 align-middle border border-solid border-gray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left"
+									data-key="lastName"
+									class="px-6 align-middle border border-solid border-gray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left"
 								>
 									Last Updated
 								</th>
 								<th
- 									data-key="email"
- 									class="px-6 align-middle border border-solid border-gray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left"
+									data-key="email"
+									class="px-6 align-middle border border-solid border-gray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left"
 								>
 									Created
 								</th>
@@ -96,12 +95,15 @@ templ list(props UserListProps) {
 						</thead>
 						<tbody hx-target="#main">
 							for _, user := range props.Users {
-								<tr data-id={ user.ID } class="dark:hover:bg-gray-800" 
-									hx-get={fmt.Sprintf("/admin/users/%s", user.ID)}
-									hx-push-url="true">
+								<tr
+									data-id={ user.ID }
+									class="dark:hover:bg-gray-800"
+									hx-get={ fmt.Sprintf("/admin/users/%s", user.ID) }
+									hx-push-url="true"
+								>
 									<th
- 										data-value={ user.Email }
- 										class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-left text-blueGray-700 "
+										data-value={ user.Email }
+										class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-left text-blueGray-700 "
 									>
 										{ user.Email }
 									</th>

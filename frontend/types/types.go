@@ -19,7 +19,7 @@ type Session struct {
 	ID       string
 	Email    string
 	Token    string
-	Clubs    *[]ctypes.ClubMember
+	Clubs    *[]ctypes.ClubContact
 }
 
 type CustomContext struct {
@@ -51,10 +51,10 @@ type TlsConfig struct {
 }
 
 type Clients struct {
-	Members cclient.MemberClient
-	Clubs   cclient.ClubClient
-	User    uclient.UserClient
-	Profile pclient.ProfileClient
+	Contacts cclient.ContactsClient
+	Clubs    cclient.ClubClient
+	User     uclient.UserClient
+	Profile  pclient.ProfileClient
 }
 type FormDate time.Time
 

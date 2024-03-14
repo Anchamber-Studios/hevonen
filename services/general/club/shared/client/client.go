@@ -12,7 +12,7 @@ import (
 )
 
 type ClubClient interface {
-	ListClubsForIdentity(ctx lib.ClientContext) ([]types.ClubMember, error)
+	ListClubsForIdentity(ctx lib.ClientContext) ([]types.ClubContact, error)
 	List(ctx lib.ClientContext) ([]types.Club, error)
 	CreateClub(ctx lib.ClientContext, club types.ClubCreate) (string, error)
 }
@@ -29,7 +29,7 @@ func (c *ClubClientHttp) WithHeader(key, value string) {
 	c.Headers[key] = value
 }
 
-func (c *ClubClientHttp) ListClubsForIdentity(ctx lib.ClientContext) ([]types.ClubMember, error) {
+func (c *ClubClientHttp) ListClubsForIdentity(ctx lib.ClientContext) ([]types.ClubContact, error) {
 	req, err := http.NewRequest(http.MethodGet, c.Url+"/clubs/i", nil)
 	if err != nil {
 		return nil, err
@@ -47,7 +47,7 @@ func (c *ClubClientHttp) ListClubsForIdentity(ctx lib.ClientContext) ([]types.Cl
 	if !statusOK {
 		return nil, fmt.Errorf("unable to get clubs for identity (%d): %v", resp.StatusCode, resp.Body)
 	}
-	var clubs []types.ClubMember
+	var clubs []types.ClubContact
 	err = json.NewDecoder(resp.Body).Decode(&clubs)
 	if err != nil {
 		return nil, err
@@ -116,7 +116,7 @@ type ClubClientLocal struct {
 	clubService *services.ClubService
 }
 
-func (c *ClubClientLocal) ListClubsForIdentity(ctx lib.ClientContext) ([]types.ClubMember, error) {
+func (c *ClubClientLocal) ListClubsForIdentity(ctx lib.ClientContext) ([]types.ClubContact, error) {
 	clubs, err := c.clubService.ListForIdentity(ctx.Context, ctx.IdentityID)
 	if err != nil {
 		return nil, err
@@ -124,17 +124,17 @@ func (c *ClubClientLocal) ListClubsForIdentity(ctx lib.ClientContext) ([]types.C
 	return clubs, nil
 }
 
-type MemberClient interface {
-	CreateMember(ctx lib.ClientContext, member types.MemberCreate) (string, error)
-	List(ctx lib.ClientContext, clubID string) ([]types.Member, error)
+type ContactsClient interface {
+	Create(ctx lib.ClientContext, contact types.ContactCreate) (string, error)
+	List(ctx lib.ClientContext, clubID string) ([]types.Contact, error)
 }
-type MemberClientHttp struct {
+type ContactsClientHttp struct {
 	Url     string
 	Headers map[string]string
 }
 
-func (c *MemberClientHttp) List(ctx lib.ClientContext, clubID string) ([]types.Member, error) {
-	req, err := http.NewRequest(http.MethodGet, c.Url+"/clubs/"+clubID+"/members", nil)
+func (c *ContactsClientHttp) List(ctx lib.ClientContext, clubID string) ([]types.Contact, error) {
+	req, err := http.NewRequest(http.MethodGet, c.Url+"/clubs/"+clubID+"/contacts", nil)
 	if err != nil {
 		return nil, err
 	}
@@ -149,22 +149,22 @@ func (c *MemberClientHttp) List(ctx lib.ClientContext, clubID string) ([]types.M
 	}
 	statusOK := resp.StatusCode >= 200 && resp.StatusCode < 300
 	if !statusOK {
-		return nil, fmt.Errorf("unable to get members (%d): %v", resp.StatusCode, resp.Body)
+		return nil, fmt.Errorf("unable to get contacts (%d): %v", resp.StatusCode, resp.Body)
 	}
-	var members []types.Member
-	err = json.NewDecoder(resp.Body).Decode(&members)
+	var contacts []types.Contact
+	err = json.NewDecoder(resp.Body).Decode(&contacts)
 	if err != nil {
 		return nil, err
 	}
-	return members, nil
+	return contacts, nil
 }
 
-func (c *MemberClientHttp) CreateMember(ctx lib.ClientContext, member types.MemberCreate) (string, error) {
-	memberJson, err := json.Marshal(member)
+func (c *ContactsClientHttp) CreateContact(ctx lib.ClientContext, contact types.ContactCreate) (string, error) {
+	contactJson, err := json.Marshal(contact)
 	if err != nil {
 		return "", err
 	}
-	res, err := http.Post(c.Url+"/members", "application/json", bytes.NewReader(memberJson))
+	res, err := http.Post(c.Url+"/contacts", "application/json", bytes.NewReader(contactJson))
 	if err != nil {
 		return "", err
 	}

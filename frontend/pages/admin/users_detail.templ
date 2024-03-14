@@ -15,20 +15,20 @@ type UserDetailsProps struct {
 
 templ UserDetailsWL(session types.Session, props UserDetailsProps) {
 	@l.BasicLayout(session, l.LayoutProps{
-        Title: "Hevonen - Members",
-        BrandName: "Hevonen",
-        Content: details(props),
-        BreadCrumbs: append(bcList, c.BreadCrumbProp{
+		Title:     "Hevonen - Contacts",
+		BrandName: "Hevonen",
+		Content:   details(props),
+		BreadCrumbs: append(bcList, c.BreadCrumbProp{
 			Text: props.User.Email,
 			Href: "/admin/users/" + props.User.ID,
 		}),
-    })
+	})
 }
 
 templ UserDetails(props UserDetailsProps) {
 	@components.BreadCrumbs(append(bcList, c.BreadCrumbProp{
-			Text: props.User.Email,
-			Href: "/admin/users/" + props.User.ID,
+		Text: props.User.Email,
+		Href: "/admin/users/" + props.User.ID,
 	}))
 	@details(props)
 }
@@ -38,4 +38,3 @@ templ details(props UserDetailsProps) {
 		<h2>Details for { props.User.Email }</h2>
 	</section>
 }
-

@@ -13,8 +13,8 @@ import (
 
 type ClubRepo interface {
 	List(ctx context.Context) ([]types.Club, error)
-	ListForIdentity(ctx context.Context, identity string) ([]types.ClubMember, error)
-	CreateWithAdminMember(ctx context.Context, club types.ClubCreate, admin types.MemberCreate) (string, error)
+	ListForIdentity(ctx context.Context, identity string) ([]types.ClubContact, error)
+	CreateWithAdminContact(ctx context.Context, club types.ClubCreate, admin types.ContactCreate) (string, error)
 	Create(ctx context.Context, club types.ClubCreate) (string, error)
 	Get(ctx context.Context, clubIdEncoded string) (types.Club, error)
 	Delete(ctx context.Context, identity string, id string) error
@@ -51,7 +51,7 @@ func (r *ClubRepoPostgre) List(ctx context.Context) ([]types.Club, error) {
 	return clubs, nil
 }
 
-func (r *ClubRepoPostgre) ListForIdentity(ctx context.Context, identity string) ([]types.ClubMember, error) {
+func (r *ClubRepoPostgre) ListForIdentity(ctx context.Context, identity string) ([]types.ClubContact, error) {
 	rows, err := r.DB.Query(ctx, `
 	SELECT c.id, c.name, string_agg(mr.role_name, ',')
 	FROM clubs.clubs c 
@@ -65,9 +65,9 @@ func (r *ClubRepoPostgre) ListForIdentity(ctx context.Context, identity string) 
 	if err != nil {
 		return nil, err
 	}
-	var clubs []types.ClubMember
+	var clubs []types.ClubContact
 	for rows.Next() {
-		var club types.ClubMember
+		var club types.ClubContact
 		var roles string
 		var id uint64
 		err := rows.Scan(&id, &club.Name, &roles)
@@ -98,7 +98,7 @@ func (r *ClubRepoPostgre) Create(ctx context.Context, club types.ClubCreate) (st
 	return id, nil
 }
 
-func (r *ClubRepoPostgre) CreateWithAdminMember(ctx context.Context, club types.ClubCreate, admin types.MemberCreate) (string, error) {
+func (r *ClubRepoPostgre) CreateWithAdminContact(ctx context.Context, club types.ClubCreate, admin types.ContactCreate) (string, error) {
 	log := logger.FromContext(ctx)
 	tx, err := r.DB.BeginTx(ctx, pgx.TxOptions{})
 	if err != nil {

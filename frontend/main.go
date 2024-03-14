@@ -9,7 +9,7 @@ import (
 	"github.com/anchamber-studios/hevonen/frontend/pages/admin"
 	"github.com/anchamber-studios/hevonen/frontend/pages/auth"
 	"github.com/anchamber-studios/hevonen/frontend/pages/general/clubs"
-	"github.com/anchamber-studios/hevonen/frontend/pages/general/clubs/member"
+	"github.com/anchamber-studios/hevonen/frontend/pages/general/clubs/contacts"
 	"github.com/anchamber-studios/hevonen/frontend/pages/general/profile"
 	"github.com/anchamber-studios/hevonen/frontend/translation"
 	"github.com/anchamber-studios/hevonen/frontend/types"
@@ -71,7 +71,7 @@ func main() {
 					return c.Redirect(302, "/clubs")
 				}
 				if len(userClubs) == 0 {
-					cc.Logger().Warnf("User %s is not member of any clubs\n", cc.Session.ID)
+					cc.Logger().Warnf("User %s is not contact of any clubs\n", cc.Session.ID)
 					return c.Redirect(302, "/clubs")
 				}
 				cc.Session.Clubs = &userClubs
@@ -84,7 +84,7 @@ func main() {
 	restricted.GET("/", index)
 
 	restricted.GET("/clubs", clubs.GetListClubs)
-	restricted.GET("/clubs/:clubID/members", member.GetListMembers)
+	restricted.GET("/clubs/:clubID/contacts", contacts.GetListContacts)
 	restricted.GET("/clubs/new", clubs.GetCreateForm)
 	restricted.POST("/clubs/new", clubs.PostCreateForm)
 
@@ -165,7 +165,7 @@ func customContext(config types.Config) echo.MiddlewareFunc {
 
 func createClients() types.Clients {
 	return types.Clients{
-		Members: &cclient.MemberClientHttp{
+		Contacts: &cclient.ContactsClient{
 			Url: getOrDefault("MEMBERS_URL", "http://localhost:7003/api/clubs"),
 		},
 		Clubs: &cclient.ClubClientHttp{

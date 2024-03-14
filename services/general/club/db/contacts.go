@@ -10,14 +10,14 @@ import (
 	"github.com/sqids/sqids-go"
 )
 
-type MemberRepo interface {
-	List(ctx context.Context) ([]types.Member, error)
-	ListForClub(ctx context.Context, clubIdEncoded string) ([]types.Member, error)
-	Create(ctx context.Context, member types.MemberCreate) (string, error)
-	Get(ctx context.Context, memberIdEncoded string) (types.Member, error)
+type ContactRepo interface {
+	List(ctx context.Context) ([]types.Contact, error)
+	ListForClub(ctx context.Context, clubIdEncoded string) ([]types.Contact, error)
+	Create(ctx context.Context, member types.ContactCreate) (string, error)
+	Get(ctx context.Context, memberIdEncoded string) (types.Contact, error)
 }
 
-type MemberRepoPostgre struct {
+type ContactRepoPostgre struct {
 	DB           *pgx.Conn
 	IdConversion *sqids.Sqids
 }
@@ -26,7 +26,7 @@ const (
 	IdOffset uint64 = 1234567890
 )
 
-func (r *MemberRepoPostgre) List(ctx context.Context) ([]types.Member, error) {
+func (r *ContactRepoPostgre) List(ctx context.Context) ([]types.Contact, error) {
 	rows, err := r.DB.Query(ctx, `
 	SELECT id, first_name, middle_name, last_name, email, phone, height, weight FROM clubs.contacts;
 	`)
@@ -34,9 +34,9 @@ func (r *MemberRepoPostgre) List(ctx context.Context) ([]types.Member, error) {
 		return nil, err
 	}
 
-	members := make([]types.Member, 0)
+	members := make([]types.Contact, 0)
 	for rows.Next() {
-		member := types.Member{}
+		member := types.Contact{}
 		var id uint64
 		err := rows.Scan(&id, &member.FirstName, &member.MiddleName, &member.LastName, &member.Email, &member.Phone, &member.Height, &member.Weight)
 		if err != nil {
@@ -52,7 +52,7 @@ func (r *MemberRepoPostgre) List(ctx context.Context) ([]types.Member, error) {
 	return members, nil
 }
 
-func (r *MemberRepoPostgre) ListForClub(ctx context.Context, clubIdEncoded string) ([]types.Member, error) {
+func (r *ContactRepoPostgre) ListForClub(ctx context.Context, clubIdEncoded string) ([]types.Contact, error) {
 	clubId := r.IdConversion.Decode(clubIdEncoded)[0]
 	rows, err := r.DB.Query(ctx, `
 		SELECT id, 
@@ -69,9 +69,9 @@ func (r *MemberRepoPostgre) ListForClub(ctx context.Context, clubIdEncoded strin
 		return nil, err
 	}
 
-	members := make([]types.Member, 0)
+	members := make([]types.Contact, 0)
 	for rows.Next() {
-		member := types.Member{}
+		member := types.Contact{}
 		var id uint64
 		err := rows.Scan(&id, &member.FirstName, &member.MiddleName, &member.LastName, &member.Email, &member.Phone, &member.Height, &member.Weight)
 		if err != nil {
@@ -87,7 +87,7 @@ func (r *MemberRepoPostgre) ListForClub(ctx context.Context, clubIdEncoded strin
 	return members, nil
 }
 
-func (r *MemberRepoPostgre) Create(ctx context.Context, member types.MemberCreate) (string, error) {
+func (r *ContactRepoPostgre) Create(ctx context.Context, member types.ContactCreate) (string, error) {
 	var id uint64
 	err := r.DB.QueryRow(ctx, `
 	INSERT INTO clubs.members (identity_id, club_id, email) 
@@ -104,10 +104,10 @@ func (r *MemberRepoPostgre) Create(ctx context.Context, member types.MemberCreat
 	return cId, nil
 }
 
-func (r *MemberRepoPostgre) Get(ctx context.Context, memberIdEncoded string) (types.Member, error) {
+func (r *ContactRepoPostgre) Get(ctx context.Context, memberIdEncoded string) (types.Contact, error) {
 	memberId := r.IdConversion.Decode(memberIdEncoded)[0]
 	var id uint64
-	var member types.Member
+	var member types.Contact
 	r.DB.QueryRow(ctx, "SELECT id, first_name, last_name, email, phone FROM clubs.members WHERE id = $1;", memberId).Scan(&id, &member.FirstName, &member.LastName, &member.Email, &member.Phone)
 	if id == 0 {
 		return member, lib.ErrNotFound
@@ -116,26 +116,26 @@ func (r *MemberRepoPostgre) Get(ctx context.Context, memberIdEncoded string) (ty
 	return member, nil
 }
 
-type MemberRepoMock struct {
-	Members []types.Member
+type ContactRepoMock struct {
+	Contacts []types.Contact
 }
 
-func (r *MemberRepoMock) List(ctx context.Context) ([]types.Member, error) {
-	return r.Members, nil
+func (r *ContactRepoMock) List(ctx context.Context) ([]types.Contact, error) {
+	return r.Contacts, nil
 }
 
-func (r *MemberRepoMock) ListForClub(ctx context.Context, clubIdEncoded string) ([]types.Member, error) {
-	return r.Members, nil
+func (r *ContactRepoMock) ListForClub(ctx context.Context, clubIdEncoded string) ([]types.Contact, error) {
+	return r.Contacts, nil
 }
 
-func (r *MemberRepoMock) Create(ctx context.Context, member types.MemberCreate) (string, error) {
-	for _, m := range r.Members {
+func (r *ContactRepoMock) Create(ctx context.Context, member types.ContactCreate) (string, error) {
+	for _, m := range r.Contacts {
 		if m.Email == member.Email {
 			return "", lib.ErrAlreadyExists
 		}
 	}
-	id := fmt.Sprintf("%d", len(r.Members)+1)
-	r.Members = append(r.Members, types.Member{
+	id := fmt.Sprintf("%d", len(r.Contacts)+1)
+	r.Contacts = append(r.Contacts, types.Contact{
 		ID:     id,
 		ClubID: member.ClubID,
 		Email:  member.Email,
@@ -143,11 +143,11 @@ func (r *MemberRepoMock) Create(ctx context.Context, member types.MemberCreate) 
 	return id, nil
 }
 
-func (r *MemberRepoMock) Get(ctx context.Context, memberIdEncoded string) (types.Member, error) {
-	for _, m := range r.Members {
+func (r *ContactRepoMock) Get(ctx context.Context, memberIdEncoded string) (types.Contact, error) {
+	for _, m := range r.Contacts {
 		if m.ID == memberIdEncoded {
 			return m, nil
 		}
 	}
-	return types.Member{}, lib.ErrNotFound
+	return types.Contact{}, lib.ErrNotFound
 }

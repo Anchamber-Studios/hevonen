@@ -10,10 +10,10 @@ import (
 )
 
 const (
-	PathParamMemberId = "userID"
+	PathParamContactId = "userID"
 )
 
-type MemberHandler struct{}
+type ContactHandler struct{}
 
 func list(c echo.Context) error {
 	cc := c.(*CustomContext)
@@ -72,7 +72,7 @@ func logout(c echo.Context) error {
 
 func details(c echo.Context) error {
 	cc := c.(*CustomContext)
-	user, err := cc.Services.Users.Get(c.Request().Context(), c.Param(PathParamMemberId))
+	user, err := cc.Services.Users.Get(c.Request().Context(), c.Param(PathParamContactId))
 	if err != nil {
 		return echo.NewHTTPError(echo.ErrBadRequest.Code, err.Error())
 	}

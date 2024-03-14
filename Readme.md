@@ -10,7 +10,7 @@ The project might be overly complex for the actual use case and scale, but since
 - admin area
   - user managment
   - auth managment
-- member management
+- contact management
 - working hours tracking
 - riding plan
 

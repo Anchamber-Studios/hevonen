@@ -17,13 +17,13 @@ type Club struct {
 	Phone       string `json:"phone" form:"phone"`
 }
 
-type ClubMember struct {
+type ClubContact struct {
 	ID    string   `json:"id" form:"id"`
 	Name  string   `json:"name" form:"name"`
 	Roles []string `json:"roles" form:"roles"`
 }
 
-type Member struct {
+type Contact struct {
 	ID         string `json:"id" form:"id"`
 	ClubID     string `json:"clubId" form:"clubId"`
 	FirstName  string `json:"firstName" form:"firstName"`
@@ -35,7 +35,7 @@ type Member struct {
 	Weight     int    `json:"weight" form:"weight"`
 }
 
-type MemberCreate struct {
+type ContactCreate struct {
 	ClubID     string `json:"clubId" form:"clubId"`
 	IdentityID string `json:"identityId" form:"identityId"`
 	Email      string `json:"email" form:"email"`

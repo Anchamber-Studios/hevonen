@@ -33,11 +33,11 @@ var bcList []c.BreadCrumbProp = []c.BreadCrumbProp{
 
 templ ProfilePageWL(session types.Session, props ProfilePageProps) {
 	@l.BasicLayout(session, l.LayoutProps{
-        Title: "Hevonen - Members",
-        BrandName: "Hevonen",
-        Content: profilePage(props),
-        BreadCrumbs: bcList,
-    })
+		Title:       "Hevonen - Contacts",
+		BrandName:   "Hevonen",
+		Content:     profilePage(props),
+		BreadCrumbs: bcList,
+	})
 }
 
 templ ProfilePage(props ProfilePageProps) {
@@ -53,15 +53,15 @@ templ profilePage(props ProfilePageProps) {
 		<details open>
 			<summary>Contact Info</summary>
 			<form>
-				<button type="submit" class={ fmt.Sprintf("my-2 px-8 py-1 %s", theme.PrimaryActionBGColor)}>Save</button>
-				<button type="submit" class={ fmt.Sprintf("my-2 px-8 py-1 %s", theme.PrimaryActionBGColor)}>Add</button>
+				<button type="submit" class={ fmt.Sprintf("my-2 px-8 py-1 %s", theme.PrimaryActionBGColor) }>Save</button>
+				<button type="submit" class={ fmt.Sprintf("my-2 px-8 py-1 %s", theme.PrimaryActionBGColor) }>Add</button>
 			</form>
 		</details>
 		<details open>
 			<summary>Addresses</summary>
 			<form>
-				<button type="submit" class={ fmt.Sprintf("my-2 px-8 py-1 %s", theme.PrimaryActionBGColor)}>Save</button>
-				<button type="submit" class={ fmt.Sprintf("my-2 px-8 py-1 %s", theme.PrimaryActionBGColor)}>Add</button>
+				<button type="submit" class={ fmt.Sprintf("my-2 px-8 py-1 %s", theme.PrimaryActionBGColor) }>Save</button>
+				<button type="submit" class={ fmt.Sprintf("my-2 px-8 py-1 %s", theme.PrimaryActionBGColor) }>Add</button>
 			</form>
 		</details>
 	</section>
@@ -73,69 +73,69 @@ templ profileForm(props ProfilePageProps) {
 		<div class="pb-2 flex flex-col">
 			<label for="firstName">First Name</label>
 			<input
- 				value={ props.Profile.FirstName }
- 				id="firstName"
- 				type="text"
- 				name="firstName"
- 				autocomplete="firstName"
- 				required
- 				class="w-96 p-1 dark:text-gray-900"
+				value={ props.Profile.FirstName }
+				id="firstName"
+				type="text"
+				name="firstName"
+				autocomplete="firstName"
+				required
+				class="w-96 p-1 dark:text-gray-900"
 			/>
 		</div>
 		<div class="pb-2 flex flex-col">
 			<label for="middleName">Middle Name</label>
 			<input
- 				value={ props.Profile.MiddleName }
- 				id="middleName"
- 				type="text"
- 				name="middleName"
- 				autocomplete="middleName"
- 				class="w-96 p-1 dark:text-gray-900"
+				value={ props.Profile.MiddleName }
+				id="middleName"
+				type="text"
+				name="middleName"
+				autocomplete="middleName"
+				class="w-96 p-1 dark:text-gray-900"
 			/>
 		</div>
 		<div class="pb-2 flex flex-col">
 			<label for="lastName">Last Name</label>
 			<input
- 				value={ props.Profile.LastName }
- 				id="lastName"
- 				type="text"
- 				name="lastName"
- 				autocomplete="lastName"
- 				class="w-96 p-1 dark:text-gray-900"
+				value={ props.Profile.LastName }
+				id="lastName"
+				type="text"
+				name="lastName"
+				autocomplete="lastName"
+				class="w-96 p-1 dark:text-gray-900"
 			/>
 		</div>
 		<div class="pb-2 flex flex-col">
 			<label for="birthday">Birthday</label>
 			<input
- 				value={ props.Profile.Birthday }
- 				id="birthday"
- 				type="date"
- 				name="birthday"
- 				autocomplete="birthday"
- 				class="w-48 p-1 dark:text-gray-900"
+				value={ props.Profile.Birthday }
+				id="birthday"
+				type="date"
+				name="birthday"
+				autocomplete="birthday"
+				class="w-48 p-1 dark:text-gray-900"
 			/>
 		</div>
 		<div class="flex">
 			<div class="w-24 pb-2 flex flex-col">
 				<label class="w-24" for="height">Heigt (cm)</label>
 				<input
- 					value={ strconv.FormatInt(int64(props.Profile.Height), 10) }
- 					id="height"
- 					type="number"
- 					name="height"
- 					autocomplete="height"
- 					class="w-24 p-1 dark:text-gray-900"
+					value={ strconv.FormatInt(int64(props.Profile.Height), 10) }
+					id="height"
+					type="number"
+					name="height"
+					autocomplete="height"
+					class="w-24 p-1 dark:text-gray-900"
 				/>
 			</div>
 			<div class="w-24 pb-2 pl-2 flex flex-col">
 				<label class="w-24" for="weight">Weight (kg)</label>
 				<input
- 					value={ strconv.FormatInt(int64(props.Profile.Weight), 10) }
- 					id="weight"
- 					type="number"
- 					name="weight"
- 					autocomplete="weight"
- 					class="w-24 p-1 dark:text-gray-900"
+					value={ strconv.FormatInt(int64(props.Profile.Weight), 10) }
+					id="weight"
+					type="number"
+					name="weight"
+					autocomplete="weight"
+					class="w-24 p-1 dark:text-gray-900"
 				/>
 			</div>
 		</div>

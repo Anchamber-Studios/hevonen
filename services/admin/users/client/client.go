@@ -33,12 +33,12 @@ func (c *UserClientHttp) GetUsers(ctx lib.ClientContext) ([]User, error) {
 	if err != nil {
 		return nil, err
 	}
-	var members []User
-	err = json.NewDecoder(resp.Body).Decode(&members)
+	var contacts []User
+	err = json.NewDecoder(resp.Body).Decode(&contacts)
 	if err != nil {
 		return nil, err
 	}
-	return members, nil
+	return contacts, nil
 }
 
 func (c *UserClientHttp) GetUser(ctx lib.ClientContext, id string) (User, error) {

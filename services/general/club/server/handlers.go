@@ -11,8 +11,8 @@ import (
 )
 
 const (
-	PathParamMemberId = "memberId"
-	PathIdentityId    = "identityId"
+	PathParamContactId = "memberId"
+	PathIdentityId     = "identityId"
 )
 
 type ClubHandler struct{}
@@ -57,11 +57,11 @@ func (h *ClubHandler) Create(c echo.Context) error {
 	}
 
 	email := cc.Get("email").(string)
-	member := types.MemberCreate{
+	contact := types.ContactCreate{
 		IdentityID: identityID,
 		Email:      email,
 	}
-	cId, err := cc.Services.Clubs.CreateWithAdminMember(c.Request().Context(), club, member)
+	cId, err := cc.Services.Clubs.CreateWithAdminContact(c.Request().Context(), club, contact)
 	if err != nil {
 		return handleServiceError(cc, err)
 	}
@@ -82,17 +82,17 @@ func (h *ClubHandler) DeleteClub(c echo.Context) error {
 	return cc.NoContent(http.StatusNoContent)
 }
 
-type MemberHandler struct{}
+type ContactHandler struct{}
 
-func (h *MemberHandler) List(c echo.Context) error {
+func (h *ContactHandler) List(c echo.Context) error {
 	cc := c.(*CustomContext)
 	cID := c.Param("clubID")
-	members, err := cc.Services.Members.List(cc.Request().Context(), cID)
+	contacts, err := cc.Services.Contacts.List(cc.Request().Context(), cID)
 	if err != nil {
 		return handleServiceError(cc, err)
 	}
-	cc.Logger().Infof("Found %d members for club %s\n", len(members), cID)
-	return c.JSON(http.StatusOK, &members)
+	cc.Logger().Infof("Found %d contacts for club %s\n", len(contacts), cID)
+	return c.JSON(http.StatusOK, &contacts)
 }
 
 func handleServiceError(_ *CustomContext, err error) error {

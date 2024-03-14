@@ -100,8 +100,8 @@ func ClubNavigationEntries(session types.Session) templ.Component {
 							RequiredRoles: []string{"manager", "trainer"},
 						},
 						{
-							Href:          "/clubs/" + club.ID + "/members",
-							Name:          "Members",
+							Href:          "/clubs/" + club.ID + "/contacts",
+							Name:          "Contacts",
 							RequiredRoles: []string{"manager", "trainer", "admin"},
 						},
 						{

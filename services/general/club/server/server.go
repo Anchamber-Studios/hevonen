@@ -21,8 +21,8 @@ type CustomContext struct {
 }
 
 type Services struct {
-	Clubs   *services.ClubService
-	Members *services.MemberService
+	Clubs    *services.ClubService
+	Contacts *services.ContactService
 }
 
 func Middleware(e *echo.Echo, conf config.Config) {
@@ -57,8 +57,8 @@ func RoutesGroup(e *echo.Group) {
 	e.GET("/clubs/i", clubHandler.ListForIdentity).Name = "ListForIdentity"
 	e.POST("/clubs", clubHandler.Create).Name = "CreateClub"
 
-	memberHandler := &MemberHandler{}
-	e.GET("/clubs/:clubID/members", memberHandler.List).Name = "ListMembers"
+	contactHandler := &ContactHandler{}
+	e.GET("/clubs/:clubID/contacts", contactHandler.List).Name = "ListContacts"
 }
 
 func customContext(conf config.Config) echo.MiddlewareFunc {
@@ -76,8 +76,8 @@ func customContext(conf config.Config) echo.MiddlewareFunc {
 			}
 			cc := &CustomContext{c, conf,
 				Services{
-					Clubs:   services.NewClubService(&db.ClubRepoPostgre{DB: conn, IdConversion: idc}),
-					Members: services.NewMemberService(&db.MemberRepoPostgre{DB: conn, IdConversion: idc}),
+					Clubs:    services.NewClubService(&db.ClubRepoPostgre{DB: conn, IdConversion: idc}),
+					Contacts: services.NewContactService(&db.ContactRepoPostgre{DB: conn, IdConversion: idc}),
 				},
 			}
 

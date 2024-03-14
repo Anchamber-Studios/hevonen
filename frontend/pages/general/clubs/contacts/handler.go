@@ -1,4 +1,4 @@
-package member
+package contacts
 
 import (
 	"github.com/anchamber-studios/hevonen/frontend/types"
@@ -6,16 +6,16 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func GetListMembers(c echo.Context) error {
+func GetListContacts(c echo.Context) error {
 	cc := c.(*types.CustomContext)
 	clubID := cc.Param("clubID")
-	members, err := cc.Config.Clients.Members.List(cc.ClientContext(), clubID)
+	contacts, err := cc.Config.Clients.Contacts.List(cc.ClientContext(), clubID)
 	if err != nil {
-		cc.Logger().Errorf("Unable to get members: %v\n", err)
-		members = []ctypes.Member{}
+		cc.Logger().Errorf("Unable to get contacts: %v\n", err)
+		contacts = []ctypes.Contact{}
 	}
-	props := MemberListProps{
-		Members: members,
+	props := ContactListProps{
+		Contacts: contacts,
 	}
 	if cc.HXRequest {
 		return List(cc.Tr, props).Render(cc.Request().Context(), cc.Response().Writer)

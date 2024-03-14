@@ -18,7 +18,7 @@ other = "Invalid email or password"
 
 [club]
 [club.none_joined]
-other = "You are not a member of any club"
+other = "You are not a contact of any club"
 [club.create]
 other = "Create a club"
 [club.search]
@@ -53,17 +53,17 @@ other = "Description"
 [club.field.website]
 other = "Website"
 
-[club.member.field.firstName]
+[club.contact.field.firstName]
 other = "First name"
-[club.member.field.lastName]
+[club.contact.field.lastName]
 other = "Last name"
-[club.member.field.email]
+[club.contact.field.email]
 other = "Email"
-[club.member.field.phone]
+[club.contact.field.phone]
 other = "Phone"
 
-[club.members.list.empty]
-other = "No members found"
+[club.contacts.list.empty]
+other = "No contacts found"
 
 [or]
 other = "or"

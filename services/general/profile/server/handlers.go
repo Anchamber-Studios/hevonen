@@ -12,7 +12,7 @@ const (
 	PathParamProfileId = "profileIdnetityId"
 )
 
-type MemberHandler struct{}
+type ContactHandler struct{}
 
 func new(c echo.Context) error {
 	cc := c.(*CustomContext)
