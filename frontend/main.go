@@ -165,7 +165,7 @@ func customContext(config types.Config) echo.MiddlewareFunc {
 
 func createClients() types.Clients {
 	return types.Clients{
-		Contacts: &cclient.ContactsClient{
+		Contacts: &cclient.ContactsClientHttp{
 			Url: getOrDefault("MEMBERS_URL", "http://localhost:7003/api/clubs"),
 		},
 		Clubs: &cclient.ClubClientHttp{

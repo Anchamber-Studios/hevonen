@@ -159,7 +159,7 @@ func (c *ContactsClientHttp) List(ctx lib.ClientContext, clubID string) ([]types
 	return contacts, nil
 }
 
-func (c *ContactsClientHttp) CreateContact(ctx lib.ClientContext, contact types.ContactCreate) (string, error) {
+func (c *ContactsClientHttp) Create(ctx lib.ClientContext, contact types.ContactCreate) (string, error) {
 	contactJson, err := json.Marshal(contact)
 	if err != nil {
 		return "", err
