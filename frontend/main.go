@@ -9,6 +9,7 @@ import (
 	"github.com/anchamber-studios/hevonen/frontend/pages/admin"
 	"github.com/anchamber-studios/hevonen/frontend/pages/auth"
 	"github.com/anchamber-studios/hevonen/frontend/pages/general/clubs"
+	"github.com/anchamber-studios/hevonen/frontend/pages/general/clubs/calendar"
 	"github.com/anchamber-studios/hevonen/frontend/pages/general/clubs/contacts"
 	"github.com/anchamber-studios/hevonen/frontend/pages/general/profile"
 	"github.com/anchamber-studios/hevonen/frontend/translation"
@@ -85,6 +86,7 @@ func main() {
 
 	restricted.GET("/clubs", clubs.GetListClubs)
 	restricted.GET("/clubs/:clubID/contacts", contacts.GetListContacts)
+	restricted.GET("/clubs/:clubID/calendar", calendar.GetListCalendar)
 	restricted.GET("/clubs/new", clubs.GetCreateForm)
 	restricted.POST("/clubs/new", clubs.PostCreateForm)
 

@@ -1,0 +1,30 @@
+package calendar
+
+import "github.com/nicksnyder/go-i18n/v2/i18n"
+import "github.com/anchamber-studios/hevonen/frontend/types"
+import "github.com/anchamber-studios/hevonen/frontend/layouts"
+
+type CalendarListProps struct {
+}
+
+templ ListWL(session types.Session, tr *i18n.Localizer, props CalendarListProps) {
+	@layouts.BasicLayout(session, layouts.LayoutProps{
+		Title: tr.MustLocalize(&i18n.LocalizeConfig{
+			DefaultMessage: &i18n.Message{
+				ID:    "club.contacts.list.title",
+				Other: "Contacts",
+			},
+		}),
+		Content: list(tr, props),
+	})
+}
+
+templ List(tr *i18n.Localizer, props CalendarListProps) {
+	@list(tr, props)
+}
+
+templ list(tr *i18n.Localizer, props CalendarListProps) {
+	<section>
+		<h2>Calendar</h2>
+	</section>
+}
