@@ -66,7 +66,7 @@ func (h *ClubHandler) Create(c echo.Context) error {
 		return handleServiceError(cc, err)
 	}
 	cc.Logger().Infof("Created club %s\n", cId)
-	cc.Response().Header().Set("Location", fmt.Sprintf("/c/%s", cId))
+	cc.Response().Header().Set("Location", fmt.Sprintf("/clubs/%s", cId))
 	return cc.NoContent(http.StatusCreated)
 }
 
@@ -82,7 +82,20 @@ func (h *ClubHandler) DeleteClub(c echo.Context) error {
 	return cc.NoContent(http.StatusNoContent)
 }
 
-func handleServiceError(cc *CustomContext, err error) error {
+type MemberHandler struct{}
+
+func (h *MemberHandler) List(c echo.Context) error {
+	cc := c.(*CustomContext)
+	cID := c.Param("clubID")
+	members, err := cc.Services.Members.List(cc.Request().Context(), cID)
+	if err != nil {
+		return handleServiceError(cc, err)
+	}
+	cc.Logger().Infof("Found %d members for club %s\n", len(members), cID)
+	return c.JSON(http.StatusOK, &members)
+}
+
+func handleServiceError(_ *CustomContext, err error) error {
 	if e, ok := err.(*pgconn.PgError); ok {
 		if e.Code == "23505" {
 			return echo.NewHTTPError(http.StatusConflict, lib.NewAlreadyExistsError("club", "name", "Test Club"))

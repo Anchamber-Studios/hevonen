@@ -49,14 +49,14 @@ func setupDomains(e *echo.Echo, conf config.Config) {
 	log.Printf("AuthService: Finished setup\n")
 
 	log.Printf("Start setup of club service\n")
-	clubPath := "/api/club"
+	clubPath := "/api/clubs"
 	clubGroup := e.Group(clubPath)
 	clubserver.MiddlewareGroup(clubGroup, conf)
 	clubserver.RoutesGroup(clubGroup)
 	log.Printf("Finished club of profile service\n")
 
 	log.Printf("Start setup of profile service\n")
-	profilePath := "/api/profile"
+	profilePath := "/api/profiles"
 	profileGroup := e.Group(profilePath)
 	profileserver.MiddlewareGroup(profileGroup, conf)
 	profileserver.RoutesGroup(profileGroup)

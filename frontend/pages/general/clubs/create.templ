@@ -31,7 +31,7 @@ templ CreateFormWL(session types.Session, tr *i18n.Localizer, props CreateClubFo
 templ createClubForm(tr *i18n.Localizer, props CreateClubFormProps) {
 	@form.Form(tr, form.FormProps{
 		Title:     "club.form.create.title",
-		Action:    "/c/new",
+		Action:    "/clubs/new",
 		SaveLabel: "save",
 	}) {
 		@form.FormFieldText(tr, form.FormFieldProps{

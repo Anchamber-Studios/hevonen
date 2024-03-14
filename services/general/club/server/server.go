@@ -37,8 +37,8 @@ func Middleware(e *echo.Echo, conf config.Config) {
 
 func Routes(e *echo.Echo) {
 	clubHandler := &ClubHandler{}
-	e.GET("/c", clubHandler.ListForIdentity).Name = "ListForIdentity"
-	e.POST("/c", clubHandler.Create).Name = "CreateClub"
+	e.GET("/clubs", clubHandler.ListForIdentity).Name = "ListForIdentity"
+	e.POST("/clubs", clubHandler.Create).Name = "CreateClub"
 }
 
 func MiddlewareGroup(e *echo.Group, conf config.Config) {
@@ -53,9 +53,12 @@ func MiddlewareGroup(e *echo.Group, conf config.Config) {
 
 func RoutesGroup(e *echo.Group) {
 	clubHandler := &ClubHandler{}
-	e.GET("/c", clubHandler.List).Name = "List"
-	e.GET("/c/i", clubHandler.ListForIdentity).Name = "ListForIdentity"
-	e.POST("/c", clubHandler.Create).Name = "CreateClub"
+	e.GET("/clubs", clubHandler.List).Name = "List"
+	e.GET("/clubs/i", clubHandler.ListForIdentity).Name = "ListForIdentity"
+	e.POST("/clubs", clubHandler.Create).Name = "CreateClub"
+
+	memberHandler := &MemberHandler{}
+	e.GET("/clubs/:clubID/m", memberHandler.List).Name = "ListMembers"
 }
 
 func customContext(conf config.Config) echo.MiddlewareFunc {

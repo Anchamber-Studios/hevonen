@@ -46,7 +46,7 @@ func PostCreateForm(c echo.Context) error {
 		// return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
-	cc.Response().Header().Set("HX-Redirect", "/c/"+cId)
+	cc.Response().Header().Set("HX-Redirect", "/clubs/"+cId)
 	return c.NoContent(http.StatusTemporaryRedirect)
 }
 
@@ -55,7 +55,7 @@ func GetListClubs(c echo.Context) error {
 	userClubs, err := cc.Config.Clients.Clubs.List(cc.ClientContext())
 	if err != nil {
 		cc.Logger().Errorf("Unable to get clubs: %v\n", err)
-		return cc.Redirect(302, "/c")
+		return cc.Redirect(302, "/clubs")
 	}
 	if cc.HXRequest {
 		return List(cc.Tr, ListProps{

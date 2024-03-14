@@ -30,7 +30,7 @@ func (c *ClubClientHttp) WithHeader(key, value string) {
 }
 
 func (c *ClubClientHttp) ListClubsForIdentity(ctx lib.ClientContext) ([]types.ClubMember, error) {
-	req, err := http.NewRequest(http.MethodGet, c.Url+"/c/i", nil)
+	req, err := http.NewRequest(http.MethodGet, c.Url+"/clubs/i", nil)
 	if err != nil {
 		return nil, err
 	}
@@ -64,7 +64,7 @@ func (c *ClubClientHttp) CreateClub(ctx lib.ClientContext, club types.ClubCreate
 	if err != nil {
 		return "", err
 	}
-	req, err := http.NewRequest(http.MethodPost, c.Url+"/c", bytes.NewReader(clubJson))
+	req, err := http.NewRequest(http.MethodPost, c.Url+"/clubs", bytes.NewReader(clubJson))
 	req.Header.Add("Content-Type", "application/json")
 	if err != nil {
 		return "", err
@@ -87,7 +87,7 @@ func (c *ClubClientHttp) CreateClub(ctx lib.ClientContext, club types.ClubCreate
 }
 
 func (c *ClubClientHttp) List(ctx lib.ClientContext) ([]types.Club, error) {
-	req, err := http.NewRequest(http.MethodGet, c.Url+"/c", nil)
+	req, err := http.NewRequest(http.MethodGet, c.Url+"/clubs", nil)
 	if err != nil {
 		return nil, err
 	}
@@ -125,15 +125,15 @@ func (c *ClubClientLocal) ListClubsForIdentity(ctx lib.ClientContext) ([]types.C
 }
 
 type MemberClient interface {
-	GetMembers() ([]types.Member, error)
-	CreateMember(member types.MemberCreate) (string, error)
+	CreateMember(ctx lib.ClientContext, member types.MemberCreate) (string, error)
+	List(ctx lib.ClientContext, clubID string) ([]types.Member, error)
 }
 type MemberClientHttp struct {
 	Url string
 }
 
-func (c *MemberClientHttp) GetMembers() ([]types.Member, error) {
-	resp, err := http.Get(c.Url + "/members")
+func (c *MemberClientHttp) List(ctx lib.ClientContext, clubID string) ([]types.Member, error) {
+	resp, err := http.Get(c.Url + "/clubs/" + clubID + "/m")
 	if err != nil {
 		return nil, err
 	}
@@ -145,7 +145,7 @@ func (c *MemberClientHttp) GetMembers() ([]types.Member, error) {
 	return members, nil
 }
 
-func (c *MemberClientHttp) CreateMember(member types.MemberCreate) (string, error) {
+func (c *MemberClientHttp) CreateMember(ctx lib.ClientContext, member types.MemberCreate) (string, error) {
 	memberJson, err := json.Marshal(member)
 	if err != nil {
 		return "", err

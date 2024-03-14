@@ -19,7 +19,7 @@ func GetUsers(e echo.Context) error {
 
 func GetUser(e echo.Context) error {
 	cc := e.(*types.CustomContext)
-	user, err := cc.Config.Clients.User.GetUser(cc.ClientContext(), e.Param("userId"))
+	user, err := cc.Config.Clients.User.GetUser(cc.ClientContext(), e.Param("userID"))
 	if err != nil {
 		e.Logger().Errorf("Unable to get user: %v\n", err)
 		return err

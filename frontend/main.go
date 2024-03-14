@@ -5,13 +5,12 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"strings"
 
 	"github.com/anchamber-studios/hevonen/frontend/pages/admin"
 	"github.com/anchamber-studios/hevonen/frontend/pages/auth"
 	"github.com/anchamber-studios/hevonen/frontend/pages/general/clubs"
+	"github.com/anchamber-studios/hevonen/frontend/pages/general/clubs/member"
 	"github.com/anchamber-studios/hevonen/frontend/pages/general/profile"
-	"github.com/anchamber-studios/hevonen/frontend/pages/members"
 	"github.com/anchamber-studios/hevonen/frontend/translation"
 	"github.com/anchamber-studios/hevonen/frontend/types"
 	"github.com/anchamber-studios/hevonen/lib/logger"
@@ -65,19 +64,15 @@ func main() {
 				return c.Redirect(302, "/auth/login?redirect="+c.Request().URL.String())
 			}
 
-			if strings.HasPrefix(cc.Request().URL.Path, "/c") {
-				return next(c)
-			}
-
 			if cc.Session.Clubs == nil {
 				userClubs, err := cc.Config.Clients.Clubs.ListClubsForIdentity(cc.ClientContext())
 				if err != nil {
 					cc.Logger().Errorf("Unable to get clubs: %v\n", err)
-					return c.Redirect(302, "/c")
+					return c.Redirect(302, "/clubs")
 				}
 				if len(userClubs) == 0 {
 					cc.Logger().Warnf("User %s is not member of any clubs\n", cc.Session.ID)
-					return c.Redirect(302, "/c")
+					return c.Redirect(302, "/clubs")
 				}
 				cc.Session.Clubs = &userClubs
 			}
@@ -86,20 +81,18 @@ func main() {
 	})
 	restricted.GET("/auth/logout", auth.GetLogout)
 
-	restricted.GET("/c", clubs.GetListClubs)
-	restricted.GET("/c/new", clubs.GetCreateForm)
-	restricted.POST("/c/new", clubs.PostCreateForm)
-
 	restricted.GET("/", index)
-	restricted.GET("/members", members.GetMemberList)
-	restricted.GET("/members/new", members.GetNewMemberForm)
-	restricted.POST("/members", members.GetNewMemberForm)
+
+	restricted.GET("/clubs", clubs.GetListClubs)
+	restricted.GET("/clubs/:clubID/members", member.GetListMembers)
+	restricted.GET("/clubs/new", clubs.GetCreateForm)
+	restricted.POST("/clubs/new", clubs.PostCreateForm)
 
 	restricted.GET("/admin/users", admin.GetUsers)
-	restricted.GET("/admin/users/:userId", admin.GetUser)
+	restricted.GET("/admin/users/:userID", admin.GetUser)
 
-	restricted.GET("/u/p", profile.GetProfile)
-	restricted.PUT("/u/p", profile.UpdateProfile)
+	restricted.GET("/users/p", profile.GetProfile)
+	restricted.PUT("/users/p", profile.UpdateProfile)
 
 	address := fmt.Sprintf("%s:%s", config.Host, config.Port)
 	if config.Tls.Enabled {
@@ -173,16 +166,16 @@ func customContext(config types.Config) echo.MiddlewareFunc {
 func createClients() types.Clients {
 	return types.Clients{
 		Members: &cclient.MemberClientHttp{
-			Url: getOrDefault("MEMBERS_URL", "http://localhost:7003/api/club"),
+			Url: getOrDefault("MEMBERS_URL", "http://localhost:7003/api/clubs"),
 		},
 		Clubs: &cclient.ClubClientHttp{
-			Url: getOrDefault("CLUBS_URL", "http://localhost:7003/api/club"),
+			Url: getOrDefault("CLUBS_URL", "http://localhost:7003/api/clubs"),
 		},
 		User: &uclient.UserClientHttp{
 			Url: getOrDefault("USERS_URL", "http://localhost:7003/api/users"),
 		},
 		Profile: &pclient.ProfileClientHttp{
-			Url: getOrDefault("PROFILE_URL", "http://localhost:7002/api/profiles"),
+			Url: getOrDefault("PROFILE_URL", "http://localhost:7003/api/profiles"),
 		},
 	}
 }

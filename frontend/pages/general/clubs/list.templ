@@ -26,7 +26,7 @@ templ List(tr *i18n.Localizer, props ListProps) {
 templ listPgae(tr *i18n.Localizer, props ListProps) {
 	<div class="flex flex-col">
 		<a
-			href="/c/new"
+			href="/clubs/new"
 			class={ fmt.Sprintf("my-2 px-8 p-1 w-64 text-center %s", theme.PrimaryActionBGColor) }
 		>
 			{ tr.MustLocalize(&i18n.LocalizeConfig{MessageID: "club.create"}) }
@@ -43,7 +43,7 @@ templ listPgae(tr *i18n.Localizer, props ListProps) {
 				<tbody>
 					<tr class="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700">
 						<a
-							href="/c/new"
+							href="/clubs/new"
 							class={ fmt.Sprintf("my-2 px-8 p-1 w-64 text-center %s", theme.PrimaryActionBGColor) }
 						>
 							{ tr.MustLocalize(&i18n.LocalizeConfig{MessageID: "club.create"}) }

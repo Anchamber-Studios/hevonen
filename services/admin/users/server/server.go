@@ -44,8 +44,8 @@ func Routes(e *echo.Echo, conf config.Config) {
 	restricted := e.Group("")
 	restricted.Use(m.AuthPaseto(conf.TokenSecret))
 	restricted.GET("/users", list)
-	restricted.GET("/users/:userId", details)
-	restricted.POST("/users/:userId/logout", logout)
+	restricted.GET("/users/:userID", details)
+	restricted.POST("/users/:userID/logout", logout)
 }
 
 func MiddlewareGroup(e *echo.Group, conf config.Config) {
@@ -64,8 +64,8 @@ func RoutesGroup(e *echo.Group, conf config.Config) {
 	restricted := e.Group("")
 	restricted.Use(m.AuthPaseto(conf.TokenSecret))
 	restricted.GET("/users", list)
-	restricted.GET("/users/:userId", details)
-	restricted.POST("/users/:userId/logout", logout)
+	restricted.GET("/users/:userID", details)
+	restricted.POST("/users/:userID/logout", logout)
 }
 
 func customContext(conf config.Config) echo.MiddlewareFunc {

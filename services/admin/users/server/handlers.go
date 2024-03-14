@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	PathParamMemberId = "userId"
+	PathParamMemberId = "userID"
 )
 
 type MemberHandler struct{}

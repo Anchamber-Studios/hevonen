@@ -162,7 +162,7 @@ func deleteClub(t *testing.T, handler *server.ClubHandler, conf config.Config, i
 	req.Header.Add("Content-Type", "application/json")
 	rec := httptest.NewRecorder()
 	c := createContext(t, req, rec, conf)
-	c.SetPath("/c/:clubID")
+	c.SetPath("/clubs/:clubID")
 	c.SetParamNames("clubID")
 	c.SetParamValues(id)
 	if err := handler.DeleteClub(&c); err != nil {

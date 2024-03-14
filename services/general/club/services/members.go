@@ -17,14 +17,9 @@ func NewMemberService(repo db.MemberRepo) *MemberService {
 	return &MemberService{repo: repo}
 }
 
-// List returns a list of all members.
-func (s *MemberService) List(ctx context.Context) ([]types.Member, error) {
+// List returns a list of all members for a club.
+func (s *MemberService) List(ctx context.Context, cId string) ([]types.Member, error) {
 	return s.repo.List(ctx)
-}
-
-// ListForClub returns a list of members for a specific club.
-func (s *MemberService) ListForClub(ctx context.Context, cId string) ([]types.Member, error) {
-	return s.repo.ListForClub(ctx, cId)
 }
 
 // Create creates a new member.
