@@ -58,7 +58,7 @@ func RoutesGroup(e *echo.Group) {
 	e.POST("/clubs", clubHandler.Create).Name = "CreateClub"
 
 	memberHandler := &MemberHandler{}
-	e.GET("/clubs/:clubID/m", memberHandler.List).Name = "ListMembers"
+	e.GET("/clubs/:clubID/members", memberHandler.List).Name = "ListMembers"
 }
 
 func customContext(conf config.Config) echo.MiddlewareFunc {

@@ -129,13 +129,27 @@ type MemberClient interface {
 	List(ctx lib.ClientContext, clubID string) ([]types.Member, error)
 }
 type MemberClientHttp struct {
-	Url string
+	Url     string
+	Headers map[string]string
 }
 
 func (c *MemberClientHttp) List(ctx lib.ClientContext, clubID string) ([]types.Member, error) {
-	resp, err := http.Get(c.Url + "/clubs/" + clubID + "/m")
+	req, err := http.NewRequest(http.MethodGet, c.Url+"/clubs/"+clubID+"/members", nil)
 	if err != nil {
 		return nil, err
+	}
+	for k, v := range c.Headers {
+		req.Header.Set(k, v)
+	}
+	ctx.SetHeader(req)
+	client := http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	statusOK := resp.StatusCode >= 200 && resp.StatusCode < 300
+	if !statusOK {
+		return nil, fmt.Errorf("unable to get members (%d): %v", resp.StatusCode, resp.Body)
 	}
 	var members []types.Member
 	err = json.NewDecoder(resp.Body).Decode(&members)

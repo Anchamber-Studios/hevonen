@@ -19,7 +19,7 @@ func NewMemberService(repo db.MemberRepo) *MemberService {
 
 // List returns a list of all members for a club.
 func (s *MemberService) List(ctx context.Context, cId string) ([]types.Member, error) {
-	return s.repo.List(ctx)
+	return s.repo.ListForClub(ctx, cId)
 }
 
 // Create creates a new member.

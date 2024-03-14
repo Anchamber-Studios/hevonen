@@ -37,8 +37,8 @@ create table if not exists clubs.contacts (
 	last_name text,
 	birth_date date,
 	phone text,
-	weight int,
-	height int,
+	weight int default 0,
+	height int default 0,
     created_at timestamp not null default now(),
     updated_at timestamp not null default now(),
 

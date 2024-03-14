@@ -69,11 +69,16 @@ func (r *ClubRepoPostgre) ListForIdentity(ctx context.Context, identity string) 
 	for rows.Next() {
 		var club types.ClubMember
 		var roles string
-		err := rows.Scan(&club.ID, &club.Name, &roles)
+		var id uint64
+		err := rows.Scan(&id, &club.Name, &roles)
 		if err != nil {
 			return nil, err
 		}
 		club.Roles = strings.Split(roles, ",")
+		club.ID, err = r.IdConversion.Encode([]uint64{id, idOffsetClub})
+		if err != nil {
+			return nil, err
+		}
 		clubs = append(clubs, club)
 	}
 	return clubs, nil

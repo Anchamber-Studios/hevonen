@@ -6,6 +6,7 @@ import "github.com/nicksnyder/go-i18n/v2/i18n"
 import "github.com/anchamber-studios/hevonen/frontend/layouts"
 import "fmt"
 import "github.com/anchamber-studios/hevonen/frontend/theme"
+import "github.com/anchamber-studios/hevonen/frontend/components/table"
 
 type ListProps struct {
 	Clubs []ctypes.Club
@@ -31,7 +32,7 @@ templ listPgae(tr *i18n.Localizer, props ListProps) {
 		>
 			{ tr.MustLocalize(&i18n.LocalizeConfig{MessageID: "club.create"}) }
 		</a>
-		<table id="club-table" class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+		@table.Table() {
 			<thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
 				<tr>
 					<th scope="col" class="px-6 py-3">{ tr.MustLocalize(&i18n.LocalizeConfig{MessageID: "club.field.name"}) }</th>
@@ -61,6 +62,6 @@ templ listPgae(tr *i18n.Localizer, props ListProps) {
 					}
 				</tbody>
 			}
-		</table>
+		}
 	</div>
 }

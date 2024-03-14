@@ -28,7 +28,7 @@ const (
 
 func (r *MemberRepoPostgre) List(ctx context.Context) ([]types.Member, error) {
 	rows, err := r.DB.Query(ctx, `
-	SELECT id, first_name, middle_name, last_name, email, phone, height, weight FROM clubs.members;
+	SELECT id, first_name, middle_name, last_name, email, phone, height, weight FROM clubs.contacts;
 	`)
 	if err != nil {
 		return nil, err
@@ -55,8 +55,14 @@ func (r *MemberRepoPostgre) List(ctx context.Context) ([]types.Member, error) {
 func (r *MemberRepoPostgre) ListForClub(ctx context.Context, clubIdEncoded string) ([]types.Member, error) {
 	clubId := r.IdConversion.Decode(clubIdEncoded)[0]
 	rows, err := r.DB.Query(ctx, `
-		SELECT id, first_name, middle_name, last_name, email, phone, height, weight 
-		FROM clubs.members 
+		SELECT id, 
+			COALESCE(first_name, '') as first_name, 
+			COALESCE(middle_name, '') as middle_name,
+			COALESCE(last_name, '') as last_name,
+			COALESCE(email, '') as email,
+			COALESCE(phone, '') as phone,
+			height, weight 
+		FROM clubs.contacts 
 		WHERE club_id = $1;
 		`, clubId)
 	if err != nil {
