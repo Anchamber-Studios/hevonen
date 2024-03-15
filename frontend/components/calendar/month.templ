@@ -1,0 +1,86 @@
+package calendar
+
+import "time"
+import "fmt"
+
+type MonthProps struct {
+	Month time.Month
+	Year  int
+}
+
+templ Month(props MonthProps) {
+	<div class="p-2">
+		<h1>{ props.Month.String() } { fmt.Sprintf("%d", props.Year) }</h1>
+		<table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+			<thead>
+				<tr>
+					for _, e := range []string{"#", "Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"} {
+						<th class="p-2">{ e }</th>
+					}
+				</tr>
+			</thead>
+			<tbody>
+				for _, week := range DaysArray(time.Date(props.Year, props.Month, 1, 1, 1, 1, 1, time.UTC)) {
+					<tr>
+						for _, day := range week {
+							<td class="p-2">{ day }</td>
+						}
+					</tr>
+				}
+			</tbody>
+		</table>
+	</div>
+}
+
+templ week(firstDay time.Weekday) {
+	<tr>
+		<td>{ fmt.Sprintf("%v", firstDay) }</td>
+		for i := 0; i < int(firstDay); i++ {
+			<td class="p-2"></td>
+		}
+		for i := 1; i <= 7-int(firstDay); i++ {
+			<td class="p-2">{ fmt.Sprintf("%d", i) }</td>
+		}
+	</tr>
+}
+
+func FirstDayInMonth(t time.Time) time.Weekday {
+	y, m, _ := t.Date()
+	return time.Date(y, m, 0, 0, 0, 0, 0, time.UTC).Weekday()
+}
+
+func DaysInMonth(t time.Time) int {
+	y, m, _ := t.Date()
+	return time.Date(y, m+1, 0, 0, 0, 0, 0, time.UTC).Day()
+}
+
+func NumberOfTheWeekInMonth(now time.Time) int {
+	beginningOfTheMonth := time.Date(now.Year(), now.Month(), 1, 1, 1, 1, 1, time.UTC)
+	_, thisWeek := now.ISOWeek()
+	_, beginningWeek := beginningOfTheMonth.ISOWeek()
+	return 1 + thisWeek - beginningWeek
+}
+
+func DaysArray(t time.Time) [][]string {
+	days := make([][]string, 0)
+	week := make([]string, 0)
+	firstDay := FirstDayInMonth(t)
+	_, isoWeek := t.ISOWeek()
+	week = append(week, fmt.Sprintf("%d", isoWeek))
+	for i := 0; i < int(firstDay); i++ {
+		week = append(week, "")
+	}
+	for i := 1; i <= DaysInMonth(t); i++ {
+		week = append(week, fmt.Sprintf("%d", i))
+		if len(week) == 8 {
+			days = append(days, week)
+			week = make([]string, 0)
+			isoWeek = isoWeek + 1
+			week = append(week, fmt.Sprintf("%d", isoWeek))
+		}
+	}
+	if len(week) > 0 {
+		days = append(days, week)
+	}
+	return days
+}

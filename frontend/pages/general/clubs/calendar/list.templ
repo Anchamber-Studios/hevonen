@@ -3,6 +3,7 @@ package calendar
 import "github.com/nicksnyder/go-i18n/v2/i18n"
 import "github.com/anchamber-studios/hevonen/frontend/types"
 import "github.com/anchamber-studios/hevonen/frontend/layouts"
+import "github.com/anchamber-studios/hevonen/frontend/components/calendar"
 
 type CalendarListProps struct {
 }
@@ -26,5 +27,15 @@ templ List(tr *i18n.Localizer, props CalendarListProps) {
 templ list(tr *i18n.Localizer, props CalendarListProps) {
 	<section>
 		<h2>Calendar</h2>
+		<div id="month" class="flex">
+			@calendar.Month(calendar.MonthProps{
+				Year:  2024,
+				Month: 1,
+			})
+			@calendar.Month(calendar.MonthProps{
+				Year:  2024,
+				Month: 2,
+			})
+		</div>
 	</section>
 }
