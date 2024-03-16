@@ -4,6 +4,8 @@ import "github.com/nicksnyder/go-i18n/v2/i18n"
 import "github.com/anchamber-studios/hevonen/frontend/types"
 import "github.com/anchamber-studios/hevonen/frontend/layouts"
 import "github.com/anchamber-studios/hevonen/frontend/components/calendar"
+import "time"
+import "fmt"
 
 type CalendarListProps struct {
 }
@@ -26,15 +28,12 @@ templ List(tr *i18n.Localizer, props CalendarListProps) {
 
 templ list(tr *i18n.Localizer, props CalendarListProps) {
 	<section>
-		<h2>Calendar</h2>
-		<div id="month" class="flex">
-			@calendar.Month(calendar.MonthProps{
-				Year:  2024,
-				Month: 1,
-			})
-			@calendar.Month(calendar.MonthProps{
-				Year:  2024,
-				Month: 2,
+		<h2>Calendar { fmt.Sprintf("%d - %d", time.Now().Year(), time.Now().Month()),  }</h2>
+		<div class="flex items-center justify-content">
+			@calendar.DaySelection(tr, calendar.DaySelectionProps{
+				NumberOfMonth: 2,
+				Year:          time.Now().Year(),
+				Month:         time.Now().Month(),
 			})
 		</div>
 	</section>

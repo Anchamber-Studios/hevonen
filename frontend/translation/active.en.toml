@@ -67,9 +67,29 @@ other = "No contacts found"
 
 [or]
 other = "or"
-
 [submit]
 other = "Submit"
-
 [save]
 other = "Save"
+[next]
+other = "Next"
+[back]
+other = "Back"
+[previous]
+other = "Previous"
+
+[day]
+[day.monday.short]
+other = "Mo"
+[day.tuesday.short]
+other = "Tu"
+[day.wednesday.short]
+other = "We"
+[day.thursday.short]
+other = "Th"
+[day.friday.short]
+other = "Fr"
+[day.saturday.short]
+other = "Sa"
+[day.sunday.short]
+other = "Su"

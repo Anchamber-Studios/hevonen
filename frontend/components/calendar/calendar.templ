@@ -1,0 +1,130 @@
+package calendar
+
+import "time"
+import "fmt"
+import "github.com/nicksnyder/go-i18n/v2/i18n"
+
+type DaySelectionProps struct {
+	NumberOfMonth int
+	Month         time.Month
+	Year          int
+}
+
+templ DaySelection(tr *i18n.Localizer, props DaySelectionProps) {
+	<div id="day-selection" class="flex items-center">
+		<button
+			id="day-selection-prev"
+			class="pr-2"
+			hx-get={ fmt.Sprintf("/components/calendar/day-selection?NumberOfMonth=%d&year=%d&month=%d", 
+				props.NumberOfMonth, yearAt(props.Year, props.Month, -1), monthAt(props.Year, props.Month, -1)) }
+			hx-target="#day-selection"
+		>Prev</button>
+		for i := 0; i < props.NumberOfMonth; i++ {
+			@Month(tr, MonthProps{monthAt(props.Year, props.Month, i), yearAt(props.Year, props.Month, i)})
+		}
+		<button
+			id="day-selection-next"
+			class="pl-2"
+			hx-get={ fmt.Sprintf("/components/calendar/day-selection?NumberOfMonth=%d&year=%d&month=%d", 
+				props.NumberOfMonth, yearAt(props.Year, props.Month, 1), monthAt(props.Year, props.Month, 1)) }
+			hx-target="#day-selection"
+		>Next</button>
+	</div>
+	<script>
+		document.getElementById("day-selection-prev").addEventListener("click", function() {
+			console.log("prev")
+		})
+		document.getElementById("day-selection-next").addEventListener("click", function() {
+			console.log("next")
+		})
+	</script>
+}
+
+type MonthProps struct {
+	Month time.Month
+	Year  int
+}
+
+templ Month(tr *i18n.Localizer, props MonthProps) {
+	<div class="p-2" data-month={ fmt.Sprintf("%d", props.Month) } data-year={ fmt.Sprintf("%d", props.Year) }>
+		<h1>{ props.Month.String() } { fmt.Sprintf("%d", props.Year) }</h1>
+		<table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+			<thead>
+				<tr>
+					for _, e := range []string{"#", "Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"} {
+						<th class="p-2">{ e }</th>
+					}
+				</tr>
+			</thead>
+			<tbody>
+				for _, week := range DaysArray(time.Date(props.Year, props.Month, 1, 1, 1, 1, 1, time.UTC)) {
+					<tr>
+						for _, day := range week {
+							<td class="p-2">{ day }</td>
+						}
+					</tr>
+				}
+			</tbody>
+		</table>
+	</div>
+}
+
+func DaysArray(t time.Time) [][]string {
+	days := make([][]string, 0)
+	week := make([]string, 0)
+	firstDay := FirstDayInMonth(t)
+	_, isoWeek := t.ISOWeek()
+	week = append(week, fmt.Sprintf("%d", isoWeek))
+	for i := 0; i < int(firstDay); i++ {
+		week = append(week, "")
+	}
+	for i := 1; i <= DaysInMonth(t); i++ {
+		week = append(week, fmt.Sprintf("%d", i))
+		if len(week) == 8 {
+			days = append(days, week)
+			week = make([]string, 0)
+			isoWeek = isoWeek + 1
+			week = append(week, fmt.Sprintf("%d", isoWeek))
+		}
+	}
+	if len(week) > 1 {
+		days = append(days, week)
+	}
+	return days
+}
+
+func FirstDayInMonth(t time.Time) time.Weekday {
+	y, m, _ := t.Date()
+	return time.Date(y, m, 0, 0, 0, 0, 0, time.UTC).Weekday()
+}
+
+func DaysInMonth(t time.Time) int {
+	y, m, _ := t.Date()
+	return time.Date(y, m+1, 0, 0, 0, 0, 0, time.UTC).Day()
+}
+
+func monthAt(year int, month time.Month, i int) time.Month {
+	res := int(month) + i
+	for res < 1 {
+		res = res + 12
+		year = year - 1
+	}
+	for res > 12 {
+		res = res - 12
+		year = year + 1
+	}
+	return time.Month(res)
+}
+
+func yearAt(year int, month time.Month, i int) int {
+	res := int(month) + i
+	for res < 1 {
+		res = res + 12
+		year = year - 1
+	}
+	for res > 12 {
+		res = res - 12
+		year = year + 1
+	}
+	return year
+}

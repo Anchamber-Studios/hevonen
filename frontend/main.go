@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 
+	ccomp "github.com/anchamber-studios/hevonen/frontend/components/calendar"
 	"github.com/anchamber-studios/hevonen/frontend/pages/admin"
 	"github.com/anchamber-studios/hevonen/frontend/pages/auth"
 	"github.com/anchamber-studios/hevonen/frontend/pages/general/clubs"
@@ -56,6 +57,8 @@ func main() {
 	unrestricted.GET("/login", auth.GetLogin)
 	unrestricted.POST("/login", auth.PostLogin)
 	unrestricted.GET("/register", auth.GetRegister)
+
+	componentRoutes(e.Group("/components"))
 
 	restricted := e.Group("")
 	restricted.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
@@ -188,4 +191,8 @@ func getOrDefault(s string, d string) string {
 		return d
 	}
 	return s
+}
+
+func componentRoutes(g *echo.Group) {
+	g.GET("/calendar/day-selection", ccomp.GetDaySelection)
 }
